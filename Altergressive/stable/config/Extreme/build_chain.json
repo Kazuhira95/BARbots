@@ -28,7 +28,7 @@
 	
 		"superweapon": {
 			"unit": {
-				"armada": ["armmercury",  	"armemp",   	"armbrtha", "armvulc", 	"armamd", "armsilo", "armgatet3"],
+				"armada": ["armmercury",  	"armbotrail",  	"armbrtha", "armvulc", 	"armamd", "armsilo", "armgatet3"],
 				"cortex": ["corscreamer", 	"cortron", 		"corint",   "corbuzz", 	"corfmd", "corsilo", "corgatet3"]
 			},
 			"weight":     [ 0.45,            0.08,      	 0.24,       0.24,  	 0.16,     0.16,      0.10],
@@ -286,24 +286,26 @@
 				"hub": [[
 				    {"unit": "armnanotct2", "category": "nano", "offset": {"left": 5}, "priority": "now"},
 					{"unit": "armnanotct2", "category": "nano", "offset": {"right": 5}, "priority": "now"},
-					{"unit": "armgatet3", "category": "defence", "offset": {"front": 80}, "priority": "now"}
+					{"unit": "armgatet3", "category": "defence", "offset": {"front": 150}, "priority": "now"}
 				]]
 			},
 			"armapt3": {
 				"hub": [[
-					{"unit": "armgatet3", "category": "defence", "offset": {"front": 100}, "priority": "now"}
+					{"unit": "armgatet3", "category": "defence", "offset": {"front": 100}, "priority": "now"},
+					{"unit": "armaap", "category": "factory", "offset": {"back": 100}, "priority": "now"}
 				]]
 			},
 			"corgant": {
 				"hub": [[
 				    {"unit": "cornanotct2", "category": "nano", "offset": {"left": 5}, "priority": "now"},
 					{"unit": "cornanotct2", "category": "nano", "offset": {"right": 5}, "priority": "now"},
-					{"unit": "corgatet3", "category": "defence", "offset": {"front": 80}, "priority": "now"}
+					{"unit": "corgatet3", "category": "defence", "offset": {"front": 150}, "priority": "now"}
 				]]
 			},
 			"corapt3": {
 				"hub": [[
-					{"unit": "corgatet3", "category": "defence", "offset": {"front": 100}, "priority": "now"}
+					{"unit": "corgatet3", "category": "defence", "offset": {"front": 100}, "priority": "now"},
+					{"unit": "coraap", "category": "factory", "offset": {"back": 100}, "priority": "now"}
 				]]
 			},
 		},
