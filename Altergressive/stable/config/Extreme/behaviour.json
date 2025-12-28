@@ -306,7 +306,7 @@
 				"role": ["static"],
 				"attribute": ["support"],
 				"build_speed": 10.0, //bp 200
-				"build_mod": 1000.0,
+				"build_mod": 200.0,
 				"limit": 2
 			},
 
@@ -318,6 +318,7 @@
 				"role": ["static"],
 				"attribute": ["support"],
 				"limit": 1,
+				"build_mod": 200.0,
 				"midposoffset": [0, 0, -16],
 				"build_speed": 10.0
 			},
@@ -325,6 +326,7 @@
 				"role": ["static"],
 				"attribute": ["support"],
 				"limit": 1,
+				"build_mod": 200.0,
 				"midposoffset": [0, 0, -16],
 				"build_speed": 10.0
 			},
@@ -421,7 +423,7 @@
 				"role": ["static"],
 				"attribute": ["support"],
 				"limit": 2,
-				"build_mod": 1000.0,
+				"build_mod": 200.0,
 				"build_speed": 10.0 //bp 200
 			},
 
@@ -433,6 +435,7 @@
 				"role": ["static"],
 				"attribute": ["support"],
 				"limit": 1,
+				"build_mod": 200.0,
 				"build_speed": 10.0
 				
 			},
@@ -440,6 +443,7 @@
 				"role": ["static"],
 				"attribute": ["support"],
 				"limit": 1,
+				"build_mod": 200.0,
 				"build_speed": 10.0
 			},
 	
@@ -449,6 +453,11 @@
 	
 	// Nano - Armada
 			"armnanotc": {
+				"role": ["support"],
+				"build_mod": 500,
+				"build_speed": 8.0
+			},
+			"armnanotct2": {
 				"role": ["support"],
 				"build_mod": 500,
 				"build_speed": 8.0
@@ -465,6 +474,11 @@
 			},
 	// Nano - Cortex
 			"cornanotc": {
+				"role": ["support"],
+				"build_mod": 500,
+				"build_speed": 8.0
+			},
+			"cornanotct2": {
 				"role": ["support"],
 				"build_mod": 500,
 				"build_speed": 8.0

@@ -285,12 +285,20 @@
 			"armshltx": {
 				"hub": [[
 				    {"unit": "armnanotct2", "category": "nano", "offset": {"left": 5}, "priority": "now"},
+					{"unit": "armnanotct2", "category": "nano", "offset": {"left": 10}, "priority": "now"},
 					{"unit": "armnanotct2", "category": "nano", "offset": {"right": 5}, "priority": "now"},
+					{"unit": "armnanotct2", "category": "nano", "offset": {"right": 10}, "priority": "now"},
+					{"unit": "armnanotct2", "category": "nano", "offset": {"back": 5}, "priority": "now"},
 					{"unit": "armgatet3", "category": "defence", "offset": {"front": 150}, "priority": "now"}
 				]]
 			},
 			"armapt3": {
 				"hub": [[
+				    {"unit": "armnanotct2", "category": "nano", "offset": {"left": 5}, "priority": "now"},
+					{"unit": "armnanotct2", "category": "nano", "offset": {"left": 10}, "priority": "now"},
+					{"unit": "armnanotct2", "category": "nano", "offset": {"right": 5}, "priority": "now"},
+					{"unit": "armnanotct2", "category": "nano", "offset": {"right": 10}, "priority": "now"},
+					{"unit": "armnanotct2", "category": "nano", "offset": {"back": 5}, "priority": "now"},
 					{"unit": "armgatet3", "category": "defence", "offset": {"front": 100}, "priority": "now"},
 					{"unit": "armaap", "category": "factory", "offset": {"back": 100}, "priority": "now"}
 				]]
@@ -298,12 +306,20 @@
 			"corgant": {
 				"hub": [[
 				    {"unit": "cornanotct2", "category": "nano", "offset": {"left": 5}, "priority": "now"},
+					{"unit": "cornanotct2", "category": "nano", "offset": {"left": 10}, "priority": "now"},
 					{"unit": "cornanotct2", "category": "nano", "offset": {"right": 5}, "priority": "now"},
+					{"unit": "cornanotct2", "category": "nano", "offset": {"right": 10}, "priority": "now"},
+					{"unit": "cornanotct2", "category": "nano", "offset": {"back": 5}, "priority": "now"},
 					{"unit": "corgatet3", "category": "defence", "offset": {"front": 150}, "priority": "now"}
 				]]
 			},
 			"corapt3": {
 				"hub": [[
+				    {"unit": "cornanotct2", "category": "nano", "offset": {"left": 5}, "priority": "now"},
+					{"unit": "cornanotct2", "category": "nano", "offset": {"left": 10}, "priority": "now"},
+					{"unit": "cornanotct2", "category": "nano", "offset": {"right": 5}, "priority": "now"},
+					{"unit": "cornanotct2", "category": "nano", "offset": {"right": 10}, "priority": "now"},
+					{"unit": "cornanotct2", "category": "nano", "offset": {"back": 5}, "priority": "now"},
 					{"unit": "corgatet3", "category": "defence", "offset": {"front": 100}, "priority": "now"},
 					{"unit": "coraap", "category": "factory", "offset": {"back": 100}, "priority": "now"}
 				]]

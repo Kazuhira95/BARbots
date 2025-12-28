@@ -193,7 +193,7 @@
 				"role": ["static"],
 				"attribute": ["support", "solo"],
 				"limit": 2,
-				"build_mod": 1000.0,
+				"build_mod": 200.0,
 				"build_speed": 45.0
 			},
 
@@ -205,14 +205,14 @@
 				"role": ["static"],
 				"attribute": ["support", "solo"],
 				"limit": 1,
-				"build_mod": 1000.0,
+				"build_mod": 200.0,
 				"build_speed": 45.0 //bp 300
 			},
 			"leggantuw": {
 				"role": ["static"],
 				"attribute": ["support", "solo"],
 				"limit": 1,
-				"build_mod": 1000.0,
+				"build_mod": 200.0,
 				"build_speed": 45.0 //bp 300
 			},
 	
@@ -223,6 +223,11 @@
 	
 	// Nano - Legion
 			"legnanotc": {
+				"role": ["support"],
+				"build_mod": 500,
+				"build_speed": 8.0
+			},
+			"legnanotct2": {
 				"role": ["support"],
 				"build_mod": 500,
 				"build_speed": 8.0
