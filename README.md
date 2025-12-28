@@ -13,9 +13,7 @@ You should see "Open install directory"
 
 Click on it, then follow the path mentioned above.
 
-Choose Altergressive, T3RushBot or both files and put inside Skirmish Folder
-
-Note: T3RushBot needs a main attacker (Any BarbAI) for it to survive.
+Choose Altergressive file and put inside Skirmish Folder
 
 Goto:
 
@@ -30,4 +28,4 @@ If you didn't close the BAR launcher, start the game
 
 Click on Developer tab, uncheck Simplified AI list
 
-You should see my Bot(s) in Skirmish in the list, have fun!
+You should see my Bot in Skirmish in the list, have fun!
