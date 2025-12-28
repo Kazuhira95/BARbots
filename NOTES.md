@@ -1,5 +1,2 @@
 # NOTES
-
-Must win against Hard
-
-Must not win against Hard Aggressive
+AI must build Experimental Land in order to build Experimental Air
