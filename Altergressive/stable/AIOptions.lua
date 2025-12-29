@@ -29,7 +29,7 @@ local options = {
 		desc    = 'Merge spatially close BARbarIAn ally commanders',
 		type    = 'bool',
 		section = 'performance',
-		def     = true,
+		def     = false,
 	},
 	{ -- bool
 		key     = 'ally_base',
