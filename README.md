@@ -5,7 +5,7 @@ Beyond All Reason Custom Bots
 
 Goto:
 
-C:..........\Beyond-All-Reason\data\engine\recoil_2025.04.08\AI\Skirmish
+C:..........\Beyond-All-Reason\data\engine\recoil_20xx.xx.xx\AI\Skirmish
 
 If you forgot the exact path, start the Beyond All Reason Launcher,
 
