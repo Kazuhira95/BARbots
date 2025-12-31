@@ -460,7 +460,7 @@
 			"armnanotct2": {
 				"role": ["support"],
 				"build_mod": 500,
-				"build_speed": 8.0
+				"since": 900
 			},
 			"armnanotcplat": {
 				"role": ["support"],
@@ -481,7 +481,7 @@
 			"cornanotct2": {
 				"role": ["support"],
 				"build_mod": 500,
-				"build_speed": 8.0
+				"since": 900
 			},
 			"cornanotcplat": {
 				"role": ["support"],
@@ -2249,10 +2249,6 @@
 			"armgatet3": {
 				"role": ["static"]
 			},
-			"armnanotct2": {
-				"role": ["support"],
-				"since": 900
-			},
 
 				//CORTEX
 
@@ -2276,10 +2272,6 @@
 			},
 			"corgatet3": {
 				"role": ["static"]
-			},
-			"cornanotct2": {
-				"role": ["support"],
-				"since": 900
 			},
 		
 //########################################################################################################################
