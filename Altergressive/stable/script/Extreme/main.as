@@ -23,7 +23,8 @@ void AiMain()  // Initialize config params
 		if (cdef !is null)
 			Factory::userData[cdef.id].attr |= Factory::Attr::T2;
 	}
-	names = {Factory::armshltx, Factory::corgant, Factory::leggant};
+	names = {Factory::armshltx, Factory::corgant, Factory::leggant,
+	    Factory::armapt3, Factory::corapt3, Factory::legapt3};
 	for (uint i = 0; i < names.length(); ++i) {
 		CCircuitDef@ cdef = ai.GetCircuitDef(names[i]);
 		if (cdef !is null)

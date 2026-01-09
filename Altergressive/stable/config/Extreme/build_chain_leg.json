@@ -29,9 +29,9 @@
 	
 		"superweapon": {
 			"unit": {
-				"legion": ["leglupara",   	"legperdition", 	"leglrpc",  "legstarfall", 	"legabm", "legsilo", "leggatet3"]
+				"legion": ["leglupara",   	"leglrpc",  "legstarfall", 	"legabm", "legsilo", "leggatet3"]
 			},
-			"weight":     [ 0.45,            0.08,      	     0.24,       0.24,      	 0.16,     0.16,      0.10],
+			"weight":     [ 0.45,            0.24,       0.16,      	 0.16,     0.24,      0.10],
 	
 			"condition": [80, 600]  // [<Minimum income>, <maximum seconds to build>]
 		},
@@ -74,8 +74,8 @@
 			"legfus": {
 				"hub": [
 					[
-						{"unit": "legnanotct2", "category": "nano", "offset": {"front": 5}, "priority": "now"},
-						{"unit": "legnanotct2", "category": "nano", "offset": {"front": 10}, "priority": "now"},
+						{"unit": "legnanotc", "category": "nano", "offset": {"front": 5}, "priority": "now"},
+						{"unit": "legnanotc", "category": "nano", "offset": {"front": 10}, "priority": "now"},
 						{"unit": "legrhapsis", "category": "defence", "offset": {"front": 80}, "condition": {"air": true}}
 					]
 				]
@@ -83,8 +83,8 @@
 			"legafus": {
 				"hub": [
 					[  // chain1
-						{"unit": "legnanotct2", "category": "nano", "offset": {"front": 5}, "priority": "now"},
-						{"unit": "legnanotct2", "category": "nano", "offset": {"front": 10}, "priority": "now"},
+						{"unit": "legnanotc", "category": "nano", "offset": {"front": 5}, "priority": "now"},
+						{"unit": "legnanotc", "category": "nano", "offset": {"front": 10}, "priority": "now"},
 						{"unit": "legadveconv", "category": "convert", "offset": {"back": 10}, "priority": "now"},
 						{"unit": "legadveconv", "category": "convert", "offset": {"back": 20}, "priority": "now"},
 						{"unit": "legadveconv", "category": "convert", "offset": {"back": 30}, "priority": "now"},
@@ -120,8 +120,8 @@
 		"defence": {
 			"legbastion" : {
 				"hub": [[
-					{"unit": "legnanotct2", "category": "nano", "offset": {"left": 5}, "priority": "now"},
-					{"unit": "legnanotct2", "category": "nano", "offset": {"left": 5}, "priority": "now"},
+					{"unit": "legnanotc", "category": "nano", "offset": {"left": 5}, "priority": "now"},
+					{"unit": "legnanotc", "category": "nano", "offset": {"left": 5}, "priority": "now"},
 					{"unit": "legajam", "category": "defence", "offset": {"back": 80}},
 					{"unit": "legdeflector", "category": "defence", "offset": {"back": 160}}
 				]]
@@ -135,8 +135,8 @@
 			},
 			"legalab": {
 				"hub": [[
-				    {"unit": "legnanotct2", "category": "nano", "offset": {"front": 5}, "priority": "now"},
-					{"unit": "legnanotct2", "category": "nano", "offset": {"front": 10}, "priority": "now"},
+				    {"unit": "legnanotc", "category": "nano", "offset": {"front": 5}, "priority": "now"},
+					{"unit": "legnanotc", "category": "nano", "offset": {"front": 10}, "priority": "now"},
 					{"unit": "legfus", "category": "energy", "offset": {"back": 40}, "priority": "now"},
 					{"unit": "legadvestore", "category": "store", "offset": {"back": 50}, "priority": "now"},
 					{"unit": "legabm", "category": "defence", "offset": {"back": 60}, "priority": "now"}
@@ -149,8 +149,8 @@
 			},
 			"legavp": {
 				"hub": [[
-				    {"unit": "legnanotct2", "category": "nano", "offset": {"front": 5}, "priority": "now"},
-					{"unit": "legnanotct2", "category": "nano", "offset": {"front": 10}, "priority": "now"},
+				    {"unit": "legnanotc", "category": "nano", "offset": {"front": 5}, "priority": "now"},
+					{"unit": "legnanotc", "category": "nano", "offset": {"front": 10}, "priority": "now"},
 					{"unit": "legfus", "category": "energy", "offset": {"back": 40}, "priority": "now"},
 					{"unit": "legadvestore", "category": "store", "offset": {"back": 50}, "priority": "now"},
 					{"unit": "legabm", "category": "defence", "offset": {"back": 60}, "priority": "now"}
@@ -163,8 +163,8 @@
 			},
 			"legaap": {
 				"hub": [[
-				    {"unit": "legnanotct2", "category": "nano", "offset": {"front": 5}, "priority": "now"},
-					{"unit": "legnanotct2", "category": "nano", "offset": {"front": 10}, "priority": "now"},
+				    {"unit": "legnanotc", "category": "nano", "offset": {"front": 5}, "priority": "now"},
+					{"unit": "legnanotc", "category": "nano", "offset": {"front": 10}, "priority": "now"},
 					{"unit": "legfus", "category": "energy", "offset": {"back": 40}, "priority": "now"},
 					{"unit": "legadvestore", "category": "store", "offset": {"back": 50}, "priority": "now"},
 					{"unit": "legabm", "category": "defence", "offset": {"back": 60}, "priority": "now"}
@@ -183,21 +183,21 @@
 		    },			
 			"leggant": {
 				"hub": [[
-				    {"unit": "legnanotct2", "category": "nano", "offset": {"left": 5}, "priority": "now"},
-					{"unit": "legnanotct2", "category": "nano", "offset": {"left": 10}, "priority": "now"},
-					{"unit": "legnanotct2", "category": "nano", "offset": {"right": 5}, "priority": "now"},
-					{"unit": "legnanotct2", "category": "nano", "offset": {"right": 10}, "priority": "now"},
-					{"unit": "legnanotct2", "category": "nano", "offset": {"back": 5}, "priority": "now"},
+				    {"unit": "legnanotc", "category": "nano", "offset": {"left": 5}, "priority": "now"},
+					{"unit": "legnanotc", "category": "nano", "offset": {"left": 10}, "priority": "now"},
+					{"unit": "legnanotc", "category": "nano", "offset": {"right": 5}, "priority": "now"},
+					{"unit": "legnanotc", "category": "nano", "offset": {"right": 10}, "priority": "now"},
+					{"unit": "legnanotc", "category": "nano", "offset": {"back": 5}, "priority": "now"},
 					{"unit": "leggatet3", "category": "defence", "offset": {"front": 150}, "priority": "now"}
 				]]
 			},
 			"legapt3": {
 				"hub": [[
-				    {"unit": "legnanotct2", "category": "nano", "offset": {"left": 5}, "priority": "now"},
-					{"unit": "legnanotct2", "category": "nano", "offset": {"left": 10}, "priority": "now"},
-					{"unit": "legnanotct2", "category": "nano", "offset": {"right": 5}, "priority": "now"},
-					{"unit": "legnanotct2", "category": "nano", "offset": {"right": 10}, "priority": "now"},
-					{"unit": "legnanotct2", "category": "nano", "offset": {"back": 5}, "priority": "now"},
+				    {"unit": "legnanotc", "category": "nano", "offset": {"left": 5}, "priority": "now"},
+					{"unit": "legnanotc", "category": "nano", "offset": {"left": 10}, "priority": "now"},
+					{"unit": "legnanotc", "category": "nano", "offset": {"right": 5}, "priority": "now"},
+					{"unit": "legnanotc", "category": "nano", "offset": {"right": 10}, "priority": "now"},
+					{"unit": "legnanotc", "category": "nano", "offset": {"back": 5}, "priority": "now"},
 					{"unit": "leggatet3", "category": "defence", "offset": {"front": 100}, "priority": "now"},
 					{"unit": "legaap", "category": "factory", "offset": {"back": 100}, "priority": "now"}
 				]]

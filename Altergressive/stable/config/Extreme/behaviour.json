@@ -304,7 +304,7 @@
 			},
 			"armapt3": {
 				"role": ["static"],
-				"attribute": ["support"],
+				"attribute": ["support", "solo"],
 				"build_speed": 10.0, //bp 200
 				"build_mod": 200.0,
 				"limit": 2
@@ -316,16 +316,16 @@
 			
 			"armshltx": {
 				"role": ["static"],
-				"attribute": ["support"],
-				"limit": 1,
+				"attribute": ["support", "solo"],
+				"limit": 2,
 				"build_mod": 200.0,
 				"midposoffset": [0, 0, -16],
-				"build_speed": 10.0
+				"build_speed": 45.0
 			},
 			"armshltxuw": {
 				"role": ["static"],
-				"attribute": ["support"],
-				"limit": 1,
+				"attribute": ["support", "solo"],
+				"limit": 2,
 				"build_mod": 200.0,
 				"midposoffset": [0, 0, -16],
 				"build_speed": 10.0
@@ -421,7 +421,7 @@
 			},
 			"corapt3": {
 				"role": ["static"],
-				"attribute": ["support"],
+				"attribute": ["support", "solo"],
 				"limit": 2,
 				"build_mod": 200.0,
 				"build_speed": 10.0 //bp 200
@@ -433,16 +433,16 @@
 
 			"corgant": {
 				"role": ["static"],
-				"attribute": ["support"],
-				"limit": 1,
+				"attribute": ["support", "solo"],
+				"limit": 2,
 				"build_mod": 200.0,
-				"build_speed": 10.0
+				"build_speed": 45.0
 				
 			},
 			"corgantuw": {
 				"role": ["static"],
-				"attribute": ["support"],
-				"limit": 1,
+				"attribute": ["support", "solo"],
+				"limit": 2,
 				"build_mod": 200.0,
 				"build_speed": 10.0
 			},
@@ -456,11 +456,6 @@
 				"role": ["support"],
 				"build_mod": 500,
 				"build_speed": 8.0
-			},
-			"armnanotct2": {
-				"role": ["support"],
-				"build_mod": 500,
-				"since": 900
 			},
 			"armnanotcplat": {
 				"role": ["support"],
@@ -477,11 +472,6 @@
 				"role": ["support"],
 				"build_mod": 500,
 				"build_speed": 8.0
-			},
-			"cornanotct2": {
-				"role": ["support"],
-				"build_mod": 500,
-				"since": 900
 			},
 			"cornanotcplat": {
 				"role": ["support"],
@@ -667,7 +657,8 @@
 			"armsilo":{
 				"role":	["super", "static"],
 				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
-				"power": 1.0
+				"power": 1.0,
+				"limit": 1
 			},
 	// T1 Sea Defenses -- Armada
 			"armfrad": {
@@ -878,7 +869,8 @@
 			"corsilo":{
 				"role":	["super", "static"],
 				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
-				"power": 1.0
+				"power": 1.0,
+				"limit": 1
 			},
 	// T1 Sea Defenses -- Cortex
 			"cordl": {
@@ -999,7 +991,8 @@
 				"role": ["static"]
 			},
 			"armafus" : {
-				"role": ["static"]
+				"role": ["static"],
+				"cooldown": 3
 			},
 			"armuwfus" : {
 				"role": ["static"]
@@ -1446,7 +1439,7 @@
 			
 			// T3 bot - armshltx
 	
-			"armmar": { //rauder
+			"armmar": { //raider
 				"role": ["raider", "heavy"],
 				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
 				"power": 1.0
@@ -1916,6 +1909,7 @@
 				"role": ["heavy"],
 				"attribute": ["melee"],
 				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
+				"retreat": 0,
 				"power": 1.0
 			},
 
@@ -2202,98 +2196,5 @@
 				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
 				"power": 1.0
 			},
-	
-//########################################################################################################################
-//####|| Extra Units ||###################################################################################################
-//########################################################################################################################
-
-
-				//ARMADA
-
-			"armmeatball": {
-				"role": ["artillery"],
-				"attribute": ["melee"],
-				"retreat": 0.0,
-				"power": 5.0
-			},
-			"armassimilator": {
-				"role": ["skirmish"],
-				"attribute": ["melee"],
-				"retreat": 0.0,
-				"power": 5.0
-			},
-			"armpwt4": {
-				"role": ["raider"],
-				"attribute": ["melee"],
-				"retreat": 0.0,
-				"power": 5.0
-			},
-			"armsptkt4": {
-				"role": ["assault"],
-				"attribute": ["melee"],
-				"retreat": 0.0,
-				"power": 15.0
-			},
-			"armvadert4": {
-				"role": ["super"],
-				"attribute": ["melee"],
-				"retreat": 0.0,
-				"power": 25.0
-			},
-			"armrattet4": {
-				"role": ["super"],
-				"attribute": ["melee"],
-				"retreat": 0.0,
-				"power": 25.0
-			},
-			"armgatet3": {
-				"role": ["static"]
-			},
-
-				//CORTEX
-
-			"corakt4": {
-				"role": ["assault"],
-				"attribute": ["melee"],
-				"retreat": 0.0,
-				"power": 5.0
-			},
-			"corthermite": {
-				"role": ["super"],
-				"attribute": ["melee"],
-				"retreat": 0.0,
-				"power": 15.0
-			},
-			"corgolt4": {
-				"role": ["super"],
-				"attribute": ["melee"],
-				"retreat": 0.0,
-				"power": 25.0
-			},
-			"corgatet3": {
-				"role": ["static"]
-			},
-		
-//########################################################################################################################
-//####|| Scav Units ||####################################################################################################
-//########################################################################################################################
-
-
-			"armmmkrt3": {
-				"role": ["static"],
-				"since": 1800
-			},
-			"cormmkrt3": {
-				"role": ["static"],
-				"since": 1800
-			},
-			"armafust3": {
-				"role": ["static"],
-				"since": 1800
-			},
-			"corafust3": {
-				"role": ["static"],
-				"since": 1800
-			}
 		}
 	}

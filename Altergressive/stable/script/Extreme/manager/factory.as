@@ -2,6 +2,7 @@
 #include "../../unit.as"
 #include "../../task.as"
 #include "../misc/commander.as"
+#include "economy.as"
 
 
 namespace Factory {
@@ -30,6 +31,7 @@ string armasy  ("armasy");
 string armap   ("armap");
 string armaap  ("armaap");
 string armshltx("armshltx");
+string armapt3 ("armapt3");
 
 string corlab  ("corlab");
 string coralab ("coralab");
@@ -40,16 +42,18 @@ string corasy  ("corasy");
 string corap   ("corap");
 string coraap  ("coraap");
 string corgant ("corgant");
+string corapt3 ("corapt3");
 
 string leglab  ("leglab");
 string legalab ("legalab");
 string legvp   ("legvp");
 string legavp  ("legavp");
-string legap   ("legap");
 string legsy   ("legsy");
 string legadvshipyard   ("legadvshipyard");
+string legap   ("legap");
 string legaap  ("legaap");
 string leggant ("leggant");
+string legapt3 ("legapt3");
 
 float switchLimit = MakeSwitchLimit();
 
@@ -68,6 +72,7 @@ void AiTaskRemoved(IUnitTask@ task, bool done)
 
 void AiUnitAdded(CCircuitUnit@ unit, Unit::UseAs usage)
 {
+//	if (!factories.empty() || (this->circuit->GetBuilderManager()->GetWorkerCount() > 2)) return;
 	if (usage != Unit::UseAs::FACTORY)
 		return;
 
@@ -75,6 +80,7 @@ void AiUnitAdded(CCircuitUnit@ unit, Unit::UseAs usage)
 	if (userData[facDef.id].attr & Attr::T3 != 0) {
 		// if (ai.teamId != ai.GetLeadTeamId()) then this change affects only target selection,
 		// while threatmap still counts "ignored" here units.
+		// AiLog("ignore newly created armpw, corak, armflea, armfav, corfav");
 		array<string> spam = {"armpw", "corak", "armflea", "armfav", "corfav", "leggob", "legscout"};
 		for (uint i = 0; i < spam.length(); ++i) {
 			CCircuitDef@ cdef = ai.GetCircuitDef(spam[i]);
@@ -125,8 +131,8 @@ void AiSave(OStream& ostream)
 bool AiIsSwitchTime(int lastSwitchFrame)
 {
 	const float value = pow((ai.frame - lastSwitchFrame), 0.9) * aiEconomyMgr.metal.income + (aiEconomyMgr.metal.current * 7);
-	if (value > switchLimit) {
-		switchLimit = MakeSwitchLimit();
+    if (value > switchLimit) {
+        switchLimit = MakeSwitchLimit();
 		return true;
 	}
 	return false;

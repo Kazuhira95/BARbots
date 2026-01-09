@@ -50,12 +50,12 @@
 	"geo": {
 		"armada": "armgeo",
 		"cortex": "corgeo",
-		"legion": "armgeo"
+		"legion": "leggeo"
 	},
 	"mex": {
 		"armada": "armmex",
 		"cortex": "cormex",
-		"legion": "armmex"
+		"legion": "legmex"
 	},
 	"mex_up": 3,  // maximum number of simultaneous mex upgrades
 
@@ -105,7 +105,7 @@
 	"default": {
 		"armada": "armwin",
 		"cortex": "corwin",
-		"legion": "armwin"
+		"legion": "legwin"
 	}
 }
 }

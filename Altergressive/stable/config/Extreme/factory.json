@@ -76,7 +76,7 @@
 		"caretaker": 6  // maxiumum amount of nanos: #caretake x #factories | actual max total amount gets limited by income/nanobuilspeed (behaviour.json)| e.g. 3rd factory 4 caretaker => 3x4=12
 	},
 	"armvp": {
-		"importance": [1.0, 0.2],
+		"importance": [0.8, 0.2],
 		"require_energy": false,
 		"income_tier": [2, 25,  35],
 		"unit":      ["armcv", "armbeaver", "armmlv", "armfav", "armflash", "armpincer", "armstump", "armart", "armjanus", "armsam"],
@@ -140,7 +140,7 @@
 //########################################################################################################################
 
 	"armap": {
-		"importance": [0.0, 0.1],
+		"importance": [0.5, 0.5],
 		"require_energy": false,
 		"income_tier": [10, 25, 35],
 		"unit":      ["armca", "armfig", "armpeep", "armthund", "armkam"],
@@ -313,7 +313,7 @@
 //########################################################################################################################
 
 	"corlab": {
-		"importance": [0.8, 0.1],
+		"importance": [0.8, 0.2],
 		"require_energy": false,
 		"income_tier": [10, 20, 30, 40, 50],
 		"unit":      ["corck", "corak", "cornecro", "corstorm", "corthud", "corcrash"],
@@ -343,7 +343,7 @@
 		"caretaker": 6
 	},
 	"corvp": {
-		"importance": [0.8, 0.0],
+		"importance": [1.0, 0.1],
 		"require_energy": false,
 		"income_tier": [10, 20, 30, 40, 50],
 		"unit":      ["corcv", "cormuskrat", "cormlv", "corfav", "corgator", "corgarp", "corraid", "corlevlr", "corwolv", "cormist"],
@@ -407,7 +407,7 @@
 //########################################################################################################################
 
 	"corap": {
-		"importance": [0.0, 0.1],
+		"importance": [0.5, 0.5],
 		"require_energy": false,
 		"income_tier": [10, 25, 35],
 		"unit":      ["corca", "corveng", "corfink", "corshad", "corbw"],
