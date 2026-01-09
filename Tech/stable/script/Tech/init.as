@@ -15,7 +15,7 @@ SInitInfo AiInit()
 	if (string(aiSetupMgr.GetModOptions()["experimentallegionfaction"]) == "1") {
 		AiLog("Inserting Legion");
 		Side::LEGION = aiSideMasker.GetTypeMask("legion");
-		data.profile.insertAt(data.profile.length(), {"behaviour_leg", "build_chain_leg", "commander_leg", "economy_leg", "factory_leg"});
+		data.profile.insertAt(data.profile.length(), {"behaviour_leg", "build_chain_leg", "commander_leg", "economy_leg", "factory_leg", "response_leg"});
 	} else {
 		AiLog("Ignoring Legion");
 	}

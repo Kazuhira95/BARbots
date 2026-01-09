@@ -304,7 +304,7 @@
 			},
 			"armapt3": {
 				"role": ["static"],
-				"attribute": ["support"],
+				"attribute": ["support", "solo"],
 				"build_speed": 10.0, //bp 200
 				"build_mod": 200.0,
 				"limit": 2
@@ -316,7 +316,7 @@
 			
 			"armshltx": {
 				"role": ["static"],
-				"attribute": ["support"],
+				"attribute": ["support", "solo"],
 				"limit": 1,
 				"build_mod": 200.0,
 				"midposoffset": [0, 0, -16],
@@ -324,7 +324,7 @@
 			},
 			"armshltxuw": {
 				"role": ["static"],
-				"attribute": ["support"],
+				"attribute": ["support", "solo"],
 				"limit": 1,
 				"build_mod": 200.0,
 				"midposoffset": [0, 0, -16],
@@ -421,7 +421,7 @@
 			},
 			"corapt3": {
 				"role": ["static"],
-				"attribute": ["support"],
+				"attribute": ["support", "solo"],
 				"limit": 2,
 				"build_mod": 200.0,
 				"build_speed": 10.0 //bp 200
@@ -433,7 +433,7 @@
 
 			"corgant": {
 				"role": ["static"],
-				"attribute": ["support"],
+				"attribute": ["support", "solo"],
 				"limit": 1,
 				"build_mod": 200.0,
 				"build_speed": 10.0
@@ -441,7 +441,7 @@
 			},
 			"corgantuw": {
 				"role": ["static"],
-				"attribute": ["support"],
+				"attribute": ["support", "solo"],
 				"limit": 1,
 				"build_mod": 200.0,
 				"build_speed": 10.0

@@ -132,6 +132,12 @@ SOpener@ GetOpenInfo()
 		}},
 		{Factory::leggant, array<SQueue> = {
 			SQueue(1.0f, {SO(RT::RIOT, 3), SO(RT::ARTY, 5), SO(RT::SUPER), SO(RT::SUPER)})
+		}},
+		{Factory::legsy, array<SQueue> = {
+			SQueue(0.3f, {SO(RT::SCOUT), SO(RT::BUILDER), SO(RT::SCOUT), SO(RT::BUILDER), SO(RT::RAIDER), SO(RT::SCOUT), SO(RT::BUILDER), SO(RT::SUB), SO(RT::SKIRM)})
+		}},
+		{Factory::legadvshipyard, array<SQueue> = {
+			SQueue(0.5f, {SO(RT::BUILDER2), SO(RT::SKIRM), SO(RT::BUILDER2), SO(RT::SKIRM), SO(RT::BUILDER2, 2)})
 		}}
 		}, {SO(RT::BUILDER), SO(RT::RAIDER, 3), SO(RT::BUILDER), SO(RT::RAIDER)}
 	);

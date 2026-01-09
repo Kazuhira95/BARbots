@@ -140,28 +140,26 @@
 //########################################################################################################################
 
 			"legfhp": {
-				"role": ["static"],
+				"role": ["support"],
 				"build_speed": 10.0, //bp 200
+				"limit": 1
+			},
+			"legsy": {
+				"role": ["support"],
+				"build_speed": 8.0, //bp 165
 				"build_mod": 1000.0,
 				"limit": 1
 			},
-			//"legsy": {
-			//	"role": ["static"],
-			//	"build_speed": 8.0, //bp 165
-			//	"build_mod": 1000.0,
-			//	"limit": 1
-			//},
-			//"legasy": {
-			//	"role": ["static"],
-			//	"build_speed": 15.0,  //bp 300
-			//	"build_mod": 1000.0,
-			//	"since": 300,
-			//	"limit": 1
-			//},
-			"legamsub": {
-				"role": ["builder"],
-				"build_speed": 7.5, //bp 150
+			"legadvshipyard": {
+				"role": ["support"],
+				"build_speed": 15.0,  //bp 300
 				"build_mod": 1000.0,
+				"since": 300,
+				"limit": 1
+			},
+			"legamphlab": {
+				"role": ["support"],
+				"build_speed": 7.5, //bp 150
 				"limit": 1
 			},
 	
@@ -227,11 +225,6 @@
 				"build_mod": 500,
 				"build_speed": 8.0
 			},
-			"legnanotct2": {
-				"role": ["support"],
-				"build_mod": 500,
-				"build_speed": 8.0
-			},
 			"legnanotcplat": {
 				"role": ["support"],
 				"build_mod": 500,
@@ -264,13 +257,12 @@
 				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
 				"power": 1.0
 			},
-			//"corjuno":{
-			//	"role":["super", "static"],
-			//	"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
-			// "power": 1.0, 
-			// "power": 1.0,
-			//	"since": 900
-			//},			
+			"legjuno":{
+				"role":["super", "static"],
+				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
+			 	"power": 1.0,
+				"since": 900
+			},
 			"legdtr": {
 				"role": ["static"]
 			},
@@ -402,76 +394,56 @@
 			"legsilo":{
 				"role":	["super", "static"],
 				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
-				"power": 1.0
+				"power": 1.0,
+				"limit": 1
 			},
 	// T1 Sea Defenses -- Legion
-			//"corfrad": {
-			//	"role": ["static"],
-			//	"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
-			// "power": 1.0, 
-			// "power": 1.0
-			//},
-			//"cordl": {
-			//	"role": ["static"],
-			//	"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
-			// "power": 1.0, 
-			// "power": 1.0
-			//},
-			//"corfhlt": {
-			//	"role": ["static"],
-			//	"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
-			// "power": 1.0, 
-			// "power": 1.0
-			//	"since": 360,
-			//	"limit": 3
-			//},
-			//"corfrt": {
-			//	"role": ["anti_air"],
-			//	"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
-			// "power": 1.0, 
-			// "power": 1.0,
-			//	"power": 1.0
-			//},
-			//"cortl": {
-			//	"role": ["static"],
-			//	"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
-			// "power": 1.0, 
-			// "power": 1.0
-			//},
+
+			"legfrad": {
+				"role": ["static"],
+				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
+			 	"power": 1.0
+			},
+			"legctl": {
+				"role": ["static"],
+				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
+			 	"power": 1.0
+			},
+			"legfmg": {
+				"role": ["static"],
+				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
+			 	"power": 1.0, 
+				"since": 360,
+				"limit": 3
+			},
+			"legfrl": {
+				"role": ["anti_air"],
+				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
+				"power": 1.0
+			},
+			"legtl": {
+				"role": ["static"],
+				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
+			 	"power": 1.0
+			},
+			
 	// T2 Sea Defenses -- Legion
-			//"corason": {
-			//	"role": ["static"],
-			//	"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
-			// "power": 1.0, 
-			// "power": 1.0
-			//},
-			//"corfatf": {
-			//	"role": ["static"],
-			//	"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
-			// "power": 1.0, 
-			// "power": 1.0
-			//	"limit": 3
-			//},
-			//"corfdoom": {
-			//	"role": ["static"],
-			//	"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
-			// "power": 1.0, 
-			// "power": 1.0
-			//},
-			//"corenaa": {
-			//	"role": ["anti_air"],
-			//	"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
-			// "power": 1.0, 
-			// "power": 1.0,
-			//	"power": 1.0
-			//},
-			//"coratl": {
-			//	"role": ["static"],
-			//	"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
-			// "power": 1.0, 
-			// "power": 1.0,
-			//	"power": 1.0
-			//},
+
+			"leganavaldefturret": {
+				"role": ["static"]
+			},
+			"leganavalaaturret": {
+				"role": ["anti_air"]
+			},
+			"leganavalpinpointer": {
+				"role": ["static"]
+			},
+			"leganavalsonarstation": {
+				"role": ["static"]
+			},
+			"leganavaltorpturret": {
+				"role": ["static"]
+			},
 
 //########################################################################################################################
 //####|| Static Economy -- Legion  ||#####################################################################################
@@ -522,7 +494,8 @@
 			},
 			"legamstor" : {
 				"role": ["static"],
-				"limit": 4
+				"limit": 4,
+				"since": 1200
 			},
 			"legageo" : {
 				"role": ["static"]
@@ -530,46 +503,58 @@
 			"legrampart" : {
 				"role": ["static"]
 			},
-			/*"cormexp" : {
-				"role": ["static"],
-				"build_mod": 500,
-				"limit":0
-			},*/
 			"legfus" : {
 				"role": ["static"]
 			},
 			"legafus" : {
-				"role": ["static"]
+				"role": ["static"],
+				"cooldown": 3
 			},
 			"legadvestore" : {
 				"role": ["static"],
 				"since": 1200
 			},
-			/*"coruwfus" : {
-				"role": ["static"],
-				"build_mod": 4000
+	
+	        //Sea T1 Economy
+			
+			"legfeconv" : {
+				"role": ["static"]
 			},
-			"coruwms" : {
-				"role": ["static"],
-				"since": 500,
-				"limit": 1
+			"legtide" : {
+				"role": ["static"]
 			},
-			"coruwadvms" : {
-				"role": ["static"],
-				"limit": 1
+			"leguwestore" : {
+				"role": ["static"]
 			},
-			"coruwes" : {
-				"role": ["static"],
-				"since": 240,
-				"limit": 1
-			},*/
+			"leguwmstore" : {
+				"role": ["static"]
+			},
+			
+	        //Sea T2 Economy
+
+			"leganavalmex" : {
+				"role": ["static"]
+			},
+			"leganavaleconv" : {
+				"role": ["static"]
+			},
+			"leganavalfusion" : {
+				"role": ["static"]
+			},
+	
 	
 	// Walls (Neutral BARbAI Refuse to Shoot (Only T2+T3 can break through Running over)) -- Needs a Revamp or a Rework to make non neutral
 			"legdrag": {
-				"role": ["static"]
+				"role": ["static"],
+				"ignore": true
+			},
+			"legfdrag": {
+				"role": ["static"],
+				"ignore": true
 			},
 			"legforti": {
-				"role": ["static"]
+				"role": ["static"],
+				"ignore": true
 			},
 	
 	// ============================================   M O B I L E    U N I T S   =======================================0
@@ -1038,6 +1023,120 @@
 				"power": 1.0
 			},
 	
+			// LEGION SEA PLATFORM aircraft - legsplab
+	
+			"legspradarsonarplane": {
+				"role": ["scout", "air"],
+				"attribute": ["rare"]
+			},
+			"legspsurfacegunship": {
+				"role": ["skirmish", "air"],
+				"attribute": ["rare"]
+			},
+			"legspbomber": {
+				"role": ["bomber", "air"],
+				"attribute": ["rare"]
+			},
+			"legspcarrier": {
+				"role": ["assault", "air"],
+				"attribute": ["rare"]
+			},
+			"legspfighter": {
+				"role": ["anti_air"],
+				"attribute": ["rare"]
+			},
+			"legsptorpgunship": {
+				"role": ["anti_sub", "air"],
+				"attribute": ["rare"]
+			},
+			
+			// LEGION SEA
+
+			"legnavyrezsub": {
+				"role": ["support"],
+				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
+				"power": 1.0
+			},
+			"legnavyaaship": {
+				"role": ["anti_air", "raider"],
+				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
+				"power": 1.0
+			},
+			"legnavyscout": {
+				"role": ["scout"],
+				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
+				"power": 1.0
+			},
+			"legnavyfrigate": {
+				"role": ["assault", "air"],
+				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
+				"power": 1.0
+			},
+			"legnavydestro": {
+				"role": ["skirmish", "air"],
+				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
+				"power": 1.0
+			},
+			"legnavyartyship": {
+				"role": ["artillery"],
+				"attribute": ["support"],
+				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
+				"power": 1.0
+			},
+			"legnavysub": {
+				"role": ["sub"],
+				"attribute": ["rare"],
+				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
+				"power": 1.0
+			},
+	
+			// LEGION ADVANCED SEA
+
+			"leganavyantiswarm": {
+				"role": ["riot"],
+				"power": 1.0
+			},
+			"leganavycruiser": {
+				"role": ["assault"],
+				"power": 1.0
+			},
+			"leganavymissileship": {
+				"role": ["skirmish"],
+				"power": 1.0
+			},
+			"leganavybattleship": {
+				"role": ["assault"],
+				"power": 1.0
+			},
+			"leganavyartyship": {
+				"role": ["artillery"],
+				"power": 1.0
+			},
+			"leganavyflagship": {
+				"role": ["super"],
+				"power": 1.0
+			},
+			"leganavyaaship": {
+				"role": ["anti_air"],
+				"power": 1.0
+			},
+			"leganavyantinukecarrier": {
+				"role": ["support"],
+				"power": 1.0
+			},
+			"leganavyradjamship": {
+				"role": ["support"],
+				"power": 1.0
+			},
+			"leganavybattlesub": {
+				"role": ["raider"],
+				"power": 1.0
+			},
+			"leganavyheavysub": {
+				"role": ["skirmish"],
+				"power": 1.0
+			},
+	
 			// LEGION HOVERS
 	
 			"legsh": {
@@ -1066,54 +1165,5 @@
 				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
 				"power": 1.0
 			},
-
-//########################################################################################################################
-//####|| Extra Units ||###################################################################################################
-//########################################################################################################################
-
-				//LEGION
-
-			"leggobt3": {
-				"role": ["assault"],
-				"attribute": ["melee"],
-				"retreat": 0.0,
-				"power": 5.0
-			},
-			"legpede": {
-				"role": ["raider"],
-				"attribute": ["melee"],
-				"retreat": 0.0,
-				"power": 15.0
-			},
-			"legsrailt4": {
-				"role": ["super"],
-				"attribute": ["melee"],
-				"retreat": 0.0,
-				"power": 25.0
-			},
-			"leggatet3": {
-				"role": ["static"]
-			},
-			"legnanotct2": {
-				"role": ["support"],
-				"since": 900
-			},
-		
-//########################################################################################################################
-//####|| Scav Units ||####################################################################################################
-//########################################################################################################################
-
-			"legmmkrt3": {
-				"role": ["static"],
-				"since": 1800
-			},
-			"legafust3": {
-				"role": ["static"],
-				"since": 1800
-			},
-			"legadveconvt3": {
-				"role": ["static"],
-				"since": 1800
-			}
 		}
 	}
