@@ -342,8 +342,19 @@
 			"legsilo":{
 				"role":	["super", "static"],
 				"threat": {"air": 0.0, "surf": 0.1, "water": 0.0},
-				"limit": 4
+				"limit": 10
 			},
+			"legabm":{
+				"role":	["static"],
+				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0},
+				"limit": 5
+			},
+            "legstarfall":{
+			"role":	["super", "static"],
+            "threat":{"air": 0.0, "water": 0.1, "surf": 0.5},
+            "build_mod": 10,
+			"limit": 5
+        },
 
 	// T1 Sea Defenses -- Legion
 

@@ -78,8 +78,8 @@ local options = {
 		items   = {
  			{
  				key  = 'Extreme',
- 				name = 'Hard | AltergressiveV2',
- 				desc = 'Difficulty: AltergressiveV2 |Forked of Felnious, modified by Kazuhira95',
+ 				name = 'Hard | AltergressiveV2N',
+ 				desc = 'Difficulty: AltergressiveV2N |Forked of Felnious, modified by Kazuhira95',
  			},
 		},
 	},
