@@ -17,7 +17,7 @@
 			"comm": 0.003   // because of power of dgun
 		},
 		// anti-air threat threshold, air factories will stop production when AA threat exceeds
-		"aa_threat": [[8, 500.0], [24, 500.0]],  // [[<map_start>, <threat_start>], [<map_end>, <threat_end>]]
+		"aa_threat": [[8, 999999.0], [24, 999999.0]],  // [[<map_start>, <threat_start>], [<map_end>, <threat_end>]]
 		"slack_mod": {
 			"all": 0.5,  // threat map 64-elmos slack multiplier for all units
 			"static": 1.0,  // additional 64-elmo-cells for static units
@@ -120,7 +120,7 @@
 			"role": ["static"],
 			"attribute": ["support"],
 			"midposoffset": [0, 0, -16],
-			"limit": 1,
+			"limit": 5,
 			"build_speed": 1.0 // bp 600
 		},
 		"armvp": {
@@ -151,7 +151,7 @@
 		"corgant": {
 			"role": ["static"],
 			"attribute": ["support"],
-			"limit": 1,
+			"limit": 5,
 			"build_speed": 1.0 //bp 300
 		},
 		"corvp": {
@@ -247,7 +247,7 @@
 			"attribute": ["support"],
 			"midposoffset": [0, 0, -16],
 			"build_speed": 1.0, //bp 300
-			"limit": 1
+			"limit": 5
 		},
         "corsy": {
 			"role": ["static"],
@@ -541,7 +541,7 @@
 			"limit": 10
         },
 		"corfmd":{
-			"role":	["static"],
+			"role":	["super", "static"],
             "threat":{"air": 0.0, "water": 0.0, "surf": 0.0},
 			"limit": 5
         },
@@ -624,8 +624,13 @@
 		},
 		"armsolar" : {
             "role": ["static"],
+			"limit": 4,
             "build_mod": 300
         },
+		"armadvsol" : {
+			"role": ["static"],
+			"limit": 6
+		},
 		"armgeo": {
 			"role": ["static"],
 			"midposoffset": [0, 0, -2]
@@ -637,7 +642,7 @@
         },
         "armafus" : {
             "role": ["static"],
-            "build_mod": 4000
+            "build_mod": 10
         },
 		"armuwfus" : {
             "role": ["static"],
@@ -670,6 +675,14 @@
 			"role": ["static"],
 			"build_mod": 200
 		},
+		"corsolar" : {
+			"role": ["static"],
+			"limit": 4
+		},
+		"coradvsol" : {
+			"role": ["static"],
+			"limit": 6
+		},
 		"cormexp" : {
 			"role": ["static"],
 			"build_mod": 500,
@@ -679,6 +692,10 @@
             "role": ["static"],
             "build_mod": 4000,
 			"cooldown": 3
+        },
+        "corafus" : {
+            "role": ["static"],
+            "build_mod": 10
         },
 		"coruwfus" : {
             "role": ["static"],

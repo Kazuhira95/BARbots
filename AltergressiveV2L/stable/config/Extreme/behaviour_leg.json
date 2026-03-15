@@ -17,7 +17,7 @@
 			"comm": 0.003   // because of power of dgun
 		},
 		// anti-air threat threshold, air factories will stop production when AA threat exceeds
-		"aa_threat": [[8, 500.0], [24, 500.0]],  // [[<map_start>, <threat_start>], [<map_end>, <threat_end>]]
+		"aa_threat": [[8, 999999.0], [24, 999999.0]],  // [[<map_start>, <threat_start>], [<map_end>, <threat_end>]]
 		"slack_mod": {
 			"all": 0.5,  // threat map 64-elmos slack multiplier for all units
 			"static": 1.0,  // additional 64-elmo-cells for static units
@@ -167,12 +167,12 @@
 
 			"leggant": {
 				"role": ["support"],
-				"limit": 1,
+				"limit": 5,
 				"build_speed": 45.0 //bp 300
 			},
 			"leggantuw": {
 				"role": ["support"],
-				"limit": 1,
+				"limit": 5,
 				"build_speed": 45.0 //bp 300
 			},
 
@@ -315,6 +315,8 @@
 			"legstarfall": {
 				"role": ["super", "static"],
 				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
+				"build_mod": 10,
+            	"limit": 5,
 				"power": 1.0
 			},
 			"legflak": {
@@ -344,17 +346,6 @@
 				"threat": {"air": 0.0, "surf": 0.1, "water": 0.0},
 				"limit": 10
 			},
-            "legabm":{
-				"role":	["static"],
-				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0},
-				"limit": 5
-			},
-            "legstarfall": {
-            "role": ["static"],
-            "threat": {"air":0.0, "surf":0.5, "water":0.1},
-            "build_mod": 10,
-            "limit": 5
-        },
 
 	// T1 Sea Defenses -- Legion
 
@@ -449,18 +440,18 @@
 			"legfeconv" : {
 				"role": ["static"]
 			},
-			"leguwmstore" : {
-				"role": ["static"],
-				"since": 9999
-			},
 			"legtide": {
 				"role": ["static"]
+			},
+			/*"leguwmstore" : {
+				"role": ["static"],
+				"since": 9999
 			},
 			"leguwestore" : {
 				"role": ["static"],
 				"since": 9999,
 				"limit": 1
-			},
+			},*/
 
 			//Land T2 Economy
 
@@ -481,39 +472,28 @@
 			"legrampart" : {
 				"role": ["static"]
 			},
-			/*"cormexp" : {
-				"role": ["static"],
-				"build_mod": 500,
-				"limit":0
-			},*/
 			"legfus" : {
 				"role": ["static"]
 			},
 			"legafus" : {
-				"role": ["static"]
+				"role": ["static"],
+				"build_mod": 10
 			},
 			"legadvestore" : {
 				"role": ["static"],
 				"since": 1200
 			},
-			/*"coruwfus" : {
-				"role": ["static"],
-				"build_mod": 4000
-			},
-			"coruwms" : {
+			
+			"leguwmstore" : {
 				"role": ["static"],
 				"since": 500,
 				"limit": 1
 			},
-			"coruwadvms" : {
-				"role": ["static"],
-				"limit": 1
-			},
-			"coruwes" : {
+			"leguwestore" : {
 				"role": ["static"],
 				"since": 240,
 				"limit": 1
-			},*/
+			},
 			
 			//Sea T2 Economy
 
@@ -524,7 +504,8 @@
 				"role": ["static"]
 			},
 			"leganavalfusion" : {
-				"role": ["static"]
+				"role": ["static"],
+				"build_mod": 4000
 			},
 	
 	
@@ -1116,5 +1097,3 @@
 			}
 		}
 	}
-	
-	

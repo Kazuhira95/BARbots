@@ -12,7 +12,7 @@ Run with these tweaks
 !disablemapdamage 1
 !experimentalextraunits 1
 !experimentallegionfaction 1
-!experimentalshields bounceeverything
+!experimentalshields absorbeverything
 !maxunits 2000
 !scavunitsforplayers 1
 !forceallunits 1
