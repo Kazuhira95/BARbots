@@ -65,7 +65,7 @@
 		// assign builders till targeted time to build reached
 		// default value specified in economy-> build_mod
 		// goal_build_time (economy.json)= build_mod / metal_income
-	// "coolddown":1, ----- Amount of seconds when unit is not available for construction after UnitFinished
+	// "cooldown":1, ----- Amount of seconds when unit is not available for construction after UnitFinished
 		
 
 
@@ -316,7 +316,15 @@
 				"role": ["super", "static"],
 				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
 				"build_mod": 10,
-            	"limit": 5,
+				"limit": 5,
+				"power": 1.0
+			},
+			"epic_starfall": {
+				"role": ["super", "static"],
+				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
+				"build_mod": 10,
+				"limit": 1,
+				"cooldown": 5,
 				"power": 1.0
 			},
 			"legflak": {
@@ -344,8 +352,10 @@
 			"legsilo":{
 				"role":	["super", "static"],
 				"threat": {"air": 0.0, "surf": 0.1, "water": 0.0},
-				"limit": 10
+				"build_mod": 10,
+				"limit": 1
 			},
+
 
 	// T1 Sea Defenses -- Legion
 
@@ -477,13 +487,12 @@
 			},
 			"legafus" : {
 				"role": ["static"],
-				"build_mod": 10
+                "build_mod": 10
 			},
 			"legadvestore" : {
 				"role": ["static"],
 				"since": 1200
 			},
-			
 			"leguwmstore" : {
 				"role": ["static"],
 				"since": 500,
@@ -1097,3 +1106,5 @@
 			}
 		}
 	}
+	
+	

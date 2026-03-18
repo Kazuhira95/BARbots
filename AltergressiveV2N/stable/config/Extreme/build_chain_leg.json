@@ -26,9 +26,9 @@
 	// Base defence and time to build it, in seconds
 	"superweapon": {
 		"unit": {
-			"legion": ["legabm", "legsilo"]
+			"legion": ["epic_starfall", "legabm", "legsilo"]
 		},
-		"weight":     [ 0.10,     0.60],
+		"weight":     [ 0.10,            0.20,     0.70],
 
 		"condition": [80, 600]  // [<Minimum income>, <maximum seconds to build>]
 	},

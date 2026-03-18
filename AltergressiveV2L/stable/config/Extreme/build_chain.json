@@ -28,10 +28,10 @@
 	
 		"superweapon": {
 			"unit": {
-				"armada": ["armamd", "armvulc"],
-				"cortex": ["corfmd", "corbuzz"]
+				"armada": ["armsilo", "armamd", "armvulc"],
+				"cortex": ["corsilo", "corfmd", "corbuzz"]
 			},
-			"weight":     [ 0.10,     0.60],
+			"weight":     [ 0.10,            0.20,     0.70],
 	
 			"condition": [80, 300]  // [<Minimum income>, <maximum seconds to build>]
 		},

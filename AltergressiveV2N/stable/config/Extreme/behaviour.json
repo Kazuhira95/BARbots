@@ -65,7 +65,7 @@
 		// assign builders till targeted time to build reached
 		// default value specified in economy-> build_mod
 		// goal_build_time (economy.json)= build_mod / metal_income
-	// "coolddown":1, ----- Amount of seconds when unit is not available for construction after UnitFinished
+	// "cooldown":1, ----- Amount of seconds when unit is not available for construction after UnitFinished
 		
 
 
@@ -385,6 +385,7 @@
         "armsilo":{
 			"role":	["static"],
             "threat":{"air": 0.0, "water": 0.0, "surf": 0.1},
+			"build_mod": 10,
 			"limit": 10
         },
 		"armamd":{
@@ -397,6 +398,13 @@
             "threat":{"air": 0.0, "water": 0.1, "surf": 0.5},
             "build_mod": 10,
 			"limit": 5
+        },
+		"epic_ragnarok":{
+			"role":	["super", "static"],
+            "threat":{"air": 0.0, "water": 0.1, "surf": 0.5},
+            "build_mod": 10,
+			"limit": 1,
+			"cooldown": 5
         },
 		"armrl": {
 			"role": ["anti_air"],
@@ -538,6 +546,7 @@
         "corsilo":{
 			"role":	["super", "static"],
             "threat":{"air": 0.0, "water": 0.0, "surf": 0.1},
+			"build_mod": 10,
 			"limit": 10
         },
 		"corfmd":{
@@ -550,6 +559,13 @@
             "threat":{"air": 0.0, "water": 0.1, "surf": 0.5},
             "build_mod": 10,
 			"limit": 5
+        },
+		"epic_calamity":{
+			"role":	["super", "static"],
+            "threat":{"air": 0.0, "water": 0.1, "surf": 0.5},
+            "build_mod": 10,
+			"limit": 1,
+			"cooldown": 5
         },
 
 // BUILDINGS

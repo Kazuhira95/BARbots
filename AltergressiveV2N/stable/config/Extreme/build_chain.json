@@ -28,10 +28,10 @@
 	
 		"superweapon": {
 			"unit": {
-				"armada": ["armamd", "armsilo"],
-				"cortex": ["corfmd", "corsilo"]
+				"armada": ["epic_ragnarok", "armamd", "armsilo"],
+				"cortex": ["epic_calamity", "corfmd", "corsilo"]
 			},
-			"weight":     [ 0.10,     0.60],
+			"weight":     [ 0.10,            0.20,     0.70],
 	
 			"condition": [80, 300]  // [<Minimum income>, <maximum seconds to build>]
 		},

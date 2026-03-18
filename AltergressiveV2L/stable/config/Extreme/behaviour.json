@@ -65,7 +65,7 @@
 		// assign builders till targeted time to build reached
 		// default value specified in economy-> build_mod
 		// goal_build_time (economy.json)= build_mod / metal_income
-	// "coolddown":1, ----- Amount of seconds when unit is not available for construction after UnitFinished
+	// "cooldown":1, ----- Amount of seconds when unit is not available for construction after UnitFinished
 		
 
 
@@ -385,19 +385,26 @@
         "armsilo":{
 			"role":	["super", "static"],
             "threat":{"air": 0.0, "water": 0.0, "surf": 0.1},
-            "build_mod": 10,
-			"limit": 10
+			"build_mod": 10,
+			"limit": 1
         },
-        "armamd":{
+		"armamd":{
 			"role":	["super", "static"],
-			"threat": {"air": 0.0, "surf": 0.0, "water": 0.0},
+            "threat":{"air": 0.0, "water": 0.0, "surf": 0.0},
 			"limit": 5
-		},
-        "armvulc": {
-            "role": ["static"],
-            "threat": {"air":0.0, "surf":0.5, "water":0.1},
+        },
+        "armvulc":{
+			"role":	["super", "static"],
+            "threat":{"air": 0.0, "water": 0.1, "surf": 0.5},
             "build_mod": 10,
-            "limit": 5
+			"limit": 5
+        },
+		"epic_ragnarok":{
+			"role":	["super", "static"],
+            "threat":{"air": 0.0, "water": 0.1, "surf": 0.5},
+            "build_mod": 10,
+			"limit": 1,
+			"cooldown": 5
         },
 		"armrl": {
 			"role": ["anti_air"],
@@ -539,19 +546,26 @@
         "corsilo":{
 			"role":	["super", "static"],
             "threat":{"air": 0.0, "water": 0.0, "surf": 0.1},
-            "build_mod": 10,
-			"limit": 10
+			"build_mod": 10,
+			"limit": 1
         },
-        "corfmd":{
+		"corfmd":{
 			"role":	["super", "static"],
-			"threat": {"air": 0.0, "surf": 0.0, "water": 0.0},
+            "threat":{"air": 0.0, "water": 0.0, "surf": 0.0},
 			"limit": 5
-		},
-        "corbuzz": {
-            "role": ["static"],
-            "threat": {"air":0.0, "surf":0.5, "water":0.1},
+        },
+        "corbuzz":{
+			"role":	["super", "static"],
+            "threat":{"air": 0.0, "water": 0.1, "surf": 0.5},
             "build_mod": 10,
-            "limit": 5
+			"limit": 5
+        },
+		"epic_calamity":{
+			"role":	["super", "static"],
+            "threat":{"air": 0.0, "water": 0.1, "surf": 0.5},
+            "build_mod": 10,
+			"limit": 1,
+			"cooldown": 5
         },
 
 // BUILDINGS
@@ -630,9 +644,9 @@
             "build_mod": 300
         },
 		"armadvsol" : {
-            "role": ["static"],
+			"role": ["static"],
 			"limit": 6
-        },
+		},
 		"armgeo": {
 			"role": ["static"],
 			"midposoffset": [0, 0, -2]
@@ -678,14 +692,13 @@
 			"build_mod": 200
 		},
 		"corsolar" : {
-            "role": ["static"],
-			"limit": 4,
-            "build_mod": 300
-        },
+			"role": ["static"],
+			"limit": 4
+		},
 		"coradvsol" : {
-            "role": ["static"],
+			"role": ["static"],
 			"limit": 6
-        },
+		},
 		"cormexp" : {
 			"role": ["static"],
 			"build_mod": 500,
@@ -696,7 +709,7 @@
             "build_mod": 4000,
 			"cooldown": 3
         },
-		"corafus" : {
+        "corafus" : {
             "role": ["static"],
             "build_mod": 10
         },
