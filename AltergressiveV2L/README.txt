@@ -19,7 +19,7 @@ Run with these tweaks
 !bset evocom 1
 !bset evocomlevelupmultiplier 0.5
 $rename PvE [Modded BarBs] Extra+Scav+Legion Settings
-$welcome-message Altergressive AI is based on (now deprecated) Felnious AI found here: (https://github.com/Kazuhira95/BARbots) This is where his AI came from (): (https://github.com/Felnious/Skirmish)
+$welcome-message Altergressive AI is based on (now deprecated) Felnious AI found here: (https://github.com/Kazuhira95/BARbots) Forked from: (https://github.com/Felnious/Skirmish)
 
 
 ##Tweakdefs##
