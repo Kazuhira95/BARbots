@@ -121,7 +121,9 @@
 						{"unit": "armflak", "category": "defence", "offset": {"front": 120}, "priority": "now"},
 						{"unit": "armflak", "category": "defence", "offset": {"front": 130}, "priority": "now"},
 						{"unit": "armflak", "category": "defence", "offset": {"front": 140}, "priority": "now"},
-						{"unit": "armflak", "category": "defence", "offset": {"front": 150}, "priority": "now"}
+						{"unit": "armflak", "category": "defence", "offset": {"front": 150}, "priority": "now"},
+                        {"unit": "armmercury", "category": "defence", "offset": [160, 160], "priority": "now"},
+						{"unit": "armmercury", "category": "defence", "offset": [160, -160], "priority": "now"}
 					]
 				]
 			},
@@ -164,7 +166,9 @@
 						{"unit": "corflak", "category": "defence", "offset": {"front": 120}, "priority": "now"},
 						{"unit": "corflak", "category": "defence", "offset": {"front": 130}, "priority": "now"},
 						{"unit": "corflak", "category": "defence", "offset": {"front": 140}, "priority": "now"},
-						{"unit": "corflak", "category": "defence", "offset": {"front": 150}, "priority": "now"}
+						{"unit": "corflak", "category": "defence", "offset": {"front": 150}, "priority": "now"},
+                        {"unit": "corscreamer", "category": "defence", "offset": [160, 160], "priority": "now"},
+						{"unit": "corscreamer", "category": "defence", "offset": [160, -160], "priority": "now"}
 					]
 				]
 			}

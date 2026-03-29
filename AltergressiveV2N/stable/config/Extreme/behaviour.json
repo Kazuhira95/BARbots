@@ -1281,7 +1281,8 @@
 		},
 		"armyork": {
 			"role": ["anti_air"],
-			"threat":{"air":1.0, "water":0.0, "surf":0.0}
+            "threat":{"air":1.0, "water":0.0, "surf":0.0},
+			"retreat": 0.6
 		},
 		"armseer": {
 			"role": ["support"], //support
@@ -1679,6 +1680,7 @@
 		},
 		"corsent": {
 			"role": ["anti_air"],
+            "threat":{"air":1.0, "water":0.0, "surf":0.0}
 			"retreat": 0.6
 		},
 		"corvroc": {

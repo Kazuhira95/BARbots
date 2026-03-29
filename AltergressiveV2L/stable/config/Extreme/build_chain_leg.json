@@ -105,7 +105,12 @@
 //					{"unit": "legadveconv", "category": "convert", "offset": [120, 150]},
 //					{"unit": "legadveconv", "category": "convert", "offset": [150, 150]},
 //					{"unit": "legadveconv", "category": "convert", "offset": [120, -120]},
-					{"unit": "legrhapsis", "category": "defence", "offset": [-80, 80], "condition": {"air": true}}
+					{"unit": "leglupara", "category": "defence", "offset": [-80, 80], "priority": "now"},
+					{"unit": "leglupara", "category": "defence", "offset": [-50, 80], "priority": "now"},
+					{"unit": "leglupara", "category": "defence", "offset": [-80, 110], "priority": "now"},
+					{"unit": "leglupara", "category": "defence", "offset": [-50, 110], "priority": "now"},
+					{"unit": "leglraa", "category": "defence", "offset": [-80, 140], "priority": "now"},
+					{"unit": "leglraa", "category": "defence", "offset": [-50, 140], "priority": "now"}
 				]
 			]
 		},

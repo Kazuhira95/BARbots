@@ -10,13 +10,13 @@
 
 			// Unit of measurement: 1 size/yard/radius = SQUARE_SIZE * 2 = 16 elmos, integer.
 			// Offset of yardmap in South facing [left/right, front/back]
-			"offset": [0, 5],  // default: [0, 0]
+			"offset": [0, 10],  // default: [0, 0]
 
 			// Size of a blocker without yard
 			"size": [8, 8],  // default: size of a unit
 
 			// Spacer, block_size = size + yard
-			"yard": [0, 30]  // default: [0, 0]
+			"yard": [0, 20]  // default: [0, 0]
 
 			
 			// "ignore" / "not_ignore" specified structures: "ignore": [<structure_type>, <structure_type>, ...] 
@@ -25,8 +25,8 @@
 		"fac_land_t2":{
 			"type": ["rectangle", "factory"],
 			//"size": [8 ,8],
-			"yard": [12, 20],
-			"offset": [4, 6],
+			"yard": [4, 20],
+			"offset": [0, 10],
 			"ignore": ["none"]
 		},		
 		"fac_air": {
@@ -42,8 +42,8 @@
 		},
 		"fac_strider": {                        //t3 factory 9x9
 			"type": ["rectangle", "factory"],
-			"offset": [0, 4],
-			"yard": [6, 8],
+			"offset": [0, 12],
+			"yard": [6, 24],
 			"ignore":["none"]
 		},
 		"solar": {

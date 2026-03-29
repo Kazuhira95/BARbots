@@ -91,9 +91,9 @@
 			"hub": [
 				[ 
 					//{"unit": "legapopupdef", "category": "defence", "offset": [200, 0], "condition": {"chance": 0.5}},
-					{"unit": "legrhapsis", "category": "defence", "offset": [-80, 80], "condition": {"air": true}},
+					{"unit": "leglupara", "category": "defence", "offset": [-80, 80], "priority": "now"},
 					{"unit": "legnanotc", "category": "defence", "offset": {"front": 100}},
-					{"unit": "legsilo", "category": "defence", "offset": [200, 0], "condition": {"chance": 0.2}}
+					{"unit": "legsilo", "category": "defence", "offset": [200,0], "priority": "now"}
 				]
 			]
 		},
@@ -105,7 +105,12 @@
 //					{"unit": "legadveconv", "category": "convert", "offset": [120, 150]},
 //					{"unit": "legadveconv", "category": "convert", "offset": [150, 150]},
 //					{"unit": "legadveconv", "category": "convert", "offset": [120, -120]},
-					{"unit": "legrhapsis", "category": "defence", "offset": [-80, 80], "condition": {"air": true}}
+					{"unit": "leglupara", "category": "defence", "offset": [-80, 80], "priority": "now"},
+					{"unit": "leglupara", "category": "defence", "offset": [-50, 80], "priority": "now"},
+					{"unit": "leglupara", "category": "defence", "offset": [-80, 110], "priority": "now"},
+					{"unit": "leglupara", "category": "defence", "offset": [-50, 110], "priority": "now"},
+					{"unit": "leglraa", "category": "defence", "offset": [-80, 140], "priority": "now"},
+					{"unit": "leglraa", "category": "defence", "offset": [-50, 140], "priority": "now"}
 				]
 			]
 		},
@@ -114,7 +119,7 @@
 				[  
 					{"unit": "leganavaleconv", "category": "convert", "offset": {"back": 5}, "priority": "normal"},
 					{"unit": "leganavaleconv", "category": "convert", "offset": {"back": 5}, "priority": "normal"},
-					{"unit": "leganavalaaturret", "category": "defence", "offset": [-80, 80], "condition": {"air": true}},
+					{"unit": "leganavalaaturret", "category": "defence", "offset": [-80, 80], "priority": "now"},
 					{"unit": "leganavalfusion", "category": "energy", "offset": {"back": 10}, "priority": "normal"},
 					{"unit": "legnanotcplat", "category": "nano", "offset": {"back": 5}, "priority": "normal"},
 					{"unit": "legnanotcplat", "category": "nano", "offset": {"back": 5}, "priority": "normal"},
@@ -216,9 +221,9 @@
 //			"energy": [200, true], //AI will force-build 1 solar near every mex till it reaches 200 energy income
 			"porc": true
 		}
-	},
+	}
 	//###
-	"radar":{
+	/*"radar":{
 		"legrad": {
 			"hub": [
 				[{"unit": "leglht", "category": "defence", "offset": {"front": 100}, "priority": "now"}],
@@ -229,16 +234,16 @@
 					{"unit": "legapopupdef", "category": "defence", "offset": [140, 100], "priority": "normal"}
 				],
 				[
-					//{"unit": "legbastion", "category": "defence", "offset": [70, -100], "priority": "normal"},
+					{"unit": "leglraa", "category": "defence", "offset": [70, -100], "priority": "normal"},
 					{"unit": "legbastion", "category": "defence", "offset": [70, 100], "condition": {"chance":0.5}, "priority": "low"}
 				],
 				[
-					{"unit": "legjam", "category": "defence", "offset": [-60, 0], "priority": "low"},
-					{"unit": "legarad", "category": "defence", "offset": [-100, 0], "condition": {"chance":0.4}, "priority": "low"}, 
-					{"unit": "leglrpc", "category": "defence", "offset": [-100, 0], "condition": {"chance":0.3}, "priority": "low"}
+					{"unit": "legjam", "category": "defence", "offset": [-60, 0], "priority": "high"},
+					{"unit": "legarad", "category": "defence", "offset": [-100, 0], "priority": "high"}, 
+					{"unit": "leglrpc", "category": "defence", "offset": [-100, 0], "priority": "high"}
 				]
 			]
 		}
-	}
+	}*/
 }
 }

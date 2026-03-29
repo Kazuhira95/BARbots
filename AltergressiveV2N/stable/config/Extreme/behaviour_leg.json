@@ -753,7 +753,7 @@
 				"limit": 2
 			},
 			"legsrail": {
-				"role": ["anti_heavy"]
+				"role": ["anti_heavy", "anti_air"]
 			},
 			"leghrk": {
 				"role": ["artillery"],
@@ -861,6 +861,11 @@
 	
 			// 	LEGION ADV VELICLE PLANT
 			
+            "legvflak": {
+                "role": ["anti_air"],
+                "threat":{"air":1.0, "water":0.0, "surf":0.0},
+                "retreat": 0.6
+            },
 			"legfloat": {
 				"role": ["raider"]
 			},
