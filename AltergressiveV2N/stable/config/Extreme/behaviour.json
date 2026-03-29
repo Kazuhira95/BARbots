@@ -383,7 +383,7 @@
 			"role": ["static"]
 		},
         "armsilo":{
-			"role":	["static"],
+			"role":	["super", "static"],
             "threat":{"air": 0.0, "water": 0.0, "surf": 0.1},
 			"build_mod": 10,
 			"limit": 10
