@@ -2,7 +2,7 @@
 #include "../../unit.as"
 #include "../../task.as"
 #include "../misc/commander.as"
-#include "economy.as"
+
 
 namespace Factory {
 

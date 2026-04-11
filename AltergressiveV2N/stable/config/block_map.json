@@ -36,6 +36,7 @@
 		},
 		"fac_water": {
 			"type": ["rectangle", "factory"],
+			
 			"yard": [10, 12],
 			"offset": [0, 4]
 		},

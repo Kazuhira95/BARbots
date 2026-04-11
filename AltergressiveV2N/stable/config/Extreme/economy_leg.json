@@ -7,17 +7,17 @@
 			// "<energy_def>": [<lower limit>, <upper limit>, <m-income>, <e-income>, <efficiency>]
 			// limit = random(<lower limit>..<upper limit>)
 			"legwin": [30, 60],
-			"legsolar": [12, 14, 0, 0, 0.030],
-			"legadvsol": [20, 30, 12, 220, 0.200],
-			"legfus": [3, 4, 50, 900, 1.9],
+			"legsolar": [4, 4, 0, 0, 0.030],
+			"legadvsol": [6, 6, 12, 220, 0.200],
+			"legfus": [3, 3, 50, 900, 1.9],
 			"legafus": [50,100, 70, 4000, 6.44]
 		},
 		"water": {
 			"legwin": [30, 60],
-			"legsolar": [12, 14, 0, 0, 0.030],
-			"legadvsol": [16, 20, 12, 220, 0.200],
+			"legsolar": [4, 4, 0, 0, 0.030],
+			"legadvsol": [6, 6, 12, 220, 0.200],
 			"legtide": [45, 60],
-			"leganavalfusion": [1, 2]
+			"leganavalfusion": [50, 100, 35, 600, 2.8]
 		}
 	},
 
@@ -29,7 +29,8 @@
 	},
 	//"terra": "armsy",
 	"assist": {
-		"legion": "legnanotc"
+		"legion": "legnanotc",
+		"legion": "legnanotct2"
 	},
 
 	// Unknown UnitDef replacer

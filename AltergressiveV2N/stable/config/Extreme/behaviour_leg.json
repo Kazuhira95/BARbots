@@ -153,7 +153,7 @@
 			"legapt3": {
 				"role": ["static"],
 				"attribute": ["support", "solo"],
-				"limit": 2,
+				"limit": 1,
 				"build_mod": 200.0,
 				"build_speed": 45.0
 			},
@@ -168,12 +168,12 @@
 			"leggant": {
 				"role": ["support"],
 				"limit": 5,
-				"build_speed": 45.0 //bp 300
+				"build_speed": 1.0 //bp 600
 			},
 			"leggantuw": {
 				"role": ["support"],
-				"limit": 5,
-				"build_speed": 45.0 //bp 300
+				"limit": 1,
+				"build_speed": 1.0 //bp 600
 			},
 
 	// ============================================   Legion Support Units   =======================================0
@@ -325,6 +325,7 @@
 				"build_mod": 10,
 				"limit": 1,
 				"cooldown": 5,
+//				"fire_state": "open",
 				"power": 1.0
 			},
 			"legflak": {
@@ -430,10 +431,14 @@
 			},
 			"legsolar" : {
 				"role": ["static"],
+                "build_mod": 300,
+				"cooldown": 3,
 				"limit": 4
 			},
 			"legadvsol" : {
 				"role": ["static"],
+                "build_mod": 300,
+				"cooldown": 3,
 				"limit": 6
 			},
 			"leggeo" : {
