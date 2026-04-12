@@ -1,6 +1,8 @@
 # BARbots
 Beyond All Reason Custom Bots
 
+Please use the AltergressiveV2N version as it gets updated first.
+
 ###HOW TO INSTALL!###
 
 Goto:
