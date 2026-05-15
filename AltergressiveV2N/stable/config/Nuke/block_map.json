@@ -36,14 +36,13 @@
 		},
 		"fac_water": {
 			"type": ["rectangle", "factory"],
-			
 			"yard": [10, 12],
 			"offset": [0, 4]
 		},
 		"fac_strider": {                        //t3 factory 9x9
 			"type": ["rectangle", "factory"],
-			"offset": [0, 6],
-			"yard": [12, 12],
+			"offset": [3, 6],
+			"yard": [6, 24],
 			"ignore":["none"]
 		},
 		"solar": {

@@ -74,10 +74,10 @@ local options = {
 		name    = 'Difficulty profile',
 		desc    = 'Difficulty or play-style of AI (see init.as).\nkey: profile',
 		type    = 'list',
-		def     = 'Extreme',
+		def     = 'Nuke',
 		items   = {
  			{
- 				key  = 'Extreme',
+ 				key  = 'Nuke',
  				name = 'Hard | AltergressiveV2N',
  				desc = 'Difficulty: AltergressiveV2N |Forked of Felnious, modified by Kazuhira95',
  			},

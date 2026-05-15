@@ -2,23 +2,20 @@
 {
 	"porcupine": {
 		"unit": {
-		//              0           		1         					2        		3           	4          		5     			6				7				8				9   
-			"legion":  ["leglht",			"legtl",   					"legrl",  		"legmg", 		"leghive",  	"legdtr",		"legrhapsis",	"leglupara", 	"legapopupdef", "leghive",
-						"legflak",   		"legacluster",  			"legbastion", 	"legcluster", 	"legabm", 		"legrad",		"legjam",		"legestor", 	"legmstor", 	"legadvsol",
-						"legnanotc",		"legarad",					"legtarg",		"legadvestore", "legperdition",	"legajam",		"legfus",     	"legsolar",     "legdeflector", "legfmg",
-					
-					//Sea Defenses
-						"leganavalaaturret", "leganavalatorpturret", 	"leganavaldefturret"]
+		//                  0           		 1         		2        	   3           	4          5     	   6				7				8				9   
+			"legion":  ["leglht",             "legtl",       "legrl",      "leghive",    "legmg",  "legdtr",  "leglupara",    "legrhapsis",   "legapopupdef", "leganavaltorpturret",
+					    "legflak",            "legacluster", "legbastion", "legcluster", "legabm", "legtarg", "legdeflector", "epic_bastion", "leggatet3",    "leglrpc",
+					    "leganavaldefturret", "legsilo"]
 		},
 		
 	// Actual number of defences per cluster bounded by income - the order of defenses that should be build with numbers as above.
-	"land":  [0, 3, 5, 6, 4, 8, 10, 12],
-	"water": [29, 29, 30, 31, 31, 32, 32, 32, 33, 33, 33],
-	"prevent": 1,  // number of preventive defences
+	"land":  [0, 3, 5, 6, 4, 13, 8, 10, 10, 10, 10, 11, 19, 12, 16],
+	"water": [1, 1, 1, 1, 4, 9, 10, 9, 10, 20],
+	"prevent": 5,  // number of preventive defences
 	"amount": {  // income bound factor
 		"offset": [-2.0, 2.0],
 		// Amount factor: 10x10 ~ 48.0, 20x20 ~ 32.0
-		"factor": [48.0, 32.0],
+		"factor": [100.0, 68.0], //[48.0, 32.0]
 		"map": [10, 20]
 	},
 	"point_range": 600.0,  // maximum distance between 2 points in hierarchical cluster within economy cluster
@@ -30,7 +27,7 @@
 		},
 		"weight":     [ 0.10,            0.20,     0.70],
 
-		"condition": [80, 600]  // [<Minimum income>, <maximum seconds to build>]
+		"condition": [80, 500]  // [<Minimum income>, <maximum seconds to build>]
 	},
 
 	// Fallback defence
@@ -226,22 +223,8 @@
 	/*"radar":{
 		"legrad": {
 			"hub": [
-				[{"unit": "leglht", "category": "defence", "offset": {"front": 100}, "priority": "now"}],
-				[{"unit": "legrl", "category": "defence", "offset": {"back": 10},"condition": {"air": true}, "priority": "high"}],
-				[{"unit": "legcluster", "category": "defence", "offset": [120, 100], "priority": "normal"}],
-				[
-					{"unit": "legacluster", "category": "defence", "offset": [120, -100], "priority": "high"},
-					{"unit": "legapopupdef", "category": "defence", "offset": [140, 100], "priority": "normal"}
-				],
-				[
-					{"unit": "leglraa", "category": "defence", "offset": [70, -100], "priority": "normal"},
-					{"unit": "legbastion", "category": "defence", "offset": [70, 100], "condition": {"chance":0.5}, "priority": "low"}
-				],
-				[
-					{"unit": "legjam", "category": "defence", "offset": [-60, 0], "priority": "high"},
-					{"unit": "legarad", "category": "defence", "offset": [-100, 0], "priority": "high"}, 
-					{"unit": "leglrpc", "category": "defence", "offset": [-100, 0], "priority": "high"}
-				]
+				{"unit": "legjam", "category": "defence", "offset": [-60, 0], "priority": "high"},
+				{"unit": "legjuno", "category": "defence", "offset": [-30, 0], "priority": "high"}
 			]
 		}
 	}*/
