@@ -18,10 +18,6 @@
 				"role": ["static"],
 				"since": 1800
 			},
-            "legadveconvt3": {
-				"role": ["static"],
-				"since": 1800
-			},
 			"armafust3": {
 				"role": ["static"],
 				"since": 1800
@@ -30,34 +26,10 @@
 				"role": ["static"],
 				"since": 1800
 			},
-			"legafust3": {
+			"legadveconvt3": {
 				"role": ["static"],
 				"since": 1800
-			},
-            "armmmkrt310": {
-                "role": ["static"],
-                "since": 2700
-            },
-            "cormmkrt310": {
-                "role": ["static"],
-                "since": 2700
-            },
-            "legmmkrt310": {
-                "role": ["static"],
-                "since": 2700
-            },
-            "armevfus10": {
-                "role": ["static"],
-                "since": 2700
-            },
-            "corevfus10": {
-                "role": ["static"],
-                "since": 2700
-            },
-            "legevfus10": {
-                "role": ["static"],
-                "since": 2700
-            }
+			}
 		}
 }
 	

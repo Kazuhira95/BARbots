@@ -7,11 +7,6 @@
 
 		"behaviour": {
 				//ARMADA
-			"armawact3": {
-				"role": ["scout", "air"],
-				"limit": 2,
-				"retreat": 0.0
-			},
 			"armmeatball": {
 				"role": ["artillery"],
 				"attribute": ["melee"],
@@ -78,11 +73,6 @@
 				"limit": 4
 			},
 				//CORTEX
-			"corawact3": {
-				"role": ["scout", "air"],
-				"limit": 2,
-				"retreat": 0.0
-			},
 			"corakt4": {
 				"role": ["assault"],
 				"attribute": ["melee"],
@@ -125,11 +115,6 @@
 				"limit": 4
 			},
 				//LEGION
-			"legwhispert3": {
-				"role": ["scout", "air"],
-				"limit": 2,
-				"retreat": 0.0
-			},
 			"leggobt3": {
 				"role": ["assault"],
 				"attribute": ["melee"],

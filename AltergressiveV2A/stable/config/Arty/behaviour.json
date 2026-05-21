@@ -11,10 +11,10 @@
 		"attack": 60.0,  // min power of attack group ---- was 40
 		"thr_mod": {				//AI attacks everything with final threat (after all calculations) <= 1
 			"attack": [0.6, 0.8],  // [<min>, <max>] enemy threat multiplier for target selection of attack task |  values <1 makes enemy group seem less of an thread for ai => ai attacks stronger groups than it own | org=0.25, 0.3
-			"defence": [0.3, 0.5],  // [<min>, <max>] enemy threat modifier for group size calculation of defence task; org=0.95, 0.95 | high values = low risk; low values = high risk 
+			"defence": [0.3, 0.8],  // [<min>, <max>] enemy threat modifier for group size calculation of defence task; org=0.95, 0.95 | high values = low risk; low values = high risk 
 			"mobile": 1.0,  // initial modifier for power of attack group based on mobile enemy threat; org=1.05
 			"static": 1.0,  // initial modifier for power of attack group based on static enemy threat; org= 1.2
-			"comm": 0.003   // because of power of dgun
+			"comm": 2.0   // 0.003 because of power of dgun
 		},
 		// anti-air threat threshold, air factories will stop production when AA threat exceeds
 		"aa_threat": [[8, 999999.0], [24, 999999.0]],  // [[<map_start>, <threat_start>], [<map_end>, <threat_end>]]
@@ -79,194 +79,201 @@
           	 	"surf": 1.0,  
            	 	"water": 0.1,  
             	"default": 1.0,
-            	"vs": {"artillery": 0.5, "assault": 0.8}
+        	    	"vs": {"artillery": 0.5, "assault": 0.8}
 			},
 			"power": 0.8,
-			"retreat": 0.6
+			"retreat": 0.8
 		},
 		"corcom": {
 			"role": ["builder"],
 			"attribute": ["commander"],
 			"build_speed": 10.0,  //bp 200?
         	"threat": {
-            "air": 0.3,  
-            "surf": 1.0,  
-            "water": 0.1,  
-            "default": 1.0,
-            "vs": {"artillery": 0.5, "assault": 0.8}
+        	    "air": 0.3,  
+        	    "surf": 1.0,  
+         	   "water": 0.1,  
+        	    "default": 1.0,
+        		    "vs": {"artillery": 0.5, "assault": 0.8}
 			},
 			"power": 0.8,
-       	 "retreat": 0.6
-        
+       		"retreat": 0.8
 		},
-
 
 //======================== S T A T I C ===================================================
 
 
 // FACTORIES - Ground (Surface)
 		"armlab": {
-			"role": ["support"],
+			"role": ["static"],
 			"build_speed": 5.0, //bp 100
             "limit": 1
 		},
 		"armalab": {
-			"role": ["support"], //facory with support is build only in base
+			"role": ["static"],
+			"attribute": ["support"], //facory with support is build only in base
 			"limit": 1,
 			"build_speed": 15.0 //bp 300
 		},
 		"armshltx": {
-			"role": ["support"],
+			"role": ["static"],
+			"attribute": ["support"],
 			"midposoffset": [0, 0, -16],
-			"limit": 5,
+			"limit": 1,
 			"build_speed": 1.0 // bp 600
 		},
 		"armvp": {
-			"role": ["support"],
+			"role": ["static"],
 			"build_speed": 5.0, // bp 100
             "limit": 1
 		},
 		"armavp": {
-			"role": ["support"],
+			"role": ["static"],
+			"attribute": ["support"],
 			"limit": 1,
 			"build_speed": 15.0 //bp 300
 		},
+
 		"corlab": {
-			"role": ["support"],
+			"role": ["static"],
 			"build_speed": 5.0,  //bp 100
             "limit": 1,
 			"midposoffset": [-3.239746, 0, -2]
 		},
 		"coralab": {
-			"role": ["support"],
+			"role": ["static"],
 			"midposoffset": [0, 0, -4],
+			//"attribute": ["support"],
 			"limit": 1,
 			"build_speed": 15.0 // bp 300
 		},
 		"corgant": {
 			"role": ["static"],
-			"attribute": ["support", "solo"],
-			"limit": 5,
+			"attribute": ["support"],
+			"limit": 1,
 			"build_speed": 1.0 //bp 300
 		},
 		"corvp": {
-			"role": ["support"],
+			"role": ["builder"],
 			"build_speed": 5.0, // bp 100
             "limit": 1
+
 		},
 		"coravp": {
-			"role": ["support"],
+			"role": ["static"],
+			"attribute": ["support"],
 			"limit": 1,
 			"build_speed": 15.0  //bp 300
 		},
 
 // FACTORIES - air
 		"armap": {
-			"role": ["support"],
+			"role": ["static"],
+			"attribute": ["support"],
 			"limit": 1,
 			"build_speed": 5 //bp 100
 		},
 		"armaap": {
-			"role": ["support"],
+			"role": ["static"],
+			"attribute": ["support"],
+            "since": 420,
+			"limit": 1,
+			"build_speed": 10.0 //bp 200
+		},
+		"corap": {
+			"role": ["static"],
+			"attribute": ["support"],
+			"limit": 1,
+			"build_speed": 5.0 //bp 100
+		},
+		"coraap": {
+			"role": ["static"],
+			"attribute": ["support"],
             "since": 420,
 			"limit": 1,
 			"build_speed": 10.0 //bp 200
 		},
 		"armapt3": {
 			"role": ["static"],
-			"attribute": ["support", "solo"],
-			"build_speed": 1.0, //bp 200
-			"build_mod": 200.0,
-			"limit": 1
-		},
-		"corap": {
-			"role": ["support"],
+			"attribute": ["support"],
 			"limit": 1,
-			"build_speed": 5.0 //bp 100
-		},
-		"coraap": {
-			"role": ["support"],
-            "since": 420,
-			"limit": 1,
-			"build_speed": 10.0 //bp 200
+			"build_speed": 10.0
 		},
 		"corapt3": {
 			"role": ["static"],
-			"attribute": ["support", "solo"],
+			"attribute": ["support"],
 			"limit": 1,
-			"build_mod": 200.0,
-			"build_speed": 1.0 //bp 200
+			"build_speed": 10.0
 		},
 
 // FACTORIES - water
 		"armsy": {
-			"role": ["support"],
+			"role": ["static"],
 			"build_speed": 8.0, // bp 165
 			"limit": 1
 		},
 		"armasy": {
-			"role": ["support"],
+			"role": ["static"],
 			"build_speed": 15.0, //bp 300
             //"since": 540,
 			"limit": 1
 		},
 		"armhp": {
-			"role": ["support"],
+			"role": ["static"],
 			"build_speed": 10.0, //bp 200
 			"limit": 1
 		},
 		"armfhp": {
-			"role": ["support"],
+			"role": ["static"],
 			"build_speed": 10.0,
 			"limit": 1
 		},
         "armamsub": {
-			"role": ["support"],
+			"role": ["static"],
 			"build_speed": 7.5, //bp 150
 			"limit": 1
         },
         "armplat": {
-			"role": ["support"],
+			"role": ["static"],
 			"build_speed": 10.0, //200
 			"since": 420,
 			"limit": 1
         },
 		"armshltxuw": {
 			"role": ["static"],
-			"attribute": ["support", "solo"],
+			"attribute": ["support"],
 			"midposoffset": [0, 0, -16],
 			"build_speed": 1.0, //bp 300
 			"limit": 1
 		},
         "corsy": {
-			"role": ["support"],
+			"role": ["static"],
 			"build_speed": 8.0, //bp 165
 			"limit": 1
 		},
 		"corasy": {
-			"role": ["support"],
+			"role": ["static"],
 			"build_speed": 15.0,  //bp 300
             "since": 480,
 			"limit": 1
 		},
 		"corhp": {
-			"role": ["support"],
+			"role": ["static"],
 			"build_speed": 10.0, //bp 200
 			"limit": 1
 		},
 		"corfhp": {
-			"role": ["support"],
+			"role": ["static"],
 			"build_speed": 10.0, //bp 200
 			"since": 300,
 			"limit": 1
 		},
         "coramsub": {
-			"role": ["support"],
+			"role": ["builder"],
 			"build_speed": 7.5, //bp 150
 			"limit": 1
 		},
         "corplat": {
-			"role": ["support"],
+			"role": ["builder"],
 			"build_speed": 10.0,  //bp 200
 			"since": 420,
 			"limit": 1
@@ -278,19 +285,11 @@
 			"role": ["support"],		// nanos with role "support" are considered "low priority"
 			"build_speed": 10.0  // bp 200, lower values => more and earlier nanos (workaround) 
 		},
-		"armnanotct2": {
-			"role": ["support"],
-			"build_speed": 10.0
-		},
 		"armnanotcplat": {
 			"role": ["support"],
 			"build_speed": 10.0  //lower values => more and earlier nanos (workaround) 
 		},
 		"cornanotc": {
-			"role": ["static"],
-			"build_speed": 10.0 
-		},
-		"cornanotct2": {
 			"role": ["static"],
 			"build_speed": 10.0 
 		},
@@ -382,28 +381,9 @@
         "armsilo":{
 			"role":	["super", "static"],
             "threat":{"air": 0.0, "water": 0.0, "surf": 0.1},
-			"build_mod": 10,
-			"limit": 10
+			"limit": 1
         },
-		"armamd":{
-			"role":	["super", "static"],
-            "threat":{"air": 0.0, "water": 0.0, "surf": 0.0},
-			"limit": 5
-        },
-        "armvulc":{
-			"role":	["super", "static"],
-            "threat":{"air": 0.0, "water": 0.1, "surf": 0.5},
-            "build_mod": 10,
-			"limit": 5
-        },
-		"epic_ragnarok":{
-			"role":	["super", "static"],
-            "threat":{"air": 0.0, "water": 0.1, "surf": 0.5},
-            "build_mod": 10,
-			"limit": 1,
-//			"fire_state": "open",
-			"cooldown": 5
-        },
+
 		"armrl": {
 			"role": ["anti_air"],
 			"threat":{"air":3.0, "surf":0.0, "water":0.0}
@@ -544,28 +524,11 @@
         "corsilo":{
 			"role":	["super", "static"],
             "threat":{"air": 0.0, "water": 0.0, "surf": 0.1},
-			"build_mod": 10,
-			"limit": 10
+			"limit": 1
         },
-		"corfmd":{
-			"role":	["super", "static"],
-            "threat":{"air": 0.0, "water": 0.0, "surf": 0.0},
-			"limit": 5
-        },
-        "corbuzz":{
-			"role":	["super", "static"],
-            "threat":{"air": 0.0, "water": 0.1, "surf": 0.5},
-            "build_mod": 10,
-			"limit": 5
-        },
-		"epic_calamity":{
-			"role":	["super", "static"],
-            "threat":{"air": 0.0, "water": 0.1, "surf": 0.5},
-            "build_mod": 10,
-			"limit": 1,
-//			"fire_state": "open",
-			"cooldown": 5
-        },
+
+
+
 
 // BUILDINGS
 		"armtarg": {
@@ -639,16 +602,8 @@
 		},
 		"armsolar" : {
             "role": ["static"],
-			"cooldown": 3,
-			"limit": 4,
             "build_mod": 300
         },
-		"armadvsol" : {
-			"role": ["static"],
-			"cooldown": 3,
-			"limit": 6,
-            "build_mod": 300
-		},
 		"armgeo": {
 			"role": ["static"],
 			"midposoffset": [0, 0, -2]
@@ -660,7 +615,7 @@
         },
         "armafus" : {
             "role": ["static"],
-            "build_mod": 10
+            "build_mod": 4000
         },
 		"armuwfus" : {
             "role": ["static"],
@@ -693,18 +648,6 @@
 			"role": ["static"],
 			"build_mod": 200
 		},
-		"corsolar" : {
-			"role": ["static"],
-			"cooldown": 3,
-			"limit": 4,
-            "build_mod": 300
-		},
-		"coradvsol" : {
-			"role": ["static"],
-			"cooldown": 3,
-			"limit": 6,
-            "build_mod": 300
-		},
 		"cormexp" : {
 			"role": ["static"],
 			"build_mod": 500,
@@ -714,10 +657,6 @@
             "role": ["static"],
             "build_mod": 4000,
 			"cooldown": 3
-        },
-        "corafus" : {
-            "role": ["static"],
-            "build_mod": 10
         },
 		"coruwfus" : {
             "role": ["static"],
@@ -1287,8 +1226,7 @@
 		},
 		"armyork": {
 			"role": ["anti_air"],
-            "threat":{"air":1.0, "water":0.0, "surf":0.0},
-			"retreat": 0.6
+			"threat":{"air":1.0, "water":0.0, "surf":0.0}
 		},
 		"armseer": {
 			"role": ["support"], //support
@@ -1686,7 +1624,6 @@
 		},
 		"corsent": {
 			"role": ["anti_air"],
-            "threat":{"air":1.0, "water":0.0, "surf":0.0},
 			"retreat": 0.6
 		},
 		"corvroc": {

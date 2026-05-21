@@ -2,12 +2,12 @@
 {
 	"porcupine": {
 		"unit": {
-		//              	0           		1         		2        		3           4          5     		6				7				8				9   
+		//              0           		  1         	 2        	   3           	 4         5     	  6				  7				  8				  9  					 
 			"legion":  ["leglht",             "legtl",       "legrl",      "leghive",    "legmg",  "legdtr",  "leglupara",    "legrhapsis",   "legapopupdef", "leganavaltorpturret",
 					    "legflak",            "legacluster", "legbastion", "legcluster", "legabm", "legtarg", "legdeflector", "epic_bastion", "leggatet3",    "leglrpc",
 					    "leganavaldefturret", "legajam", 	 "legjuno",	   "legsilo"]
 		},
-		
+
 	// Actual number of defences per cluster bounded by income - the order of defenses that should be build with numbers as above.
 	"land":  [10, 21, 19],
 	"water": [9, 10, 20],
@@ -19,14 +19,19 @@
 		"map": [10, 20]
 	},
 	"point_range": 600.0,  // maximum distance between 2 points in hierarchical cluster within economy cluster
-
+		
 	// Base defence and time to build it, in seconds
+	"base": [
+		[3, 420], [2, 520], [4, 760], [23, 840], [10, 1200], [14, 1250], [12, 1600]
+	],		
+	//superweapons get only build when there is nothing else to do
 	"superweapon": {
 		"unit": {
-			"legion": ["legstarfall", "legabm"]
+			"legion": ["legstarfall", "legabm"] //"leglupara", "legperdition", "legabm", "legsilo"
 		},
-		"weight":     [ 0.60,          0.10],
-		"condition": [80, 500]  // [<Minimum income>, <maximum seconds to build>]
+		"weight":     [ 0.60,          0.40],
+
+		"condition": [40, 600]  // [<Minimum income>, <maximum seconds to build>]
 	},
 
 	// Fallback defence
@@ -87,9 +92,9 @@
 			"hub": [
 				[ 
 					//{"unit": "legapopupdef", "category": "defence", "offset": [200, 0], "condition": {"chance": 0.5}},
-					{"unit": "leglupara", "category": "defence", "offset": [-80, 80], "priority": "now"},
+					{"unit": "legrhapsis", "category": "defence", "offset": [-80, 80], "condition": {"air": true}},
 					{"unit": "legnanotc", "category": "defence", "offset": {"front": 100}},
-					{"unit": "legsilo", "category": "defence", "offset": [200,0], "priority": "now"}
+					{"unit": "legsilo", "category": "defence", "offset": [200, 0], "condition": {"chance": 0.2}}
 				]
 			]
 		},
@@ -101,37 +106,27 @@
 //					{"unit": "legadveconv", "category": "convert", "offset": [120, 150]},
 //					{"unit": "legadveconv", "category": "convert", "offset": [150, 150]},
 //					{"unit": "legadveconv", "category": "convert", "offset": [120, -120]},
-					{"unit": "leglupara", "category": "defence", "offset": [-80, 80], "priority": "now"},
-					{"unit": "leglupara", "category": "defence", "offset": [-50, 80], "priority": "now"},
-					{"unit": "leglupara", "category": "defence", "offset": [-80, 110], "priority": "now"},
-					{"unit": "leglupara", "category": "defence", "offset": [-50, 110], "priority": "now"},
-					{"unit": "leglraa", "category": "defence", "offset": [-80, 140], "priority": "now"},
-					{"unit": "leglraa", "category": "defence", "offset": [-50, 140], "priority": "now"}
-				]
-			]
-		},
-		"leganavalfusion": {
-			"hub": [
-				[  
-					{"unit": "leganavaleconv", "category": "convert", "offset": {"back": 5}, "priority": "normal"},
-					{"unit": "leganavaleconv", "category": "convert", "offset": {"back": 5}, "priority": "normal"},
-					{"unit": "leganavalaaturret", "category": "defence", "offset": [-80, 80], "priority": "now"},
-					{"unit": "leganavalfusion", "category": "energy", "offset": {"back": 10}, "priority": "normal"},
-					{"unit": "legnanotcplat", "category": "nano", "offset": {"back": 5}, "priority": "normal"},
-					{"unit": "legnanotcplat", "category": "nano", "offset": {"back": 5}, "priority": "normal"},
-					{"unit": "legnanotcplat", "category": "nano", "offset": {"back": 5}, "priority": "normal"},
-					{"unit": "legnanotcplat", "category": "nano", "offset": {"back": 5}, "priority": "normal"}
+		
+					
+	
+					{"unit": "legrhapsis", "category": "defence", "offset": [-80, 80], "condition": {"air": true}}
 				]
 			]
 		}
 	},
-	//###
+
+
+
+
 	"geo": {
 		"leggeo": {
 			"hub": [[{"unit": "legmg", "category": "defence", "offset": {"front": 64}}]]
 		}
 	},
-	//###
+
+
+
+
 	"factory": {
 		"leglab": {
 			"hub": [[{"unit": "leglht", "category": "defence", "offset": {"back": 5}, "priority": "now"}]]
@@ -141,91 +136,70 @@
 		},
 
 		"legalab": {
-			"hub": [[
-			    {"unit": "legnanotct2", "category": "nano", "offset": {"front": 5}, "priority": "now"},
-				{"unit": "legnanotct2", "category": "nano", "offset": {"front": 10}, "priority": "now"},
-				{"unit": "legfus", "category": "energy", "offset": {"back": 40}, "priority": "now"},
-				{"unit": "legadvestore", "category": "store", "offset": {"back": 50}, "priority": "now"},
-				{"unit": "legabm", "category": "defence", "offset": {"back": 60}, "priority": "now"}
-			]]
+			"hub": [
+					//[{"unit": "legarad", "category": "defence", "offset": {"back": 100}, "priority": "normal"}],
+					[{"unit": "legacluster", "category": "defence", "offset": {"front": 100}, "priority": "low"}]
+		]
 		},
 		"legavp": {
-			"hub": [[
-			    {"unit": "legnanotct2", "category": "nano", "offset": {"front": 5}, "priority": "now"},
-				{"unit": "legnanotct2", "category": "nano", "offset": {"front": 10}, "priority": "now"},
-				{"unit": "legfus", "category": "energy", "offset": {"back": 40}, "priority": "now"},
-				{"unit": "legadvestore", "category": "store", "offset": {"back": 50}, "priority": "now"},
-				{"unit": "legabm", "category": "defence", "offset": {"back": 60}, "priority": "now"}
-			]]
+			"hub": [
+				[{"unit": "legacluster", "category": "defence", "offset": {"front": 100}, "priority": "low"}]
+			]
 		},
-		"legadvshipyard": {
-			"hub": [[
-				{"unit": "legsplab", "category": "factory", "offset": {"back": 120}, "priority": "now"},
-				{"unit": "legnanotcplat", "category": "nano", "offset": {"back": 5}, "priority": "normal"},
-				{"unit": "legnanotcplat", "category": "nano", "offset": {"back": 5}, "priority": "normal"},
-				{"unit": "legnanotcplat", "category": "nano", "offset": {"back": 5}, "priority": "normal"},
-				{"unit": "legnanotcplat", "category": "nano", "offset": {"back": 5}, "priority": "normal"},
-				{"unit": "leganavalfusion", "category": "energy", "offset": {"back": 40}, "priority": "normal"},
-				{"unit": "legadvestore", "category": "store", "offset": {"back": 40}, "priority": "normal"}
-			]]
-		},
+
+
 		"legap": {
-			"hub": [[
-				{"unit": "leglht", "category": "defence", "offset": {"front": 5}, "priority": "now"}
-			]]
-		},
-		"legaap": {
-			"hub": [[
-			    {"unit": "legnanotct2", "category": "nano", "offset": {"front": 5}, "priority": "now"},
-				{"unit": "legnanotct2", "category": "nano", "offset": {"front": 10}, "priority": "now"},
-				{"unit": "legfus", "category": "energy", "offset": {"back": 40}, "priority": "now"},
-				{"unit": "legadvestore", "category": "store", "offset": {"back": 50}, "priority": "now"},
-				{"unit": "legabm", "category": "defence", "offset": {"back": 60}, "priority": "now"}
-			]]
-		},
-		"leggant": {
-			"hub": [[
-			    {"unit": "legnanotct2", "category": "nano", "offset": {"left": 5}, "priority": "now"},
-				{"unit": "legnanotct2", "category": "nano", "offset": {"left": 10}, "priority": "now"},
-				{"unit": "legnanotct2", "category": "nano", "offset": {"right": 5}, "priority": "now"},
-				{"unit": "legnanotct2", "category": "nano", "offset": {"right": 10}, "priority": "now"},
-				{"unit": "legnanotct2", "category": "nano", "offset": {"back": 5}, "priority": "now"},
-				{"unit": "leggatet3", "category": "defence", "offset": {"front": 150}, "priority": "now"}
-			]]
-		},
-		"legapt3": {
-			"hub": [[
-			    {"unit": "legnanotct2", "category": "nano", "offset": {"left": 5}, "priority": "now"},
-				{"unit": "legnanotct2", "category": "nano", "offset": {"left": 10}, "priority": "now"},
-				{"unit": "legnanotct2", "category": "nano", "offset": {"right": 5}, "priority": "now"},
-				{"unit": "legnanotct2", "category": "nano", "offset": {"right": 10}, "priority": "now"},
-				{"unit": "legnanotct2", "category": "nano", "offset": {"back": 5}, "priority": "now"},
-				{"unit": "leggatet3", "category": "defence", "offset": {"front": 100}, "priority": "now"},
-				{"unit": "legaap", "category": "factory", "offset": {"back": 100}, "priority": "now"}
-			]]
+			//"hub": [[{"unit": "leglht", "category": "defence", "offset": {"front": 5}, "priority": "now"}]]
 		}
+
 	},
-	//###
+
+
+
+
+
+
 	"mex": {
 		"legmex": {
 //			"terra": true,
 //			"energy": [200, true], //AI will force-build 1 solar near every mex till it reaches 200 energy income
 			"porc": true
-		},
-		"leganavalmex": {
-//			"terra": true,
-//			"energy": [200, true], //AI will force-build 1 solar near every mex till it reaches 200 energy income
-			"porc": true
 		}
-	}
-	//###
-	/*"radar":{
+	},
+
+
+
+
+
+	"radar":{
 		"legrad": {
 			"hub": [
-				{"unit": "legjam", "category": "defence", "offset": [-60, 0], "priority": "high"},
-				{"unit": "legjuno", "category": "defence", "offset": [-30, 0], "priority": "high"}
+				[
+					{"unit": "leglht", "category": "defence", "offset": {"front": 100}, "priority": "now"},
+					{"unit": "legrl", "category": "defence", "offset": {"back": 10},"condition": {"air": true}, "priority": "high"},
+					{"unit": "legapopupdef", "category": "defence", "offset": [120, 100], "priority": "normal"},
+				
+					//{"unit": "legbastion", "category": "defence", "offset": [70, -100], "priority": "normal"},
+					{"unit": "legbastion", "category": "defence", "offset": [70, 100], "condition": {"chance":0.5}, "priority": "low"},				
+					{"unit": "legajam", "category": "defence", "offset": [-60, 0], "priority": "now"},
+					{"unit": "legarad", "category": "defence", "offset": [-100, 0], "priority": "high"}, 
+					{"unit": "leglrpc", "category": "defence", "offset": [-100, 0], "priority": "normal"}
+				]
+			]
+		},
+		"legfrad": {
+			"hub": [
+				[
+					{"unit": "legsy", "category": "factory", "offset": {"front": 100}, "priority": "now"},
+					{"unit": "legfmg", "category": "defence", "offset": {"front": 100},"condition": {"air": true}, "priority": "now"},
+					{"unit": "legadvshipyard", "category": "defence", "offset": [50, 50], "priority": "high"},
+
+					{"unit": "leganavaldefturret", "category": "defence", "offset": [100, 50], "priority": "now"},
+					{"unit": "leganavaltorpturret", "category": "defence", "offset": [100, 50], "priority": "high"}, 
+					{"unit": "leganavalaaturret", "category": "defence", "offset": [100, 50], "priority": "normal"}
+				]
 			]
 		}
-	}*/
+	}
 }
 }

@@ -65,7 +65,7 @@
 	"scout": {
 		"vs":         ["scout", "artillery",  "static",  "anti_heavy", "anti_heavy_ass"],
 		"ratio":      [ 1.00,    0.05,         0.00,      0.05,			0.05],
-		"importance": [ 20.00,   0.05,         0.00,      5.00,			5.00],
+		"importance": [ 20.00,   10.00,        0.00,      5.00,			5.00],
 		"max_percent": 0.1,
 		"eps_step": 0.02
 	},
@@ -93,7 +93,7 @@
 	"sub":{
 		"vs":         ["skirmish", "assault", "riot", "heavy", "super"],
 		"ratio":      [ 0.50,        0.50,		0.5,	0.5,	0.5],
-		"importance": [ 5.0,         5.0,		5.0, 	5.0, 	5.0],
+		"importance": [ 5.0,         5.0,		5.0, 	5.0, 	100.0],
 		"max_percent": 0.50,
 		"eps_step": 0.0
 	},
@@ -119,9 +119,9 @@
 		"eps_step": 0.00
 	},
 	"bomber": {
-		"vs":         ["static"],
-		"ratio":      [ 0.10],
-		"importance": [ 10.0],
+		"vs":         ["static", "super", "artillery"],
+		"ratio":      [ 0.10,	 5.00,	  0.30],
+		"importance": [ 10.0,	 100.0,	  5.00],
 		"max_percent": 0.20,
 		"eps_step": 0.00
 	},

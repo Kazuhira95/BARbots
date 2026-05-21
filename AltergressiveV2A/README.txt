@@ -13,7 +13,7 @@ Run with these tweaks
 !bset experimentalextraunits 1
 !bset experimentallegionfaction 1
 !bset experimentalshields absorbeverything
-!bset maxunits 1000
+!bset maxunits 2000
 !bset scavunitsforplayers 1
 !bset forceallunits 1
 !bset evocom 1
@@ -21,6 +21,9 @@ Run with these tweaks
 $rename PvE [Modded BarBs] Extra+Scav+Legion Settings
 $welcome-message Altergressive AI is based on (now deprecated) Felnious AI found here: (https://github.com/Kazuhira95/BARbots) Forked from: (https://github.com/Felnious/Skirmish)
 
+### Optional Tweaks Below ###
+These are tweaks I find fun.
+User notes: if you use tweakdefs1, make sure to use tweakunits1 as well. Visit BAR discord for more info.
 
 ##Tweakdefs##
 T3 Geo  Wall  Nanos  Spy Satellite  = tweakdefs1    (I added Spy Satellite, Original Author: https://discord.com/channels/549281623154229250/1375226452106150128)
