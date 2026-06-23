@@ -1,5 +1,5 @@
 AltergressiveV2 README
-Run with these tweaks
+Run with these Optional tweaks
 
 ##Main Settings##
 !preset custom
@@ -21,7 +21,7 @@ Run with these tweaks
 $rename PvE [Modded BarBs] Extra+Scav+Legion Settings
 $welcome-message Altergressive AI is based on (now deprecated) Felnious AI found here: (https://github.com/Kazuhira95/BARbots) Forked from: (https://github.com/Felnious/Skirmish)
 
-### Optional Tweaks Below ###
+### More Optional Tweaks Below ###
 These are tweaks I find fun.
 User notes: if you use tweakdefs1, make sure to use tweakunits1 as well. Visit BAR discord for more info.
 
