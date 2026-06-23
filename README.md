@@ -1,7 +1,7 @@
 # BARbots
 Beyond All Reason Custom Bots
 
-Please use the AltergressiveV2N version as it gets updated first, but feel free to try AltergressiveV2A.
+All other AI deprecated, AltergressiveV2A is now main.
 
 ###HOW TO INSTALL!###
 
