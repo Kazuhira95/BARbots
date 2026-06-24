@@ -26,7 +26,7 @@ If you have file name extension on (recommended) it would be devmode.txt
 
 Do not put anything in this text file, leave it blank.
 
-If you didn't close the BAR launcher, start the game
+If you didn't close the BAR launcher, restart the launcher then start the game
 
 Click on Developer tab, uncheck Simplified AI list
 
