@@ -1,7 +1,7 @@
 # BARbots
 Beyond All Reason Custom Bots
 
-Please use the AltergressiveV2N version as it gets updated first, but feel free to try AltergressiveV2A.
+All other AI deprecated, AltergressiveV2A is now main.
 
 ###HOW TO INSTALL!###
 
@@ -26,7 +26,7 @@ If you have file name extension on (recommended) it would be devmode.txt
 
 Do not put anything in this text file, leave it blank.
 
-If you didn't close the BAR launcher, start the game
+If you didn't close the BAR launcher, restart the launcher then start the game
 
 Click on Developer tab, uncheck Simplified AI list
 
