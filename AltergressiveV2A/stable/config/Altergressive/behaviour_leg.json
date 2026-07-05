@@ -649,8 +649,7 @@
 				"build_speed": 5.0
 			},
 			"legaca": {
-				"role": ["builder", "air"],
-				"attribute": ["solo"],
+				"role": ["builderT2", "air"],
 				"retreat": 0.6,
 				"limit": 100,
 				"build_speed": 10.0
@@ -761,7 +760,7 @@
 				"limit": 2
 			},
 			"legsrail": {
-				"role": ["anti_heavy", "anti_air"]
+				"role": ["anti_heavy"]
 			},
 			"leghrk": {
 				"role": ["artillery"],

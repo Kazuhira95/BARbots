@@ -75,11 +75,11 @@ void AiUnitAdded(CCircuitUnit@ unit, Unit::UseAs usage)
 				tech2AirCount++;
 				unit.AddAttribute(Unit::Attr::BASE.type);
 			}
+			return;
 		}
-		return;
 	}
 
-	// No air factories: constructor with BASE attribute is assigned to tasks near base
+	// Ground builder with BASE attribute is assigned to tasks near base
 	if (cdef.costM < 200.f) {
 		if (energizer1 is null
 			&& (uint(cdef.count) > aiMilitaryMgr.GetGuardTaskNum() || cdef.IsAbleToFly()))

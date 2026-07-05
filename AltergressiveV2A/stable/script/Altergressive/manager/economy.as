@@ -36,6 +36,15 @@ void AiUpdateEconomy()
 	aiEconomyMgr.isEnergyFull = energy.current > energy.storage * 0.95f;
 
 	aiFactoryMgr.isAssistRequired = true;
+
+	// Suppress T3 converters when metal income is too low to afford them
+	const float minMetalIncomeForT3 = 30.0f;
+	CCircuitDef@ t3a = ai.GetCircuitDef("armmmkrt3");
+	if (t3a !is null) t3a.SetIgnore(metal.income < minMetalIncomeForT3);
+	CCircuitDef@ t3c = ai.GetCircuitDef("cormmkrt3");
+	if (t3c !is null) t3c.SetIgnore(metal.income < minMetalIncomeForT3);
+	CCircuitDef@ t3l = ai.GetCircuitDef("legadveconvt3");
+	if (t3l !is null) t3l.SetIgnore(metal.income < minMetalIncomeForT3);
 }
 
 }  // namespace Economy
