@@ -53,7 +53,7 @@
 				"since": 900
 			},
             "armfepocht4": {
-				"role": ["super"],
+				"role": ["super", "air"],
 				"attribute": ["skirmish"],
 				"retreat": 0.0,
 				"power": 25.0
@@ -61,6 +61,9 @@
 			"armlichet4": {
 				"role": ["bomber"],
 				"attribute": ["siege"],
+				"threat": {"default": 0.0,
+					"vs": {"super": 3.0, "static": 0.0}
+				},
 				"retreat": 0.0,
 				"power": 25.0
 			},
@@ -93,7 +96,7 @@
 				"since": 900
 			},
             "corfblackhyt4": {
-				"role": ["super"],
+				"role": ["super", "air"],
 				"attribute": ["skirmish"],
 				"retreat": 0.0,
 				"power": 25.0
@@ -108,7 +111,7 @@
 				"power": 5.0
 			},
 			"legpede": {
-				"role": ["raider"],
+				"role": ["raider", "super"],
 				"attribute": ["melee"],
 				"retreat": 0.0,
 				"power": 15.0
@@ -127,7 +130,7 @@
 				"since": 900
 			},
             "legfortt4": {
-				"role": ["super"],
+				"role": ["super", "air"],
 				"attribute": ["skirmish"],
 				"retreat": 0.0,
 				"power": 25.0

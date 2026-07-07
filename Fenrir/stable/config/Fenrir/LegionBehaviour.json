@@ -929,7 +929,7 @@
 				"power": 20.0
 			},
 			"legelrpcmech": {
-				"role": ["artillery"],
+				"role": ["artillery", "super"],
 				"attribute": ["siege"],
 				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
 				"power": 20.0
@@ -947,7 +947,7 @@
 				"power": 20.0
 			},
 			"legeheatraymech": {
-				"role": ["heavy"],
+				"role": ["heavy", "super"],
 				"attribute": ["melee", "solo"],
 				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
 				"power": 20.0
@@ -1072,7 +1072,9 @@
 			},
 			"legkam": {
 				"role": ["bomber", "air"],
-				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
+				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0,
+					"vs": {"super": 3.0, "static": 0.0}
+				},
 				"power": 20.0
 			},
 			"legmos": {
@@ -1112,17 +1114,23 @@
 			},
 			"legphoenix": {
 				"role": ["bomber", "air"],
-				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
+				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0,
+					"vs": {"super": 3.0, "static": 0.0}
+				},
 				"power": 20.0
 			},
 			"legnap": {
 				"role": ["bomber", "air"],
-				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
+				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0,
+					"vs": {"super": 3.0, "static": 0.0}
+				},
 				"power": 20.0
 			},
 			"legmineb": {
 				"role": ["bomber", "air"],
-				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
+				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0,
+					"vs": {"super": 3.0, "static": 0.0}
+				},
 				"power": 20.0
 			},
 			"legstronghold": {

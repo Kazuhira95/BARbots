@@ -915,7 +915,7 @@
 				"power": 20
 			},
 			"armvang": { //vanguard
-				"role": ["artillery", "heavy"],
+				"role": ["artillery", ,"super", "heavy"],
 				"attribute": ["siege"],
 				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0,
 					"vs": { "spam": 0}
@@ -923,7 +923,7 @@
 				"power": 20
 			},
 			"armbanth": { //Titan
-				"role": ["assault", "heavy"],
+				"role": ["assault", "super", "heavy"],
 				"attribute": ["melee"],
 				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
 				"power": 20
@@ -1046,6 +1046,11 @@
 				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
 				"power": 20
 			},
+			"armcroc": {
+				"role": ["assault"],
+				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
+				"power": 20
+			},
 	
 //================================================================================================================================o
 //=========================================A R M A D A  T 1  A I R C R A F T======================================================o
@@ -1063,7 +1068,9 @@
 			},
 			"armthund": {
 				"role": ["bomber", "static", "assault", "anti_air"],
-				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
+				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0,
+					"vs": {"super": 3.0, "static": 0.0}
+				},
 				"power": 20
 			},
 			"armkam": {
@@ -1092,7 +1099,7 @@
 				"role": ["bomber", "air", "raider", "riot", "assault", "skirmish"],
 				"attribute": ["siege"],
 				"threat": {"air": 0, "water": 0.5, "surf": 1,
-					"vs": {"artillery": 1, "anti_air": 0.5, "riot": 1, "anti_heavy": 1, "anti_heavy_ass": 1, "spam": 0}	
+					"vs": {"artillery": 1, "anti_air": 0.5, "riot": 1, "anti_heavy": 1, "anti_heavy_ass": 1, "spam": 0, "super": 3.0, "static": 0.0}	
 				},
 				"retreat": 0,
 				"power": 20
@@ -1127,14 +1134,16 @@
 			},
 			"armstil": {
 				"role": ["bomber", "air"],
-				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
+				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0,
+					"vs": {"super": 3.0, "static": 0.0}
+				},
 				"power": 20
 			},
 			"armliche": {
 				"role": ["bomber", "air"],
 				"attribute": ["siege"],
 				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0,
-					"vs": { "spam": 0}	
+					"vs": {"spam": 0, "super": 3.0, "static": 0.0}	
 				},
 				"power": 20
 			},

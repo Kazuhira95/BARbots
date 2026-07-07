@@ -38,16 +38,7 @@ namespace RoleFront {
         }
 
         // Initialize T2 bomber defaults: support role, fire state 3
-        {
-            array<string> t2Bombers = {"armpnix", "corhurc", "legphoenix"};
-            for (uint i = 0; i < t2Bombers.length(); ++i) {
-                CCircuitDef@ d = ai.GetCircuitDef(t2Bombers[i]);
-                if (d is null) continue;
-                d.SetFireState(3);
-            }
-            UnitDefHelpers::SetMainRoleFor(t2Bombers, "support");
-            GenericHelpers::LogUtil("[Front][Air] T2 bomber defaults applied", 3);
-        }
+        Front_ApplyT2BomberDefDefaults();
 
         // Default to bot thresholds in Front init
         aiMilitaryMgr.quota.scout = Global::RoleSettings::Front::MilitaryScoutCapBots;
@@ -57,6 +48,13 @@ namespace RoleFront {
         g_frontVehicleThresholdsApplied = false;
 
         Front_ApplyStartLimits();
+
+        // On landlocked maps, disable hover plants for the FRONT role at init time
+        // (reinforced each economy update in Front_IncomeLabLimits).
+        if (Global::Map::LandLocked) {
+            UnitHelpers::BatchApplyUnitCaps(UnitHelpers::GetAllT1HoverPlants(), 0);
+            GenericHelpers::LogUtil("[FRONT] Hover plants capped to 0 on landlocked map", 2);
+        }
 
         // Log all strategic objectives with distance from start
         ObjectiveHelpers::LogAllObjectivesFromStart(AiRole::FRONT, "FRONT");
@@ -84,7 +82,33 @@ namespace RoleFront {
     ******************************************************************************/
 
     void Front_MainUpdate() {
-
+        // Bomber gate logic: poll total T2 bomber count, switch role when threshold met
+        int totalBombers = Front_GetTotalT2BomberCount();
+        int openThresh = Global::RoleSettings::Air::BomberGateOpenThreshold;
+        int closeThresh = Global::RoleSettings::Air::BomberGateCloseThreshold;
+        if (!g_frontBomberGateOpen && totalBombers >= openThresh) {
+            g_frontBomberGateOpen = true;
+            Front_SetMainRoleForAllT2Bombers("bomber");
+            // Upgrade tracked bombers built while gate was closed
+            array<CCircuitUnit@> compact;
+            for (uint i = 0; i < g_frontT2BomberUnits.length(); ++i) {
+                CCircuitUnit@ bu = g_frontT2BomberUnits[i];
+                if (bu is null) continue;
+                compact.insertLast(bu);
+            }
+            for (uint i = 0; i < compact.length(); ++i) {
+                CCircuitUnit@ bu = compact[i];
+                if (bu !is null) {
+                    bu.AddAttribute(Unit::Attr::SIEGE.type);
+                }
+            }
+            g_frontT2BomberUnits.resize(0);
+            GenericHelpers::LogUtil("[Front][Bombers] Gate OPEN: total=" + totalBombers + ", switching defs to bomber role, upgraded tracked bombers", 3);
+        } else if (g_frontBomberGateOpen && totalBombers < closeThresh) {
+            g_frontBomberGateOpen = false;
+            Front_SetMainRoleForAllT2Bombers("support");
+            GenericHelpers::LogUtil("[Front][Bombers] Gate CLOSED: total=" + totalBombers + ", reverting defs to support role", 3);
+        }
     }
 
     /******************************************************************************
@@ -94,8 +118,25 @@ namespace RoleFront {
     ******************************************************************************/
 
     void Front_EconomyUpdate() {
-    float metalIncome = aiEconomyMgr.metal.income;
+        float metalIncome = aiEconomyMgr.metal.income;
         Front_IncomeLimits(metalIncome);
+
+        // Tiered dynamic open-threshold for bomber gate based on metal income
+        float mi = Economy::GetMinMetalIncomeLast10s();
+        int tier = 0;
+        if (mi < 100.0f) {
+            tier = 0;
+        } else if (mi <= 150.0f) {
+            tier = 1;
+        } else {
+            tier = 2;
+        }
+        if (tier != g_frontLastBomberOpenTier) {
+            int newOpen = (tier == 0 ? 1 : (tier == 1 ? 40 : 100));
+            Global::RoleSettings::Air::BomberGateOpenThreshold = newOpen;
+            g_frontLastBomberOpenTier = tier;
+            GenericHelpers::LogUtil("[Front][Economy] Bomber open threshold set to " + newOpen + " (miMin10s=" + mi + ")", 4);
+        }
     }
 
     /******************************************************************************
@@ -127,6 +168,46 @@ namespace RoleFront {
     // Shipyard phase booleans for landlocked maps (prerequisites for T3)
     bool g_hasBuiltT1Sea = false;
     bool g_hasBuiltT2Sea = false;
+
+    // Bomber gate state (dynamic switching between support and bomber roles)
+    bool g_frontBomberGateOpen = false;
+    int g_frontLastBomberOpenTier = -1;
+    // Track actual T2 bomber units built while gate is closed (for SIEGE upgrade on gate-open)
+    array<CCircuitUnit@> g_frontT2BomberUnits;
+
+    // Helper: return canonical T2 bomber unitdef names for all sides
+    array<string> Front_GetAllT2BomberNames() {
+        array<string> names;
+        names.insertLast("armpnix");
+        names.insertLast("corhurc");
+        names.insertLast("legphoenix");
+        return names;
+    }
+
+    // Helper: set mainRole for all T2 bomber defs
+    void Front_SetMainRoleForAllT2Bombers(const string &in mainRole) {
+        array<string> names = Front_GetAllT2BomberNames();
+        UnitDefHelpers::SetMainRoleFor(names, mainRole);
+        GenericHelpers::LogUtil("[Front][Bombers] Set mainRole=" + mainRole + " for T2 bombers", 3);
+    }
+
+    // Helper: compute total team count of T2 bombers across all factions
+    int Front_GetTotalT2BomberCount() {
+        array<string> names = Front_GetAllT2BomberNames();
+        return UnitDefHelpers::SumUnitDefCounts(names);
+    }
+
+    // Apply defaults to T2 bomber defs: support role, fire state 3
+    void Front_ApplyT2BomberDefDefaults() {
+        array<string> names = Front_GetAllT2BomberNames();
+        for (uint i = 0; i < names.length(); ++i) {
+            CCircuitDef@ d = ai.GetCircuitDef(names[i]);
+            if (d is null) continue;
+            d.SetFireState(3);
+        }
+        Front_SetMainRoleForAllT2Bombers("support");
+        GenericHelpers::LogUtil("[Front][Bombers] T2 bomber defaults applied (support role, fire state 3)", 3);
+    }
 
     // Eco-scaled factory switch limit (AltergressiveV2A formula)
     float g_frontSwitchLimit = 5000 * SECOND;
@@ -325,6 +406,15 @@ namespace RoleFront {
 
     string Front_SelectFactoryHandler(const AIFloat3& in pos, bool isStart, bool isReset) {
         if(isStart) {
+            // On landlocked maps, always start with a land factory (bot lab) to avoid
+            // expensive hover-start paths. All factions must follow the same build order:
+            // land factory -> T1 shipyard -> T2 shipyard.
+            if (Global::Map::LandLocked) {
+                string side = Global::AISettings::Side;
+                GenericHelpers::LogUtil("[Front_SelectFactoryHandler] LandLocked start: forcing bot lab for side=" + side, 1);
+                return UnitHelpers::GetT1BotLabForSide(side);
+            }
+
             if(Global::Map::NearestMapStartPosition !is null) {
                 return FactoryHelpers::SelectStartFactoryForRole(Global::AISettings::Role, Global::AISettings::Side);
             } else {
@@ -332,7 +422,7 @@ namespace RoleFront {
                 return FactoryHelpers::GetFallbackStartFactoryForRole(Global::AISettings::Role, Global::AISettings::Side);
             }
         }
-   
+    
         return "";
     }
 
@@ -409,6 +499,44 @@ namespace RoleFront {
     {
         //GenericHelpers::LogUtil("[FRONT] FactoryAiUnitRemoved id=" + (unit is null ? -1 : unit.id) + " usage=" + usage, 3);
         // No Front-specific cleanup required; Factory manager handles primary/anchor clearing.
+    }
+
+    /******************************************************************************
+
+    MILITARY UNIT TRACKING (for bomber gate)
+
+    ******************************************************************************/
+
+    // Track newly created military units; record T2 bombers while the gate is closed
+    void Front_MilitaryAiUnitAdded(CCircuitUnit@ unit, Unit::UseAs usage)
+    {
+        if (unit is null) return;
+        if (usage != Unit::UseAs::COMBAT) return;
+        const CCircuitDef@ cdef = unit.circuitDef;
+        if (cdef is null) return;
+        // Only track T2 bombers when the gate is closed
+        string uname = cdef.GetName();
+        if (!g_frontBomberGateOpen) {
+            array<string> t2Names = Front_GetAllT2BomberNames();
+            for (uint i = 0; i < t2Names.length(); ++i) {
+                if (uname == t2Names[i]) {
+                    g_frontT2BomberUnits.insertLast(unit);
+                    GenericHelpers::LogUtil("[Front][Bombers] Tracking T2 bomber unit id=" + unit.id + " ('" + uname + "') while gate closed", 4);
+                    break;
+                }
+            }
+        }
+    }
+
+    void Front_MilitaryAiUnitRemoved(CCircuitUnit@ unit, Unit::UseAs usage)
+    {
+        if (unit is null) return;
+        for (uint i = 0; i < g_frontT2BomberUnits.length(); ++i) {
+            if (g_frontT2BomberUnits[i] is unit) {
+                g_frontT2BomberUnits.removeAt(i);
+                break;
+            }
+        }
     }
 
     bool Front_AiIsSwitchTime(int lastSwitchFrame) {
@@ -523,7 +651,7 @@ namespace RoleFront {
             }
         }
 
-        // Route T1 land constructors (bot or vehicle) to FRONT logic; others fallback
+        // Route T1 land constructors (bot, vehicle, or hover) to FRONT logic
         if (ctorTier == 1) {
             bool isPrimaryBot = Builder::primaryT1BotConstructor !is null && builder.id == Builder::primaryT1BotConstructor.id;
             bool isSecondaryBot = Builder::secondaryT1BotConstructor !is null && builder.id == Builder::secondaryT1BotConstructor.id;
@@ -536,6 +664,20 @@ namespace RoleFront {
                 float metalIncome = Economy::GetMinMetalIncomeLast10s();
                 float energyIncome = Economy::GetMinEnergyIncomeLast10s();
                 return Front_T1Constructor_AiMakeTask(builder, defaultTask, metalIncome, energyIncome, isEnergyStalling, isEnergyFull);
+            }
+            // On landlocked maps, route hover constructors to the same T1 logic so they
+            // can build T1 shipyards and follow the same progression as bot/vehicle constructors.
+            if (Global::Map::LandLocked) {
+                bool isPrimaryHover = Builder::primaryT1HoverConstructor !is null && builder.id == Builder::primaryT1HoverConstructor.id;
+                bool isSecondaryHover = Builder::secondaryT1HoverConstructor !is null && builder.id == Builder::secondaryT1HoverConstructor.id;
+                if (isPrimaryHover || isSecondaryHover) {
+                    bool isEnergyFull = aiEconomyMgr.isEnergyFull;
+                    bool isEnergyStalling = aiEconomyMgr.isEnergyStalling;
+                    float metalIncome = Economy::GetMinMetalIncomeLast10s();
+                    float energyIncome = Economy::GetMinEnergyIncomeLast10s();
+                    GenericHelpers::LogUtil("[FRONT] Routing T1 hover ctor id=" + builder.id + " to T1 constructor logic (landlocked)", 1);
+                    return Front_T1Constructor_AiMakeTask(builder, defaultTask, metalIncome, energyIncome, isEnergyStalling, isEnergyFull);
+                }
             }
         } else if (ctorTier == 2) {
             // Mirror TECH role routing: handle primary/secondary T2 bot constructors explicitly
@@ -644,6 +786,12 @@ namespace RoleFront {
         }
 
         //RoleLimitHelpers::GateGantriesByIncome(temp, side, 250.0f, 1);
+
+        // On landlocked maps, disable hover plants for the FRONT role — all factions
+        // follow the same land-factory -> T1 shipyard -> T2 shipyard progression.
+        if (Global::Map::LandLocked) {
+            UnitHelpers::BatchApplyUnitCaps(UnitHelpers::GetAllT1HoverPlants(), 0);
+        }
 
         // Shipyard caps for landlocked maps
         if (Global::Map::LandLocked) {
@@ -1011,9 +1159,9 @@ namespace RoleFront {
                 }
             }
 
-            // Fusion Reactor (lower thresholds on landlocked maps — no water afus equivalent)
-            float fusReqMi = Global::Map::LandLocked ? 12.0f : Global::RoleSettings::Tech::MinimumMetalIncomeForFUS;
-            float fusReqEi = Global::Map::LandLocked ? 400.0f : Global::RoleSettings::Tech::MinimumEnergyIncomeForFUS;
+            // Fusion Reactor (lower thresholds on landlocked maps)
+            float fusReqMi = Global::Map::LandLocked ? 0.0f : Global::RoleSettings::Tech::MinimumMetalIncomeForFUS;
+            float fusReqEi = Global::Map::LandLocked ? 200.0f : Global::RoleSettings::Tech::MinimumEnergyIncomeForFUS;
             if (EconomyHelpers::ShouldBuildFusionReactor(
                 /*mi*/ metalIncome,
                 /*ei*/ energyIncome,
@@ -1195,6 +1343,9 @@ namespace RoleFront {
         @cfg.SelectFactoryHandler = cast<SelectFactoryDelegate@>(@Front_SelectFactoryHandler);
         @cfg.FactoryAiUnitAdded = cast<AiUnitAddedDelegate@>(@Front_FactoryAiUnitAdded);
         @cfg.FactoryAiUnitRemoved = cast<AiUnitRemovedDelegate@>(@Front_FactoryAiUnitRemoved);
+
+        @cfg.MilitaryAiUnitAdded = cast<AiUnitAddedDelegate@>(@Front_MilitaryAiUnitAdded);
+        @cfg.MilitaryAiUnitRemoved = cast<AiUnitRemovedDelegate@>(@Front_MilitaryAiUnitRemoved);
 
         @cfg.RoleMatchHandler = cast<RoleMatchDelegate@>(@Front_RoleMatch);
 

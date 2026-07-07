@@ -225,7 +225,7 @@
 	},
 
 	"armhp": {
-		"importance": [1.0, 0.0],
+		"importance": [0.0, 0.0],
 		"require_energy": false,
 		"income_tier": [20, 60, 80],
 		"unit":      ["armch", "armsh", "armanac", "armmh", "armah"],

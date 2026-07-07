@@ -932,13 +932,13 @@
 				"power": 20
 			},
 			"corcat": {
-				"role": ["artillery", "heavy"],
+				"role": ["artillery", "super", "heavy"],
 				"attribute": ["siege"],
 				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
 				"power": 20
 			},
 			"corkorg": {
-				"role": ["assault", "heavy"],
+				"role": ["assault", "super","heavy"],
 				"attribute": ["melee", "solo"],
 				"power": 1,
 				"retreat": 0,
@@ -947,7 +947,7 @@
 				}
 			},
 			"corjugg": {
-				"role": ["heavy"],
+				"role": ["heavy", "super"],
 				"attribute": ["melee", "solo"],
 				"power": 1,
 				"retreat": 0,
@@ -1187,7 +1187,9 @@
 			},
 			"corshad": {
 				"role": ["bomber", "air"],
-				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
+				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0,
+					"vs": {"super": 3.0, "static": 0.0}
+				},
 				"power": 20
 			},
 			"corbw": {
@@ -1214,7 +1216,9 @@
 			"corhurc": {
 				"role": ["bomber", "air"],
 				"attribute": ["siege"],
-				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
+				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0,
+					"vs": {"super": 3.0, "static": 0.0}
+				},
 				"power": 20
 			},
 			"corape": {
