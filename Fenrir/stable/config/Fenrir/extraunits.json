@@ -52,21 +52,6 @@
 				"role": ["support"],
 				"since": 900
 			},
-            "armfepocht4": {
-				"role": ["super", "air"],
-				"attribute": ["skirmish"],
-				"retreat": 0.0,
-				"power": 25.0
-			},
-			"armlichet4": {
-				"role": ["bomber"],
-				"attribute": ["siege"],
-				"threat": {"default": 0.0,
-					"vs": {"super": 3.0, "static": 0.0}
-				},
-				"retreat": 0.0,
-				"power": 25.0
-			},
 
 				//CORTEX
 
@@ -95,12 +80,6 @@
 				"role": ["support"],
 				"since": 900
 			},
-            "corfblackhyt4": {
-				"role": ["super", "air"],
-				"attribute": ["skirmish"],
-				"retreat": 0.0,
-				"power": 25.0
-			},
 
 				//LEGION
 
@@ -111,7 +90,7 @@
 				"power": 5.0
 			},
 			"legpede": {
-				"role": ["raider", "super"],
+				"role": ["raider"],
 				"attribute": ["melee"],
 				"retreat": 0.0,
 				"power": 15.0
@@ -128,12 +107,6 @@
 			"legnanotct2": {
 				"role": ["support"],
 				"since": 900
-			},
-            "legfortt4": {
-				"role": ["super", "air"],
-				"attribute": ["skirmish"],
-				"retreat": 0.0,
-				"power": 25.0
 			}
 		}
 }

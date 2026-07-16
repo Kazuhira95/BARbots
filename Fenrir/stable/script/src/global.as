@@ -208,15 +208,15 @@ namespace Global {
 
             /******************** AIRCRAFT PLANT THRESHOLDS ********************/
             // Economy thresholds for building aircraft plants (used by generic rules)
-            float RequiredMetalIncomeForAirPlant = 12.0f; //60.0
-            float RequiredMetalCurrentForAirPlant = 40.0f; //1000.0
-            float RequiredEnergyIncomeForAirPlant = 220.0f; //2000.0
+            float RequiredMetalIncomeForAirPlant = 60.0f;
+            float RequiredMetalCurrentForAirPlant = 1000.0f;
+            float RequiredEnergyIncomeForAirPlant = 2000.0f;
 
             // T2 Aircraft Plant thresholds (TECH role)
             // Mirrors AIR role defaults; scoped to TECH so roles don't cross-reference
-            float RequiredMetalIncomeForT2AircraftPlant = 40.0f; //200.0f
-            float RequiredMetalCurrentForT2AircraftPlant = 80.0f; //1000.0f; 2900
-            float RequiredEnergyIncomeForT2AircraftPlant = 1000.0f; //2000.0f; 28000
+            float RequiredMetalIncomeForT2AircraftPlant = 100.0f;
+            float RequiredMetalCurrentForT2AircraftPlant = 1000.0f;
+            float RequiredEnergyIncomeForT2AircraftPlant = 2000.0f;
 
             /******************** WORKFORCE MINIMUMS ********************/
             // Minimum desired numbers of constructor bots by tech tier
@@ -274,8 +274,8 @@ namespace Global {
             /******************** NUCLEAR SILO THRESHOLDS ********************/
             // Separate economy thresholds for rush vs regular nuclear silo builds
             // Rush thresholds: used when rushing up to NukeRush silos
-            float MinimumMetalIncomeForNukeRush = 300.0f; //50.0f
-            float MinimumEnergyIncomeForNukeRush = 5000.0f; //2000.0f
+            float MinimumMetalIncomeForNukeRush = 50.0f;
+            float MinimumEnergyIncomeForNukeRush = 2000.0f;
             // Regular thresholds: used for non-rush nuking policy
             float MinimumMetalIncomeForNuke = 600.0f;
             float MinimumEnergyIncomeForNuke = 10000.0f;
@@ -336,10 +336,10 @@ namespace Global {
             /******************** T2 AIRCRAFT PLANT THRESHOLDS (AIR role) ********************/
             // Economy thresholds and caps for building a T2 Aircraft Plant when in AIR role
             // Defaults mirror TECH thresholds but are scoped to AIR so air.as does not reference TECH settings.
-            float RequiredMetalIncomeForT2AircraftPlant = 30.0f;
-            float RequiredMetalCurrentForT2AircraftPlant = 50.0f;
-            float RequiredEnergyIncomeForT2AircraftPlant = 1200.0f;
-            int MaxT2AircraftPlants = 1;
+            float RequiredMetalIncomeForT2AircraftPlant = 100.0f;
+            float RequiredMetalCurrentForT2AircraftPlant = 1000.0f;
+            float RequiredEnergyIncomeForT2AircraftPlant = 2000.0f;
+            int MaxT2AircraftPlants = 2;
 
             /******************** AIR NANO POLICY ********************/
             // How much income per additional T1 nano caretaker; and cap
@@ -388,6 +388,13 @@ namespace Global {
 
             // NukeLimit: maximum number of nukes allowed for FRONT role
             int NukeLimit = 10;
+            // Minimum economy thresholds for building nuke silos (regular, no rush)
+            float MinimumMetalIncomeForNuke = 600.0f;
+            float MinimumEnergyIncomeForNuke = 10000.0f;
+            // Anti-nuke thresholds
+            float MinimumMetalIncomeForAntiNuke = 80.0f;
+            float MinimumEnergyIncomeForAntiNuke = 3000.0f;
+            int MinimumAntiNukeCount = 1;
             /******************** FRONT BASE SETTINGS ********************/
             // All settings applied to front role at game start, logic can change throughout game
             float AllyRange = 900.0f;
@@ -433,22 +440,12 @@ namespace Global {
             // Mirrors FrontTech defaults but scoped to Front so front.as does not reference FrontTech settings.
             // Special-case: first T2 lab/plant fast-track threshold (bot or vehicle) when none exist yet
             // If total T2 labs (bot + vehicle) < 1 and metal income >= this, FRONT will attempt to build one.
-            float MinimumMetalIncomeForFirstT2Lab = 25.0f;
-            float MinimumMetalIncomeForT2Lab = 25.0f;
-            float MinimumEnergyIncomeForT2Lab = 500.0f;
-            float RequiredMetalCurrentForT2Lab = 100.0f;
+            float MinimumMetalIncomeForFirstT2Lab = 50.0f;
+            float MinimumMetalIncomeForT2Lab = 40.0f;
+            float MinimumEnergyIncomeForT2Lab = 2000.0f;
+            float RequiredMetalCurrentForT2Lab = 200.0f;
 
             int MaxT2BotLabs = 1;
-
-            /******************** FRONT SHIPYARD THRESHOLDS ********************/
-            // Only applies when Global::Map::LandLocked is true (sea/hybrid maps)
-            float MinimumMetalIncomeForT1Shipyard = 15.0f;
-            float MinimumMetalIncomeForT2Shipyard = 25.0f;
-            float MinimumEnergyIncomeForT2Shipyard = 500.0f; //800.0f
-            float RequiredMetalCurrentForT2Shipyard = 100.0f; //800.0f
-            int MaxT2Shipyards = 1;
-            // Maintain at least this many T1 sea constructors per shipyard
-            int MinT1SeaConstructorCount = 2;
         }
 
         namespace FrontTech {

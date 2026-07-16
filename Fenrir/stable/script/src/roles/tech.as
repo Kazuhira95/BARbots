@@ -843,10 +843,11 @@ namespace RoleTech {
                         /*buildWhenOverMetal*/ Global::RoleSettings::Tech::NanoBuildWhenOverMetal,
                         /*energyPercent*/ energyPercent
                     )) {
-                        AIFloat3 nanoPos = Factory::GetPreferredFactoryPos();
-                        string unitSide = Global::AISettings::Side;
-                        IUnitTask@ tNanoAir = Builder::EnqueueT1Nano(unitSide, nanoPos, /*shake*/ SQUARE_SIZE * 24, /*timeout*/ 30);
-                        if (tNanoAir !is null) return tNanoAir;
+                        CCircuitUnit@ targetFactory = Factory::SelectFactoryNeedingNano();
+                        if (targetFactory !is null) {
+                            IUnitTask@ tNanoAir = Factory::EnqueueNanoForFactory(targetFactory, Task::Priority::NORMAL);
+                            if (tNanoAir !is null) return tNanoAir;
+                        }
                     }
                 }
 
@@ -1079,7 +1080,7 @@ namespace RoleTech {
 
             GenericHelpers::LogUtil("[TECH] ShouldBuildT1AircraftPlant => " + (shouldT1Air ? "true" : "false"), 3);
             if (shouldT1Air) {
-                AIFloat3 preferredPosition = Factory::GetPreferredFactoryPos();
+                AIFloat3 preferredPosition = Factory::GetAirPlantBuildPos();
                 IUnitTask@ tAir = Builder::EnqueueT1AirFactory(unitSide, preferredPosition, SQUARE_SIZE * 24, 30 * SECOND, Task::Priority::HIGH);
                 if (tAir !is null) return tAir;
             }
@@ -1122,10 +1123,12 @@ namespace RoleTech {
                 Global::RoleSettings::Tech::NanoBuildWhenOverMetal,
                 energyPercent
             )) {
-                // Always place nano near our preferred factory location, not the constructor's current position
-                AIFloat3 nanoPos = Factory::GetPreferredFactoryPos();
-                IUnitTask@ tNano = Builder::EnqueueT1Nano(unitSide, nanoPos, /*shake*/ SQUARE_SIZE * 24, /*timeout*/ 30);
-                if (tNano !is null) return tNano;
+                // Centralized selection with per-factory nano caps and prioritization
+                CCircuitUnit@ targetFactory = Factory::SelectFactoryNeedingNano();
+                if (targetFactory !is null) {
+                    IUnitTask@ tNano = Factory::EnqueueNanoForFactory(targetFactory, Task::Priority::NORMAL);
+                    if (tNano !is null) return tNano;
+                }
             }
 
             // Advanced T1 solar decision via unified helper with TECH thresholds and T2 gating

@@ -10,7 +10,11 @@
 
 // Role Handlers (renamed folder)
 #include "roles/front.as"
+#include "roles/front_tech.as"
+#include "roles/air.as"
+#include "roles/tech.as"
 #include "roles/sea.as"
+#include "roles/hover_sea.as"
 
 // Role configuration (unit caps / behavior tuning)
 #include "types/role_config.as"
@@ -282,7 +286,7 @@ namespace Setup {
 			derivedRole = defaultRole;
 		}
 
-		bool landLocked = MapHelpers::IsLandlockedMap(Global::Map::MapName);
+		bool landLocked = (Global::Map::NearestMapStartPosition !is null) ? MapHelpers::IsLandLocked(Global::Map::NearestMapStartPosition) : false;
 
 		Global::Map::MapResolved = true;
 		Global::Map::LandLocked = landLocked;
@@ -375,7 +379,11 @@ namespace Setup {
 
 	void RegisterRoles() {
 		RoleFront::Register();
+		RoleAir::Register();
+		RoleTech::Register();
+		RoleFrontTech::Register();
 		RoleSea::Register();
+		RoleHoverSea::Register();
 	}
 
 	RoleConfig@ SelectRoleConfig(AiRole role) {

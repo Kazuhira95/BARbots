@@ -20,8 +20,8 @@ namespace RoleSea {
         bool IsT2SeaConstructor(const CCircuitDef@ d) {
             if (d is null) return false;
             const string n = d.GetName();
-            // T2 sea constructors (BAR): armacsub/coracsub/leganavyconsub
-            return (n == "armacsub" || n == "coracsub" || n == "leganavyconsub");
+            // T2 sea constructors (BAR): armacsub/coracsub; Legion reuses Cortex variant
+            return (n == "armacsub" || n == "coracsub");
         }
 
         // Attempt to donate a unit to the lead team; logs and guards
@@ -141,8 +141,8 @@ namespace RoleSea {
         const string side = UnitHelpers::GetSideForUnitName(fname);
 
         // Resolve side-specific constructor unit names (with safe fallbacks)
-        string t1Ctor = (side == "armada" ? "armcs" : (side == "cortex" ? "corcs" : "legnavyconship"));
-        string t2Ctor = (side == "armada" ? "armacsub" : (side == "cortex" ? "coracsub" : "leganavyconsub"));
+        string t1Ctor = (side == "armada" ? "armcs" : side == "cortex" ? "corcs" : side == "legion" ? "legnavyconship" : "armcs");
+        string t2Ctor = (side == "armada" ? "armacsub" : side == "cortex" ? "coracsub" : side == "legion" ? "coracsub" : "armacsub");
 
         if (isT1Shipyard) {
             // Ensure at least two T1 construction ships exist before producing other units
@@ -451,8 +451,8 @@ namespace RoleSea {
     }
 
     void Sea_IncomeLabLimits(float metalIncome) {
-        // Hard cap to 1 factory of each type to prevent base clogging
-        int seaLabCap = 1;
+        // Determine cap: 50 metal income per lab (e.g., 100 -> 2 labs)
+        int seaLabCap = int(metalIncome / 75.0f);
 
         string side = Global::AISettings::Side;
         array<string> labs;
@@ -462,7 +462,7 @@ namespace RoleSea {
     }
 
     void Sea_IncomeBuilderLimits(float metalIncome) {
-        // No builder limits needed for sea role
+        
     }
 
     /******************************************************************************
@@ -714,10 +714,9 @@ namespace RoleSea {
         bool match = false;
 
         if (preferredMapRole == AiRole::SEA) match = true;
-        if (preferredMapRole == AiRole::HOVER_SEA) match = true;
  
         if (match) { 
-            GenericHelpers::LogUtil("[RoleMatch] SEA (also handles HOVER_SEA)", 2); 
+            GenericHelpers::LogUtil("[RoleMatch] SEA", 2); 
         }
 
         return match;

@@ -12,8 +12,8 @@
 	
 		"quota": {
 			"scout": 2,  // max scout units out of raiders
-			"raid": [8.0, 120.0],  // [<min>, <avg>] power of raider squad
-			"attack": 30.0,  // min power of attack group
+			"raid": [8.0, 180.0],  // [<min>, <avg>] power of raider squad
+			"attack": 60.0,  // min power of attack group
 			"thr_mod": {				//AI attacks everything with final threat (after all calculations) <= 1
 				"attack": [0.8, 1.5],//"attack": [0.6, 0.8],  // [<min>, <max>] enemy threat multiplier for target selection of attack task |  values <1 makes enemy group seem less of an thread for ai => ai attacks stronger groups than it own | org=0.25, 0.3
 				"defence": [0.8, 1.0],//"defence": [0.3, 0.5],  // [<min>, <max>] enemy threat modifier for group size calculation of defence task; org=0.95, 0.95 | high values = low risk; low values = high risk 
@@ -22,7 +22,7 @@
 				"comm": 0.05   // because of power of dgun
 			},
 			// anti-air threat threshold, air factories will stop production when AA threat exceeds
-			"aa_threat": [[8, 99999.0], [96, 1000000.0]],  // [[<map_start>, <threat_start>], [<map_end>, <threat_end>]]
+			"aa_threat": [[8, 99999.0], [96, 500000.0]],  // [[<map_start>, <threat_start>], [<map_end>, <threat_end>]]
 			"slack_mod": {
 				"all": 0.05,  // threat map 64-elmos slack multiplier for all units
 				"static": 0.05,  // additional 64-elmo-cells for static units
@@ -434,7 +434,6 @@
 			"armsilo":{
 				"role":	["super", "static"],
 				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
-				"cooldown": 120,
 				"power": 20
 			},
 
@@ -915,7 +914,7 @@
 				"power": 20
 			},
 			"armvang": { //vanguard
-				"role": ["artillery", ,"super", "heavy"],
+				"role": ["artillery", "heavy"],
 				"attribute": ["siege"],
 				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0,
 					"vs": { "spam": 0}
@@ -923,7 +922,7 @@
 				"power": 20
 			},
 			"armbanth": { //Titan
-				"role": ["assault", "super", "heavy"],
+				"role": ["assault", "heavy"],
 				"attribute": ["melee"],
 				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
 				"power": 20
@@ -1046,11 +1045,6 @@
 				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
 				"power": 20
 			},
-			"armcroc": {
-				"role": ["assault"],
-				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
-				"power": 20
-			},
 	
 //================================================================================================================================o
 //=========================================A R M A D A  T 1  A I R C R A F T======================================================o
@@ -1068,9 +1062,7 @@
 			},
 			"armthund": {
 				"role": ["bomber", "static", "assault", "anti_air"],
-				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0,
-					"vs": {"super": 3.0, "static": 0.0}
-				},
+				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
 				"power": 20
 			},
 			"armkam": {
@@ -1099,7 +1091,7 @@
 				"role": ["bomber", "air", "raider", "riot", "assault", "skirmish"],
 				"attribute": ["siege"],
 				"threat": {"air": 0, "water": 0.5, "surf": 1,
-					"vs": {"artillery": 1, "anti_air": 0.5, "riot": 1, "anti_heavy": 1, "anti_heavy_ass": 1, "spam": 0, "super": 3.0, "static": 0.0}	
+					"vs": {"artillery": 1, "anti_air": 0.5, "riot": 1, "anti_heavy": 1, "anti_heavy_ass": 1, "spam": 0}	
 				},
 				"retreat": 0,
 				"power": 20
@@ -1134,16 +1126,14 @@
 			},
 			"armstil": {
 				"role": ["bomber", "air"],
-				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0,
-					"vs": {"super": 3.0, "static": 0.0}
-				},
+				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
 				"power": 20
 			},
 			"armliche": {
 				"role": ["bomber", "air"],
 				"attribute": ["siege"],
 				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0,
-					"vs": {"spam": 0, "super": 3.0, "static": 0.0}	
+					"vs": { "spam": 0}	
 				},
 				"power": 20
 			},

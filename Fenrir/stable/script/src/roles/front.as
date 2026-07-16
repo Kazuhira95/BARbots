@@ -32,13 +32,8 @@ namespace RoleFront {
         for (uint i = 0; i < t1Combat.length(); ++i) {
             CCircuitDef@ d = ai.GetCircuitDef(t1Combat[i]);
             if (d is null) continue;
-            // Best-effort: if engine exposes fire-state setter, apply it
-            // TODO: If SetFireState is not available, consider moving this to behaviour config for this profile only.
             d.SetFireState(3);
         }
-
-        // Initialize T2 bomber defaults: support role, fire state 3
-        Front_ApplyT2BomberDefDefaults();
 
         // Default to bot thresholds in Front init
         aiMilitaryMgr.quota.scout = Global::RoleSettings::Front::MilitaryScoutCapBots;
@@ -48,13 +43,6 @@ namespace RoleFront {
         g_frontVehicleThresholdsApplied = false;
 
         Front_ApplyStartLimits();
-
-        // On landlocked maps, disable hover plants for the FRONT role at init time
-        // (reinforced each economy update in Front_IncomeLabLimits).
-        if (Global::Map::LandLocked) {
-            UnitHelpers::BatchApplyUnitCaps(UnitHelpers::GetAllT1HoverPlants(), 0);
-            GenericHelpers::LogUtil("[FRONT] Hover plants capped to 0 on landlocked map", 2);
-        }
 
         // Log all strategic objectives with distance from start
         ObjectiveHelpers::LogAllObjectivesFromStart(AiRole::FRONT, "FRONT");
@@ -66,9 +54,13 @@ namespace RoleFront {
         startLimits.set("armrectr", 10);
         startLimits.set("cornecro", 10);
 
-        startLimits.set("armsilo", 10);
-        startLimits.set("corsilo", 10);
-        startLimits.set("legsilo", 10);
+        startLimits.set("armap", 0);
+        startLimits.set("corap", 0);
+        startLimits.set("legap", 0);
+
+        startLimits.set("armsilo", 0);
+        startLimits.set("corsilo", 0);
+        startLimits.set("legsilo", 0);
 
         UnitHelpers::ApplyUnitLimits(startLimits);
 
@@ -82,33 +74,7 @@ namespace RoleFront {
     ******************************************************************************/
 
     void Front_MainUpdate() {
-        // Bomber gate logic: poll total T2 bomber count, switch role when threshold met
-        int totalBombers = Front_GetTotalT2BomberCount();
-        int openThresh = Global::RoleSettings::Air::BomberGateOpenThreshold;
-        int closeThresh = Global::RoleSettings::Air::BomberGateCloseThreshold;
-        if (!g_frontBomberGateOpen && totalBombers >= openThresh) {
-            g_frontBomberGateOpen = true;
-            Front_SetMainRoleForAllT2Bombers("bomber");
-            // Upgrade tracked bombers built while gate was closed
-            array<CCircuitUnit@> compact;
-            for (uint i = 0; i < g_frontT2BomberUnits.length(); ++i) {
-                CCircuitUnit@ bu = g_frontT2BomberUnits[i];
-                if (bu is null) continue;
-                compact.insertLast(bu);
-            }
-            for (uint i = 0; i < compact.length(); ++i) {
-                CCircuitUnit@ bu = compact[i];
-                if (bu !is null) {
-                    bu.AddAttribute(Unit::Attr::SIEGE.type);
-                }
-            }
-            g_frontT2BomberUnits.resize(0);
-            GenericHelpers::LogUtil("[Front][Bombers] Gate OPEN: total=" + totalBombers + ", switching defs to bomber role, upgraded tracked bombers", 3);
-        } else if (g_frontBomberGateOpen && totalBombers < closeThresh) {
-            g_frontBomberGateOpen = false;
-            Front_SetMainRoleForAllT2Bombers("support");
-            GenericHelpers::LogUtil("[Front][Bombers] Gate CLOSED: total=" + totalBombers + ", reverting defs to support role", 3);
-        }
+
     }
 
     /******************************************************************************
@@ -120,23 +86,6 @@ namespace RoleFront {
     void Front_EconomyUpdate() {
         float metalIncome = aiEconomyMgr.metal.income;
         Front_IncomeLimits(metalIncome);
-
-        // Tiered dynamic open-threshold for bomber gate based on metal income
-        float mi = Economy::GetMinMetalIncomeLast10s();
-        int tier = 0;
-        if (mi < 100.0f) {
-            tier = 0;
-        } else if (mi <= 150.0f) {
-            tier = 1;
-        } else {
-            tier = 2;
-        }
-        if (tier != g_frontLastBomberOpenTier) {
-            int newOpen = (tier == 0 ? 1 : (tier == 1 ? 40 : 100));
-            Global::RoleSettings::Air::BomberGateOpenThreshold = newOpen;
-            g_frontLastBomberOpenTier = tier;
-            GenericHelpers::LogUtil("[Front][Economy] Bomber open threshold set to " + newOpen + " (miMin10s=" + mi + ")", 4);
-        }
     }
 
     /******************************************************************************
@@ -152,65 +101,15 @@ namespace RoleFront {
     bool g_frontScoutRushFinished = false;
     int g_frontScoutRushFactoryId = -1;
 
-    // T3 factory progression state
-    // Phases: 0=T1 land (botlab/vehicleplant), 1=T1 air, 2=T2 land, 3=T2 air, 4=T3
-    // Starts at 0, increments when each phase is satisfied
-    int g_frontPhase = 0;
-    // Track which factories have been built for each phase
-    bool g_hasBuiltT1Land = false;
-    bool g_hasBuiltT1Air = false;
-    bool g_hasBuiltT2Land = false;
-    bool g_hasBuiltT2Air = false;
-    // Track the FIRST T1 lab built for phase 0 to ensure we stay in phase 0 until it's built
-    string g_firstT1LandFactoryId = "";
-    bool g_firstT1LandBuilt = false;
+    // Build-order cap-transition logging (log once per transition, avoid spam)
+    bool g_frontLoggedT1AirCap = false;
+    bool g_frontLoggedT2LandCap = false;
+    bool g_frontLoggedT2AirCap = false;
+    bool g_frontLoggedT3GantryCap = false;
+    bool g_frontLoggedNukeCap = false;
 
-    // Shipyard phase booleans for landlocked maps (prerequisites for T3)
-    bool g_hasBuiltT1Sea = false;
-    bool g_hasBuiltT2Sea = false;
-
-    // Bomber gate state (dynamic switching between support and bomber roles)
-    bool g_frontBomberGateOpen = false;
-    int g_frontLastBomberOpenTier = -1;
-    // Track actual T2 bomber units built while gate is closed (for SIEGE upgrade on gate-open)
-    array<CCircuitUnit@> g_frontT2BomberUnits;
-
-    // Helper: return canonical T2 bomber unitdef names for all sides
-    array<string> Front_GetAllT2BomberNames() {
-        array<string> names;
-        names.insertLast("armpnix");
-        names.insertLast("corhurc");
-        names.insertLast("legphoenix");
-        return names;
-    }
-
-    // Helper: set mainRole for all T2 bomber defs
-    void Front_SetMainRoleForAllT2Bombers(const string &in mainRole) {
-        array<string> names = Front_GetAllT2BomberNames();
-        UnitDefHelpers::SetMainRoleFor(names, mainRole);
-        GenericHelpers::LogUtil("[Front][Bombers] Set mainRole=" + mainRole + " for T2 bombers", 3);
-    }
-
-    // Helper: compute total team count of T2 bombers across all factions
-    int Front_GetTotalT2BomberCount() {
-        array<string> names = Front_GetAllT2BomberNames();
-        return UnitDefHelpers::SumUnitDefCounts(names);
-    }
-
-    // Apply defaults to T2 bomber defs: support role, fire state 3
-    void Front_ApplyT2BomberDefDefaults() {
-        array<string> names = Front_GetAllT2BomberNames();
-        for (uint i = 0; i < names.length(); ++i) {
-            CCircuitDef@ d = ai.GetCircuitDef(names[i]);
-            if (d is null) continue;
-            d.SetFireState(3);
-        }
-        Front_SetMainRoleForAllT2Bombers("support");
-        GenericHelpers::LogUtil("[Front][Bombers] T2 bomber defaults applied (support role, fire state 3)", 3);
-    }
-
-    // Eco-scaled factory switch limit (AltergressiveV2A formula)
-    float g_frontSwitchLimit = 5000 * SECOND;
+    // Switch threshold for factory production switching (AltergressiveV2A-style)
+    float g_frontSwitchLimit = 5000.0f * SECOND;
 
     // Attempt to enqueue a scout for the one-time scout rush from the first T1 land factory.
     // Returns a task if a scout was enqueued, otherwise null.
@@ -235,7 +134,6 @@ namespace RoleFront {
 
         CCircuitDef@ sdef = ai.GetCircuitDef(scoutName);
         if (sdef is null || !sdef.IsAvailable(ai.frame)) {
-            // If unavailable, complete rush to avoid perpetual attempts
             g_frontScoutRushFinished = true;
             return null;
         }
@@ -262,6 +160,7 @@ namespace RoleFront {
         if (facDef is null) return aiFactoryMgr.DefaultMakeTask(u);
 
         string factoryName = facDef.GetName();
+        GenericHelpers::LogUtil("[FRONT] FactoryAiMakeTask for '" + factoryName + "'", 0);
         string side = UnitHelpers::GetSideForUnitName(factoryName);
 
         // T1 Bot Lab enforcement
@@ -308,113 +207,95 @@ namespace RoleFront {
             if (rushTask2 !is null) return rushTask2;
         }
 
-        // T1 Aircraft Plant: maintain minimum air constructors and scouts
+        // T1 Aircraft Plant: enforce T1 construction aircraft, then default production
         if (UnitHelpers::IsT1AircraftPlant(factoryName)) {
-            // Maintain T1 air constructors
-            array<string> t1AirCtors = UnitHelpers::GetAllT1AirConstructors();
-            int t1AirCtorCount = UnitDefHelpers::SumUnitDefCounts(t1AirCtors);
-            if (t1AirCtorCount < Global::RoleSettings::Air::MinT1AirConstructorCount) {
-                string scoutName = UnitHelpers::GetT1AirScoutForSide(side);
-                // Use scout as proxy for T1 air constructor per side
-                array<string> sideT1AirCtor;
-                if (side == "armada") sideT1AirCtor = {"armca"};
-                else if (side == "cortex") sideT1AirCtor = {"corca"};
-                else if (side == "legion") sideT1AirCtor = {"legca"};
-                else sideT1AirCtor = t1AirCtors;
-                if (sideT1AirCtor.length() > 0) {
-                    CCircuitDef@ ctorDef = ai.GetCircuitDef(sideT1AirCtor[0]);
-                    if (ctorDef !is null && ctorDef.IsAvailable(ai.frame)) {
-                        const AIFloat3 pos = u.GetPos(ai.frame);
-                        return aiFactoryMgr.Enqueue(
-                            TaskS::Recruit(Task::RecruitType::BUILDPOWER, Task::Priority::HIGH, ctorDef, pos, 64.f)
-                        );
-                    }
+            const AIFloat3 pos = u.GetPos(ai.frame);
+            string t1CtorName = (side == "armada" ? "armca" : side == "cortex" ? "corca" : "legca");
+            int t1CtorCount = UnitDefHelpers::GetUnitDefCount(t1CtorName);
+            if (t1CtorCount < 1) {
+                CCircuitDef@ t1CtorDef = ai.GetCircuitDef(t1CtorName);
+                if (t1CtorDef !is null && t1CtorDef.IsAvailable(ai.frame)) {
+                    return aiFactoryMgr.Enqueue(
+                        TaskS::Recruit(Task::RecruitType::BUILDPOWER, Task::Priority::NOW, t1CtorDef, pos, 64.f)
+                    );
                 }
             }
-            // Maintain T1 air scouts
-            string scoutName = UnitHelpers::GetT1AirScoutForSide(side);
-            if (scoutName != "") {
-                array<string> allScouts = UnitHelpers::GetAllT1AirScouts();
-                int scoutCount = UnitDefHelpers::SumUnitDefCounts(allScouts);
-                if (scoutCount < Global::RoleSettings::Air::MinAirScoutCount) {
-                    CCircuitDef@ scoutDef = ai.GetCircuitDef(scoutName);
-                    if (scoutDef !is null && scoutDef.IsAvailable(ai.frame)) {
-                        const AIFloat3 pos2 = u.GetPos(ai.frame);
-                        return aiFactoryMgr.Enqueue(
-                            TaskS::Recruit(Task::RecruitType::FIREPOWER, Task::Priority::HIGH, scoutDef, pos2, 64.f)
-                        );
-                    }
-                }
-            }
+            return aiFactoryMgr.DefaultMakeTask(u);
         }
 
-        // T2 Aircraft Plant: maintain minimum T2 air constructors
+        // T2 Aircraft Plant: enforce T2 construction aircraft, then fighter/heavy split
         if (UnitHelpers::IsT2AircraftPlant(factoryName)) {
-            array<string> t2AirCtors;
-            if (side == "armada") t2AirCtors = {"armaca"};
-            else if (side == "cortex") t2AirCtors = {"coraca"};
-            else if (side == "legion") t2AirCtors = {"legaca"};
-            else t2AirCtors = {"armaca", "coraca", "legaca"};
-            if (t2AirCtors.length() > 0) {
-                int t2AirCtorCount = UnitDefHelpers::SumUnitDefCounts(t2AirCtors);
-                if (t2AirCtorCount < Global::RoleSettings::Air::MinT2AirConstructorCount) {
-                    CCircuitDef@ ctorDef = ai.GetCircuitDef(t2AirCtors[0]);
-                    if (ctorDef !is null && ctorDef.IsAvailable(ai.frame)) {
-                        const AIFloat3 pos = u.GetPos(ai.frame);
-                        return aiFactoryMgr.Enqueue(
-                            TaskS::Recruit(Task::RecruitType::BUILDPOWER, Task::Priority::HIGH, ctorDef, pos, 64.f)
-                        );
-                    }
-                }
-            }
-        }
+            const AIFloat3 pos = u.GetPos(ai.frame);
+            int uid = u.id;
+            int pT2 = (Factory::primaryT2AirPlant is null ? -1 : Factory::primaryT2AirPlant.id);
+            GenericHelpers::LogUtil("[FRONT][T2AIR] MakeTask u.id=" + uid + " primaryT2AirPlant.id=" + pT2 + " isPrimary=" + (u is Factory::primaryT2AirPlant ? 1 : 0) + " mi=" + aiEconomyMgr.metal.income, 0);
 
-        // T1 Shipyard: maintain T1 construction ships
-        if (UnitHelpers::IsT1Shipyard(factoryName)) {
-            array<string> t1SeaCtors = { "armcs", "corcs", "legnavyconship" };
-            int have = UnitDefHelpers::SumUnitDefCounts(t1SeaCtors);
-            if (have < Global::RoleSettings::Front::MinT1SeaConstructorCount) {
-                string ctorName = (side == "armada") ? "armcs" : (side == "cortex") ? "corcs" : "legnavyconship";
-                CCircuitDef@ d = ai.GetCircuitDef(ctorName);
-                if (d !is null && d.IsAvailable(ai.frame)) {
-                    const AIFloat3 pos = u.GetPos(ai.frame);
+            string t2CtorName = (side == "armada" ? "armaca" : side == "cortex" ? "coraca" : "legaca");
+            int t2CtorCount = UnitDefHelpers::GetUnitDefCount(t2CtorName);
+            GenericHelpers::LogUtil("[FRONT][T2AIR] t2CtorCount=" + t2CtorCount, 0);
+            if (t2CtorCount < 1) {
+                CCircuitDef@ t2CtorDef = ai.GetCircuitDef(t2CtorName);
+                if (t2CtorDef !is null && t2CtorDef.IsAvailable(ai.frame)) {
+                    GenericHelpers::LogUtil("[FRONT][T2AIR] Queuing T2 con air", 0);
                     return aiFactoryMgr.Enqueue(
-                        TaskS::Recruit(Task::RecruitType::BUILDPOWER, Task::Priority::HIGH, d, pos, 64.f)
+                        TaskS::Recruit(Task::RecruitType::BUILDPOWER, Task::Priority::NOW, t2CtorDef, pos, 64.f)
                     );
                 }
             }
-        }
 
-        // T2 Shipyard: maintain T2 construction subs
-        if (UnitHelpers::IsT2Shipyard(factoryName)) {
-            string t2Ctor = (side == "armada") ? "armacsub" : (side == "cortex") ? "coracsub" : "leganavyconsub";
-            int have = UnitDefHelpers::GetUnitDefCount(t2Ctor);
-            if (have < 1) {
-                CCircuitDef@ d2 = ai.GetCircuitDef(t2Ctor);
-                if (d2 !is null && d2.IsAvailable(ai.frame)) {
-                    const AIFloat3 pos = u.GetPos(ai.frame);
+            // 1st T2 air plant: fighters only. 2nd T2 air plant: heavies only.
+            if (u is Factory::primaryT2AirPlant) {
+                string fighterName = (side == "armada" ? "armhawk" : side == "cortex" ? "corvamp" : "legvenator");
+                GenericHelpers::LogUtil("[FRONT][T2AIR] Primary plant, queuing fighter: " + fighterName, 0);
+                CCircuitDef@ fighterDef = ai.GetCircuitDef(fighterName);
+                if (fighterDef !is null && fighterDef.IsAvailable(ai.frame)) {
                     return aiFactoryMgr.Enqueue(
-                        TaskS::Recruit(Task::RecruitType::BUILDPOWER, Task::Priority::HIGH, d2, pos, 64.f)
+                        TaskS::Recruit(Task::RecruitType::FIREPOWER, Task::Priority::NORMAL, fighterDef, pos, 64.f)
+                    );
+                }
+                GenericHelpers::LogUtil("[FRONT][T2AIR] Fighter not available, DefaultMakeTask", 0);
+                return aiFactoryMgr.DefaultMakeTask(u);
+            }
+
+            // 2nd T2 air plant: heavies only with income gates
+            string heavyName;
+            if (side == "armada") heavyName = "armblade";
+            else if (side == "cortex") heavyName = "corcrwh";
+            else heavyName = "legfort";
+
+            float metalIncome = aiEconomyMgr.metal.income;
+            int heavyCount = UnitDefHelpers::GetUnitDefCount(heavyName);
+
+            int maxHeavy = 0;
+            if (metalIncome > 1000.0f) maxHeavy = 10;
+            else if (metalIncome > 500.0f) maxHeavy = 6;
+            else if (metalIncome > 400.0f) maxHeavy = 4;
+            else if (metalIncome > 300.0f) maxHeavy = 2;
+            else if (metalIncome > 200.0f) maxHeavy = 1;
+
+            float buyoutThreshold = (side == "armada" ? 1250.0f : side == "cortex" ? 5100.0f : 5600.0f);
+            bool canBuyout = (aiEconomyMgr.metal.current >= buyoutThreshold);
+
+            GenericHelpers::LogUtil("[FRONT][T2AIR] heavy=" + heavyName + " mi=" + metalIncome + " count=" + heavyCount + " max=" + maxHeavy + " buyout=" + (canBuyout ? 1 : 0), 0);
+            if (canBuyout || heavyCount < maxHeavy) {
+                CCircuitDef@ heavyDef = ai.GetCircuitDef(heavyName);
+                GenericHelpers::LogUtil("[FRONT][T2AIR] heavyDef=" + (heavyDef is null ? "null" : heavyDef.GetName()) + " avail=" + (heavyDef is null ? 0 : (heavyDef.IsAvailable(ai.frame) ? 1 : 0)), 0);
+                if (heavyDef !is null && heavyDef.IsAvailable(ai.frame)) {
+                    GenericHelpers::LogUtil("[FRONT][T2AIR] Queuing heavy: " + heavyName, 0);
+                    return aiFactoryMgr.Enqueue(
+                        TaskS::Recruit(Task::RecruitType::FIREPOWER, Task::Priority::NORMAL, heavyDef, pos, 64.f)
                     );
                 }
             }
+            GenericHelpers::LogUtil("[FRONT][T2AIR] Falling through to DefaultMakeTask", 0);
+            return aiFactoryMgr.DefaultMakeTask(u);
         }
 
-        // Fall back to default when no rule triggers
         return aiFactoryMgr.DefaultMakeTask(u);
     }
 
     string Front_SelectFactoryHandler(const AIFloat3& in pos, bool isStart, bool isReset) {
         if(isStart) {
-            // On landlocked maps, always start with a land factory (bot lab) to avoid
-            // expensive hover-start paths. All factions must follow the same build order:
-            // land factory -> T1 shipyard -> T2 shipyard.
-            if (Global::Map::LandLocked) {
-                string side = Global::AISettings::Side;
-                GenericHelpers::LogUtil("[Front_SelectFactoryHandler] LandLocked start: forcing bot lab for side=" + side, 1);
-                return UnitHelpers::GetT1BotLabForSide(side);
-            }
-
             if(Global::Map::NearestMapStartPosition !is null) {
                 return FactoryHelpers::SelectStartFactoryForRole(Global::AISettings::Role, Global::AISettings::Side);
             } else {
@@ -422,7 +303,7 @@ namespace RoleFront {
                 return FactoryHelpers::GetFallbackStartFactoryForRole(Global::AISettings::Role, Global::AISettings::Side);
             }
         }
-    
+   
         return "";
     }
 
@@ -455,123 +336,28 @@ namespace RoleFront {
                 ai.GetCircuitDef(spam[i]).SetIgnore(true);
         }
 
-        // Phase progression detection
-        string fName = facDef.GetName();
-        if (g_frontPhase == 0 && !g_hasBuiltT1Land &&
-            (UnitHelpers::IsT1BotLab(fName) || UnitHelpers::IsT1VehicleLab(fName))) {
-            g_hasBuiltT1Land = true;
-            g_frontPhase = 1;
-            GenericHelpers::LogUtil("[FRONT] Phase 0->1: T1 land factory built", 2);
-        } else if (g_frontPhase == 1 && UnitHelpers::IsT1AircraftPlant(fName)) {
-            g_hasBuiltT1Air = true;
-            g_frontPhase = 2;
-            GenericHelpers::LogUtil("[FRONT] Phase 1->2: T1 air plant built", 2);
-        } else if (g_frontPhase == 2 &&
-                   (UnitHelpers::IsT2BotLab(fName) || UnitHelpers::IsT2VehicleLab(fName))) {
-            g_hasBuiltT2Land = true;
-            g_frontPhase = 3;
-            GenericHelpers::LogUtil("[FRONT] Phase 2->3: T2 land factory built", 2);
-        } else if (g_frontPhase == 3 && UnitHelpers::IsT2AircraftPlant(fName)) {
-            g_hasBuiltT2Air = true;
-            g_frontPhase = 4;
-            GenericHelpers::LogUtil("[FRONT] Phase 3->4: T2 air plant built", 2);
-        } else if (g_frontPhase == 4 && Factory::userData[facDef.id].attr & Factory::Attr::T3 != 0) {
-            g_frontPhase = 5;
-            GenericHelpers::LogUtil("[FRONT] Phase 4->5: T3 factory built", 2);
-        }
-
-        // Shipyard detection for landlocked T3 gating
-        if (Global::Map::LandLocked && UnitHelpers::IsT1Shipyard(fName)) {
-            g_hasBuiltT1Sea = true;
-            GenericHelpers::LogUtil("[FRONT] T1 shipyard built, shipyard phase tracked", 2);
-        }
-        if (Global::Map::LandLocked && UnitHelpers::IsT2Shipyard(fName)) {
-            g_hasBuiltT2Sea = true;
-            GenericHelpers::LogUtil("[FRONT] T2 shipyard built, shipyard phase tracked", 2);
-        }
-
         GenericHelpers::LogUtil("[FRONT] FactoryAiUnitAdded id=" + unit.id + " usage=" + usage, 3);
-        // Note: Factory registration and preferred anchors are centralized in Factory manager.
-        // Front role currently has no additional per-factory behavior here.
     }
 
     void Front_FactoryAiUnitRemoved(CCircuitUnit@ unit, Unit::UseAs usage)
     {
-        //GenericHelpers::LogUtil("[FRONT] FactoryAiUnitRemoved id=" + (unit is null ? -1 : unit.id) + " usage=" + usage, 3);
-        // No Front-specific cleanup required; Factory manager handles primary/anchor clearing.
-    }
-
-    /******************************************************************************
-
-    MILITARY UNIT TRACKING (for bomber gate)
-
-    ******************************************************************************/
-
-    // Track newly created military units; record T2 bombers while the gate is closed
-    void Front_MilitaryAiUnitAdded(CCircuitUnit@ unit, Unit::UseAs usage)
-    {
-        if (unit is null) return;
-        if (usage != Unit::UseAs::COMBAT) return;
-        const CCircuitDef@ cdef = unit.circuitDef;
-        if (cdef is null) return;
-        // Only track T2 bombers when the gate is closed
-        string uname = cdef.GetName();
-        if (!g_frontBomberGateOpen) {
-            array<string> t2Names = Front_GetAllT2BomberNames();
-            for (uint i = 0; i < t2Names.length(); ++i) {
-                if (uname == t2Names[i]) {
-                    g_frontT2BomberUnits.insertLast(unit);
-                    GenericHelpers::LogUtil("[Front][Bombers] Tracking T2 bomber unit id=" + unit.id + " ('" + uname + "') while gate closed", 4);
-                    break;
-                }
-            }
-        }
-    }
-
-    void Front_MilitaryAiUnitRemoved(CCircuitUnit@ unit, Unit::UseAs usage)
-    {
-        if (unit is null) return;
-        for (uint i = 0; i < g_frontT2BomberUnits.length(); ++i) {
-            if (g_frontT2BomberUnits[i] is unit) {
-                g_frontT2BomberUnits.removeAt(i);
-                break;
-            }
-        }
     }
 
     bool Front_AiIsSwitchTime(int lastSwitchFrame) {
-        const float value = pow((ai.frame - lastSwitchFrame), 0.9) * aiEconomyMgr.metal.income + (aiEconomyMgr.metal.current * 7);
+        const float value = pow(float(ai.frame - lastSwitchFrame), 0.9f) * aiEconomyMgr.metal.income + (aiEconomyMgr.metal.current * 7.0f);
         if (value > g_frontSwitchLimit) {
-            g_frontSwitchLimit = 5000 * SECOND;
+            g_frontSwitchLimit = 5000.0f * SECOND;
             return true;
         }
         return false;
     }
 
     bool Front_AiIsSwitchAllowed(const CCircuitDef@ facDef, float armyCost, int factoryCount, float metalCurrent, bool &out assistRequired) {
-        // Phase progression gate: prevent switching to higher-tier factories before the phase allows
-        const string name = facDef.GetName();
-        if (g_frontPhase < 2 && (UnitHelpers::IsT2BotLab(name) || UnitHelpers::IsT2VehicleLab(name))) {
-            assistRequired = false;
-            return false;
-        }
-        if (g_frontPhase < 3 && UnitHelpers::IsT2AircraftPlant(name)) {
-            assistRequired = false;
-            return false;
-        }
-        if (Factory::userData[facDef.id].attr & Factory::Attr::T3 != 0 &&
-            (g_frontPhase < 4 || (Global::Map::LandLocked && (!g_hasBuiltT1Sea || !g_hasBuiltT2Sea)))) {
-            assistRequired = false;
-            return false;
-        }
-
-        const bool isOK = (armyCost > 1.2f * facDef.costM * float(factoryCount)) || (metalCurrent > facDef.costM);
-        assistRequired = !isOK;
-        return isOK;
+        return true;
     }
 
     int Front_MakeSwitchInterval() {
-        return AiRandom(Global::RoleSettings::Front::MinAiSwitchTime, Global::RoleSettings::Front::MaxAiSwitchTime) * SECOND;
+        return 30 * SECOND;
     }
 
     /******************************************************************************
@@ -590,42 +376,12 @@ namespace RoleFront {
     IUnitTask@ Front_BuilderAiMakeTask(CCircuitUnit@ builder) {
         GenericHelpers::LogUtil("[Front_BuilderAiMakeTask] called for builder", 3);
         if (builder is null) return null; // Defensive check
-        GenericHelpers::LogUtil("[FRONT] BuilderAiMakeTask: id=" + builder.id + " name=" + builder.circuitDef.GetName() + " LandLocked=" + Global::Map::LandLocked, 1);
 
         // Pre-create and cache a single default task instance; never recreate.
         IUnitTask@ defaultTask = Builder::MakeDefaultTaskWithLog(builder.id, "FRONT");
 
         const CCircuitDef@ udef = builder.circuitDef;
         if (udef is null) return defaultTask;
-
-        // Sea constructors: must route BEFORE the MEX/GEO early return so they can
-        // build T2 shipyard even when the default task is resource expansion.
-        int ctorTier = UnitHelpers::GetConstructorTier(udef);
-        if (ctorTier == 1) {
-            if (Global::Map::LandLocked) {
-                bool isPrimarySea = Builder::primaryT1SeaConstructor !is null && builder.id == Builder::primaryT1SeaConstructor.id;
-                bool isSecondarySea = Builder::secondaryT1SeaConstructor !is null && builder.id == Builder::secondaryT1SeaConstructor.id;
-                if (isPrimarySea || isSecondarySea) {
-                    GenericHelpers::LogUtil("[FRONT] Routing T1 Sea Ctor id=" + builder.id, 1);
-                    float metalIncome = Economy::GetMinMetalIncomeLast10s();
-                    float energyIncome = Economy::GetMinEnergyIncomeLast10s();
-                    return Front_T1SeaConstructor_AiMakeTask(builder, defaultTask, metalIncome, energyIncome, aiEconomyMgr.isEnergyFull);
-                }
-            }
-        } else if (ctorTier == 2) {
-            if (Global::Map::LandLocked) {
-                bool isPrimarySea2 = Builder::primaryT2SeaConstructor !is null && builder.id == Builder::primaryT2SeaConstructor.id;
-                bool isSecondarySea2 = Builder::secondaryT2SeaConstructor !is null && builder.id == Builder::secondaryT2SeaConstructor.id;
-                if (isPrimarySea2 || isSecondarySea2) {
-                    bool isEnergyFull = aiEconomyMgr.isEnergyFull;
-                    float metalIncome = Economy::GetMinMetalIncomeLast10s();
-                    float energyIncome = Economy::GetMinEnergyIncomeLast10s();
-                    float metalCurrent = aiEconomyMgr.metal.current;
-                    bool isEnergyLessThan90Percent = aiEconomyMgr.energy.current < aiEconomyMgr.energy.storage * Global::RoleSettings::Tech::EnergyStorageLowPercent;
-                    return Front_T2SeaConstructor_AiMakeTask(builder, defaultTask, isEnergyFull, metalIncome, energyIncome, metalCurrent, isEnergyLessThan90Percent);
-                }
-            }
-        }
 
         // Early return: if the default task represents a resource expansion (MEX/GEO variants), keep it.
         if (defaultTask !is null && defaultTask.GetType() == Task::Type::BUILDER) {
@@ -635,49 +391,19 @@ namespace RoleFront {
                 GenericHelpers::LogUtil("[FRONT] defaultTask is MEX/MEXUP/GEO/GEOUP; returning early", 3);
                 return defaultTask;
             }
-            // Phase progression gate: reject any builder task targeting a factory beyond current phase
-            if (dbt == Task::BuildType::FACTORY) {
-                CCircuitDef@ bdef = defaultTask.GetBuildDef();
-                if (bdef !is null) {
-                    string bname = bdef.GetName();
-                    if ((g_frontPhase < 2 && (UnitHelpers::IsT2BotLab(bname) || UnitHelpers::IsT2VehicleLab(bname))) ||
-                        (g_frontPhase < 3 && UnitHelpers::IsT2AircraftPlant(bname)) ||
-                        (Factory::userData[bdef.id].attr & Factory::Attr::T3 != 0 &&
-                         (g_frontPhase < 4 || (Global::Map::LandLocked && (!g_hasBuiltT1Sea || !g_hasBuiltT2Sea))))) {
-                        GenericHelpers::LogUtil("[FRONT] Phase gate rejected task: " + bname + " phase=" + g_frontPhase, 2);
-                        return null;
-                    }
-                }
-            }
         }
 
-        // Route T1 land constructors (bot, vehicle, or hover) to FRONT logic
+        // Route T1 land constructors (bot or vehicle) to FRONT logic; others fallback
+        int ctorTier = UnitHelpers::GetConstructorTier(udef);
         if (ctorTier == 1) {
-            bool isPrimaryBot = Builder::primaryT1BotConstructor !is null && builder.id == Builder::primaryT1BotConstructor.id;
-            bool isSecondaryBot = Builder::secondaryT1BotConstructor !is null && builder.id == Builder::secondaryT1BotConstructor.id;
-            bool isPrimaryVeh = Builder::primaryT1VehConstructor !is null && builder.id == Builder::primaryT1VehConstructor.id;
-            bool isSecondaryVeh = Builder::secondaryT1VehConstructor !is null && builder.id == Builder::secondaryT1VehConstructor.id;
-            if (isPrimaryBot || isSecondaryBot || isPrimaryVeh || isSecondaryVeh) {
+            if (builder is Builder::primaryT1BotConstructor || builder is Builder::secondaryT1BotConstructor
+             || builder is Builder::primaryT1VehConstructor || builder is Builder::secondaryT1VehConstructor) {
                 // Use same economy snapshot style as T2: min over last 10s for incomes
                 bool isEnergyFull = aiEconomyMgr.isEnergyFull;
                 bool isEnergyStalling = aiEconomyMgr.isEnergyStalling;
                 float metalIncome = Economy::GetMinMetalIncomeLast10s();
                 float energyIncome = Economy::GetMinEnergyIncomeLast10s();
                 return Front_T1Constructor_AiMakeTask(builder, defaultTask, metalIncome, energyIncome, isEnergyStalling, isEnergyFull);
-            }
-            // On landlocked maps, route hover constructors to the same T1 logic so they
-            // can build T1 shipyards and follow the same progression as bot/vehicle constructors.
-            if (Global::Map::LandLocked) {
-                bool isPrimaryHover = Builder::primaryT1HoverConstructor !is null && builder.id == Builder::primaryT1HoverConstructor.id;
-                bool isSecondaryHover = Builder::secondaryT1HoverConstructor !is null && builder.id == Builder::secondaryT1HoverConstructor.id;
-                if (isPrimaryHover || isSecondaryHover) {
-                    bool isEnergyFull = aiEconomyMgr.isEnergyFull;
-                    bool isEnergyStalling = aiEconomyMgr.isEnergyStalling;
-                    float metalIncome = Economy::GetMinMetalIncomeLast10s();
-                    float energyIncome = Economy::GetMinEnergyIncomeLast10s();
-                    GenericHelpers::LogUtil("[FRONT] Routing T1 hover ctor id=" + builder.id + " to T1 constructor logic (landlocked)", 1);
-                    return Front_T1Constructor_AiMakeTask(builder, defaultTask, metalIncome, energyIncome, isEnergyStalling, isEnergyFull);
-                }
             }
         } else if (ctorTier == 2) {
             // Mirror TECH role routing: handle primary/secondary T2 bot constructors explicitly
@@ -686,10 +412,7 @@ namespace RoleFront {
             float energyIncome = Economy::GetMinEnergyIncomeLast10s();
             float metalCurrent = aiEconomyMgr.metal.current;
             bool isEnergyLessThan90Percent = aiEconomyMgr.energy.current < aiEconomyMgr.energy.storage * Global::RoleSettings::Tech::EnergyStorageLowPercent;
-            bool isPrimaryT2Bot = Builder::primaryT2BotConstructor !is null && builder.id == Builder::primaryT2BotConstructor.id;
-            bool isSecondaryT2Bot = Builder::secondaryT2BotConstructor !is null && builder.id == Builder::secondaryT2BotConstructor.id;
-            bool isFreelanceT2Bot = Builder::freelanceT2BotConstructor !is null && builder.id == Builder::freelanceT2BotConstructor.id;
-            if (isPrimaryT2Bot || isSecondaryT2Bot || isFreelanceT2Bot) {
+            if (builder is Builder::primaryT2BotConstructor || builder is Builder::secondaryT2BotConstructor || builder is Builder::freelanceT2BotConstructor) {
                 return Front_T2Constructor_AiMakeTask(builder, defaultTask, isEnergyFull, metalIncome, energyIncome, metalCurrent, isEnergyLessThan90Percent);
             }
         }
@@ -747,13 +470,10 @@ namespace RoleFront {
     ******************************************************************************/ 
 
     void Front_IncomeLimits(float metalIncome) {
-        // Determine cap: 35 metal income per lab (e.g., 70 -> 2 labs)
-        int cap = int(metalIncome / 35.0f);
+        GenericHelpers::LogUtil("[FRONT] IncomeLimits: mi=" + metalIncome + " frame=" + ai.frame, 2);
 
-        // Scale Tier 2 bot/vehicle lab caps by economy: 35 metal income per lab
         Front_IncomeLabLimits(metalIncome);
         Front_IncomeBuilderLimits(metalIncome);
-        Front_IncomeAirLimits(metalIncome);
 
         //Always apply map limits, regardless of how eco changes labs limits
         dictionary mapLimits = Global::Map::Config.UnitLimits;
@@ -761,46 +481,77 @@ namespace RoleFront {
     }
 
     void Front_IncomeLabLimits(float metalIncome) {
-        // Hard cap to 1 factory of each type to prevent base clogging
-        int landLabCap = 1;
-
         string side = Global::AISettings::Side;
-        array<string> labs;
+
+        // Side-specific unit names
+        string t1BotLab, t1VehLab, t1AirPlant, t2BotLab, t2VehLab, t2AirPlant;
         if (side == "armada") {
-            labs = { "armalab", "armavp" };
+            t1BotLab = "armlab"; t1VehLab = "armvp"; t1AirPlant = "armap";
+            t2BotLab = "armalab"; t2VehLab = "armavp"; t2AirPlant = "armaap";
         } else if (side == "cortex") {
-            labs = { "coralab", "coravp" };
-        } else if (side == "legion") {
-            labs = { "legalab", "legavp" };
+            t1BotLab = "corlab"; t1VehLab = "corvp"; t1AirPlant = "corap";
+            t2BotLab = "coralab"; t2VehLab = "coravp"; t2AirPlant = "coraap";
         } else {
-            labs = { "armalab", "armavp", "coralab", "coravp", "legalab", "legavp" };
+            t1BotLab = "leglab"; t1VehLab = "legvp"; t1AirPlant = "legap";
+            t2BotLab = "legalab"; t2VehLab = "legavp"; t2AirPlant = "legaap";
         }
 
-        UnitHelpers::BatchApplyUnitCaps(labs, landLabCap);
+        // Build-order prerequisites (side-specific)
+        bool hasT1LandLab = (UnitDefHelpers::GetUnitDefCount(t1BotLab) + UnitDefHelpers::GetUnitDefCount(t1VehLab)) > 0;
+        bool hasT1Air = UnitDefHelpers::GetUnitDefCount(t1AirPlant) > 0;
+        bool hasT2LandLab = (UnitDefHelpers::GetUnitDefCount(t2BotLab) + UnitDefHelpers::GetUnitDefCount(t2VehLab)) > 0;
+        bool hasT2Air = UnitDefHelpers::GetUnitDefCount(t2AirPlant) > 0;
 
+        GenericHelpers::LogUtil("[FRONT][BUILDORDER] pre: T1Land=" + hasT1LandLab + " T1Air=" + hasT1Air + " T2Land=" + hasT2LandLab + " T2Air=" + hasT2Air + " mi=" + metalIncome, 2);
+
+        // T1 land labs: always allowed, cap at 1
+        UnitHelpers::BatchApplyUnitCaps({ t1BotLab, t1VehLab }, 1);
+
+        // T1 air: only after T1 land lab exists
+        int t1AirCap = (hasT1LandLab ? 1 : 0);
+        if (t1AirCap > 0 && !g_frontLoggedT1AirCap) {
+            g_frontLoggedT1AirCap = true;
+            GenericHelpers::LogUtil("[FRONT][BUILDORDER] T1 air cap LIFTED to 1 (hasT1LandLab=true)", 1);
+        }
+        UnitHelpers::BatchApplyUnitCaps({ t1AirPlant }, t1AirCap);
+
+        // T2 land labs: only after T1 air exists
+        int t2LandCap = (hasT1Air && metalIncome >= 45.0f ? 1 : 0);
+        if (t2LandCap > 0 && !g_frontLoggedT2LandCap) {
+            g_frontLoggedT2LandCap = true;
+            GenericHelpers::LogUtil("[FRONT][BUILDORDER] T2 land lab cap LIFTED to 1 (hasT1Air=" + hasT1Air + " mi=" + metalIncome + ")", 1);
+        }
+        UnitHelpers::BatchApplyUnitCaps({ t2BotLab, t2VehLab }, t2LandCap);
+
+        // T2 air plants: 1st at MI>=100, 2nd at MI>=200
+        int t2AirCap = 0;
+        if (hasT2LandLab) {
+            if (metalIncome >= 200.0f) t2AirCap = 2;
+            else if (metalIncome >= Global::RoleSettings::Air::RequiredMetalIncomeForT2AircraftPlant) t2AirCap = 1;
+        }
+        if (t2AirCap > 0 && !g_frontLoggedT2AirCap) {
+            g_frontLoggedT2AirCap = true;
+            GenericHelpers::LogUtil("[FRONT][BUILDORDER] T2 air cap LIFTED to " + t2AirCap + " (hasT2LandLab=" + hasT2LandLab + " mi=" + metalIncome + ")", 1);
+        }
+        UnitHelpers::BatchApplyUnitCaps({ t2AirPlant }, t2AirCap);
+
+        // T3 gantries: only after T2 air exists
+        int t3GantryCap = (hasT2Air && metalIncome >= 250.0f ? 1 : 0);
+        if (t3GantryCap > 0 && !g_frontLoggedT3GantryCap) {
+            g_frontLoggedT3GantryCap = true;
+            GenericHelpers::LogUtil("[FRONT][BUILDORDER] T3 gantry cap LIFTED to 1 (hasT2Air=" + hasT2Air + " mi=" + metalIncome + ")", 1);
+        }
         array<string> gantries = { "armshltx", "armshltxuw", "corgant", "corgantuw", "leggant", "legapt3" };
-        if(metalIncome >= 250.0f) {
-            UnitHelpers::BatchApplyUnitCaps(gantries, 1);
-        } else {
-            UnitHelpers::BatchApplyUnitCaps(gantries, 0);
-        }
+        UnitHelpers::BatchApplyUnitCaps(gantries, t3GantryCap);
 
-        //RoleLimitHelpers::GateGantriesByIncome(temp, side, 250.0f, 1);
-
-        // On landlocked maps, disable hover plants for the FRONT role — all factions
-        // follow the same land-factory -> T1 shipyard -> T2 shipyard progression.
-        if (Global::Map::LandLocked) {
-            UnitHelpers::BatchApplyUnitCaps(UnitHelpers::GetAllT1HoverPlants(), 0);
+        // Nuke silo cap: 0 until forceEco gate expires and income is sufficient
+        bool forceEco = (ai.frame < (20 * 60 * SECOND));
+        int nukeCap = (!forceEco && metalIncome >= Global::RoleSettings::Front::MinimumMetalIncomeForNuke ? Global::RoleSettings::Front::NukeLimit : 0);
+        if (nukeCap > 0 && !g_frontLoggedNukeCap) {
+            g_frontLoggedNukeCap = true;
+            GenericHelpers::LogUtil("[FRONT][BUILDORDER] Nuke silo cap LIFTED to " + nukeCap + " (mi=" + metalIncome + ")", 1);
         }
-
-        // Shipyard caps for landlocked maps
-        if (Global::Map::LandLocked) {
-            UnitHelpers::BatchApplyUnitCaps(UnitHelpers::GetAllT1Shipyards(), 1);
-            UnitHelpers::BatchApplyUnitCaps(UnitHelpers::GetAllT2Shipyards(), 1);
-        } else {
-            UnitHelpers::BatchApplyUnitCaps(UnitHelpers::GetAllT1Shipyards(), 0);
-            UnitHelpers::BatchApplyUnitCaps(UnitHelpers::GetAllT2Shipyards(), 0);
-        }
+        UnitHelpers::BatchApplyUnitCaps(UnitHelpers::GetAllNukeSilos(), nukeCap);
     }
 
     void Front_IncomeBuilderLimits(float metalIncome) {
@@ -838,64 +589,6 @@ namespace RoleFront {
         }
 
         UnitHelpers::BatchApplyUnitCaps(t2Builders, t2BuilderCap);
-
-        // Sea constructor caps for landlocked maps
-        if (Global::Map::LandLocked) {
-            array<string> t1SeaCtors = { "armcs", "corcs", "legnavyconship" };
-            int t1SeaCtorCap = 2 + int(metalIncome / 20.0f);
-            if (t1SeaCtorCap > 10) t1SeaCtorCap = 10;
-            UnitHelpers::BatchApplyUnitCaps(t1SeaCtors, t1SeaCtorCap);
-        }
-    }
-
-    void Front_IncomeAirLimits(float metalIncome) {
-        float energyIncome = Economy::GetMinEnergyIncomeLast10s();
-
-        // T1 Air Constructors (all factions)
-        array<string> t1AirCtors = UnitHelpers::GetAllT1AirConstructors();
-        int t1AirCtorCap = 3 + int(metalIncome / 30.0f);
-        if (t1AirCtorCap > 15) t1AirCtorCap = 15;
-        UnitHelpers::BatchApplyUnitCaps(t1AirCtors, t1AirCtorCap);
-
-        // T2 Air Constructors (all factions)
-        array<string> t2AirCtors = {"armaca", "coraca", "legaca"};
-        int t2AirCtorCap = 2 + int(metalIncome / 50.0f);
-        if (t2AirCtorCap > 10) t2AirCtorCap = 10;
-        UnitHelpers::BatchApplyUnitCaps(t2AirCtors, t2AirCtorCap);
-
-        // Aircraft plant caps from income
-        int allowedT1Air = 0;
-        int allowedT2Air = EconomyHelpers::AllowedT2AircraftPlantCountFromIncome(
-            metalIncome, energyIncome,
-            Global::RoleSettings::Tech::RequiredMetalIncomeForT2AircraftPlant,
-            Global::RoleSettings::Tech::RequiredEnergyIncomeForT2AircraftPlant
-        );
-        if (allowedT2Air > 1) {
-            allowedT2Air = 1;
-        }
-        if (allowedT2Air > 0) {
-            allowedT1Air = 1;
-        }
-        // Phase progression override: allow at least 1 T1 air plant once T1 land exists
-        if (allowedT1Air < 1 && g_frontPhase >= 1) {
-            allowedT1Air = 1;
-        }
-
-        UnitHelpers::BatchApplyUnitCaps(UnitHelpers::GetAllT1AircraftPlants(), allowedT1Air);
-        UnitHelpers::BatchApplyUnitCaps(UnitHelpers::GetAllT2AircraftPlants(), allowedT2Air);
-
-        // T2 bomber cap
-        int t2BomberCap = Global::RoleSettings::Air::TargetT2BomberCount;
-        array<string> t2Bombers = {"armpnix", "corhurc", "legphoenix"};
-        UnitHelpers::BatchApplyUnitCaps(t2Bombers, t2BomberCap);
-
-        // Support fighter cap
-        int fighterCap = Global::RoleSettings::Air::TargetSupportFighterCount;
-        array<string> t2Fighters = {"armhawk", "corvamp", "legvenator"};
-        UnitHelpers::BatchApplyUnitCaps(t2Fighters, fighterCap);
-
-        GenericHelpers::LogUtil("[Front][Air] Limits: t1AirCtors=" + t1AirCtorCap + " t2AirCtors=" + t2AirCtorCap +
-            " t1AirPlants=" + allowedT1Air + " t2AirPlants=" + allowedT2Air, 4);
     }
 
     /******************************************************************************
@@ -905,72 +598,79 @@ namespace RoleFront {
     ******************************************************************************/ 
 
     IUnitTask@ Front_T1Constructor_AiMakeTask(CCircuitUnit@ u, IUnitTask@ defaultTask, float metalIncome, float energyIncome, bool isEnergyStalling, bool isEnergyFull) {
-        // Econ snapshot is passed by caller (min over last 10s for incomes)
-
         AIFloat3 conLocation = u.GetPos(ai.frame);
         string unitSide = UnitHelpers::GetSideForUnitName(u.circuitDef.GetName());
+        GenericHelpers::LogUtil("[FRONT][T1CON] entry mi=" + metalIncome + " ei=" + energyIncome + " builder=" + u.circuitDef.GetName() + " id=" + u.id, 2);
+
+        // Build-order: T1 air plant before T2 lab (if T1 land lab exists and no air plant yet)
+        string t1AirPlantName = (unitSide == "armada" ? "armap" : unitSide == "cortex" ? "corap" : "legap");
+        int t1AirPlantCount = UnitDefHelpers::GetUnitDefCount(t1AirPlantName);
+        if (t1AirPlantCount <= 0 && !Factory::IsT1AirPlantBuildQueued() && metalIncome >= 15.0f && energyIncome >= 150.0f) {
+            IUnitTask@ tAir = Builder::EnqueueT1AirFactory(unitSide, Factory::GetAirPlantBuildPos(), SQUARE_SIZE * 24, 600 * SECOND);
+            if (tAir !is null) {
+                GenericHelpers::LogUtil("[FRONT][BUILDORDER] T1 CONSTRUCTOR enqueuing T1 air plant (mi=" + metalIncome + " ei=" + energyIncome + ")", 1);
+                return tAir;
+            }
+        }
 
         // Primary constructor branch (Bots)
-        bool _isPriBot = Builder::primaryT1BotConstructor !is null && u.id == Builder::primaryT1BotConstructor.id;
-        if (_isPriBot) {
+        if (u is Builder::primaryT1BotConstructor) {
             int t2ConstructionBotCount = UnitDefHelpers::SumUnitDefCounts(UnitHelpers::GetAllT2BotConstructors());
             int t2LabCount = UnitDefHelpers::SumUnitDefCounts(UnitHelpers::GetAllT2BotLabs());
+            GenericHelpers::LogUtil("[FRONT][T1CON] primaryBot: t2LabCount=" + t2LabCount + " t1AirCount=" + t1AirPlantCount, 2);
 
-            // Fast-track: if we have zero T2 bot labs and ANY trigger is met, build a T2 Bot Lab now.
-            // Triggers (OR):
-            //  1) metal income >= configured threshold
-            //  2) game time >= 22 minutes
-            //  3) stored metal >= T2 bot lab cost
-            if (g_frontPhase >= 2 && t2LabCount < 1) {
+            // Fast-track: build T2 Bot Lab if triggers met and T1 air exists (only if none queued)
+            if (t2LabCount < 1 && t1AirPlantCount > 0 && !Factory::IsT2LabBuildQueued()) {
                 const float incomeTrigger = Global::RoleSettings::Front::MinimumMetalIncomeForFirstT2Lab;
                 const bool timeTriggerMet = (ai.frame >= (22 * 60 * SECOND));
                 const bool incomeTriggerMet = (metalIncome >= incomeTrigger);
-                // Resolve T2 lab cost for stored-metal trigger
                 bool storedMetalTriggerMet = false;
                 string t2LabName = UnitHelpers::GetT2BotLabForSide(unitSide);
                 CCircuitDef@ t2LabDef = ai.GetCircuitDef(t2LabName);
                 if (t2LabDef !is null) {
                     storedMetalTriggerMet = (aiEconomyMgr.metal.current >= t2LabDef.costM);
                 }
+                GenericHelpers::LogUtil("[FRONT][BUILDORDER] T2 fast-track check: time=" + timeTriggerMet + " income=" + incomeTriggerMet + " stored=" + storedMetalTriggerMet + " mi=" + metalIncome, 2);
                 if (incomeTriggerMet || timeTriggerMet || storedMetalTriggerMet) {
                     AIFloat3 anchor2 = Factory::GetT1BotLabPos();
                     IUnitTask@ t2b = Builder::EnqueueT2LabIfNeeded(unitSide, anchor2, SQUARE_SIZE * 30, SECOND * 300);
-                    if (t2b !is null) return t2b;
+                    if (t2b !is null) {
+                        GenericHelpers::LogUtil("[FRONT][BUILDORDER] T2 bot lab FAST-TRACK triggered (mi=" + metalIncome + ")", 1);
+                        return t2b;
+                    }
                 }
             }
 
-            // Try T2 lab if eco allows (phase >= 2: T1 air must exist first)
-            if (g_frontPhase >= 2) {
+            // Normal T2 lab check (only if T1 air exists and none already queued)
+            if (t1AirPlantCount > 0 && !Factory::IsT2LabBuildQueued()) {
                 bool shouldT2Lab = EconomyHelpers::ShouldBuildT2BotLab(
-                    /*mi*/ metalIncome,
-                    /*ei*/ energyIncome,
-                    /*metalCurrent*/ aiEconomyMgr.metal.current,
-                    /*requiredMetalIncome*/ Global::RoleSettings::Front::MinimumMetalIncomeForT2Lab,
-                    /*requiredMetalCurrent*/ Global::RoleSettings::Front::RequiredMetalCurrentForT2Lab,
-                    /*requiredEnergyIncome*/ Global::RoleSettings::Front::MinimumEnergyIncomeForT2Lab,
-                    /*constructorDef*/ u.circuitDef,
-                    /*t2BotLabCount*/ t2LabCount,
-                    /*maxAllowed*/ Global::RoleSettings::Front::MaxT2BotLabs,
-                    /*hasPrimaryFactory*/ (Factory::primaryT1BotLab !is null)
+                    metalIncome, energyIncome,
+                    aiEconomyMgr.metal.current,
+                    Global::RoleSettings::Front::MinimumMetalIncomeForT2Lab,
+                    Global::RoleSettings::Front::RequiredMetalCurrentForT2Lab,
+                    Global::RoleSettings::Front::MinimumEnergyIncomeForT2Lab,
+                    u.circuitDef, t2LabCount,
+                    Global::RoleSettings::Front::MaxT2BotLabs,
+                    (Factory::primaryT1BotLab !is null)
                 );
-
+                GenericHelpers::LogUtil("[FRONT][BUILDORDER] T2 normal check result=" + shouldT2Lab + " mi=" + metalIncome + " ei=" + energyIncome, 2);
                 if (shouldT2Lab) {
+                    GenericHelpers::LogUtil("[FRONT][BUILDORDER] T2 bot lab NORMAL triggered (mi=" + metalIncome + ")", 1);
                     AIFloat3 anchor = Factory::GetT1BotLabPos();
                     IUnitTask@ tLab = Builder::EnqueueT2LabIfNeeded(unitSide, anchor, SQUARE_SIZE * 30, SECOND * 300);
                     if (tLab !is null) return tLab;
                 }
             }
 
-            // After T2 lab attempt: build a T1 nano caretaker when reserves allow
-            // Route through centralized per-factory nano selection and enqueue helpers
+            // Nano caretaker
             {
                 float energyPercent = (aiEconomyMgr.energy.storage > 0.0f)
                     ? (aiEconomyMgr.energy.current / aiEconomyMgr.energy.storage)
                     : 0.0f;
                 if (EconomyHelpers::ShouldBuildT1Nano_ByReserves(
-                    /*metalCurrent*/ aiEconomyMgr.metal.current,
-                    /*buildWhenOverMetal*/ 500.0f,
-                    /*energyPercent*/ energyPercent
+                    aiEconomyMgr.metal.current,
+                    500.0f,
+                    energyPercent
                 )) {
                     CCircuitUnit@ targetFactory = Factory::SelectFactoryNeedingNano();
                     if (targetFactory !is null) {
@@ -980,320 +680,101 @@ namespace RoleFront {
                 }
             }
 
-        }
-
-        // Aircraft Plant: build T1 air plant when economy allows (phase >= 1: T1 land must exist first)
-        // Shared between bot and vehicle constructors
-        if (g_frontPhase >= 1) {
-            int t1AirPlants = UnitDefHelpers::SumUnitDefCounts(UnitHelpers::GetAllT1AircraftPlants());
-            int t2AirPlants = UnitDefHelpers::SumUnitDefCounts(UnitHelpers::GetAllT2AircraftPlants());
-            int allowedT2Air = EconomyHelpers::AllowedT2AircraftPlantCountFromIncome(
-                metalIncome, energyIncome,
-                Global::RoleSettings::Tech::RequiredMetalIncomeForT2AircraftPlant,
-                Global::RoleSettings::Tech::RequiredEnergyIncomeForT2AircraftPlant
-            );
-            bool shouldT1Air = (t1AirPlants < 1) && (
-                (allowedT2Air > 0) ||
-                (metalIncome >= Global::RoleSettings::Tech::RequiredMetalIncomeForAirPlant &&
-                 energyIncome >= Global::RoleSettings::Tech::RequiredEnergyIncomeForAirPlant &&
-                 aiEconomyMgr.metal.current >= Global::RoleSettings::Tech::RequiredMetalCurrentForAirPlant)
-            );
-            if (shouldT1Air) {
-                IUnitTask@ tAir = Builder::EnqueueT1AirFactory(unitSide, Factory::GetPreferredFactoryPos(), SQUARE_SIZE * 24, 30 * SECOND, Task::Priority::HIGH);
-                if (tAir !is null) return tAir;
+            // T2 air plant: 1st at MI>=100, 2nd at MI>=200 (requires any T2 land lab - bot or vehicle)
+            bool hasT2LandLab = (t2LabCount > 0) || (UnitDefHelpers::SumUnitDefCounts(UnitHelpers::GetAllT2VehicleLabs()) > 0);
+            if (Factory::primaryT1AirPlant !is null && hasT2LandLab) {
+                int t2AirPlantCount = UnitDefHelpers::SumUnitDefCounts(UnitHelpers::GetAllT2AircraftPlants());
+                float requiredMI = (t2AirPlantCount < 1) ? Global::RoleSettings::Air::RequiredMetalIncomeForT2AircraftPlant : 200.0f;
+                if (t2AirPlantCount < 2 && metalIncome >= requiredMI) {
+                    AIFloat3 anchor = Factory::GetT1AirPlantPos();
+                    IUnitTask@ tT2Air = Builder::EnqueueT2AirPlant(unitSide, anchor, SQUARE_SIZE * 30, 600 * SECOND);
+                    if (tT2Air !is null) {
+                        GenericHelpers::LogUtil("[FRONT][BUILDORDER] T2 air plant " + (t2AirPlantCount < 1 ? "1" : "2") + " queued (mi=" + metalIncome + ")", 1);
+                        return tT2Air;
+                    }
+                }
             }
-        }
 
-        // T1 Shipyard on landlocked maps (shared between bot and vehicle constructors)
-        if (Global::Map::LandLocked) {
-            int t1Shipyards = UnitDefHelpers::SumUnitDefCounts(UnitHelpers::GetAllT1Shipyards());
-            GenericHelpers::LogUtil("[FRONT] T1Ctor: checking T1 shipyard build: t1Count=" + t1Shipyards + " mi=" + metalIncome + " thr=" + Global::RoleSettings::Front::MinimumMetalIncomeForT1Shipyard, 1);
-            if (t1Shipyards < 1 && metalIncome >= Global::RoleSettings::Front::MinimumMetalIncomeForT1Shipyard) {
-                GenericHelpers::LogUtil("[FRONT] T1Ctor: building T1 shipyard", 1);
-                IUnitTask@ tSy = Builder::EnqueueT1Shipyard(unitSide, Factory::GetPreferredFactoryPos(), SQUARE_SIZE * 60, 600 * SECOND);
-                if (tSy !is null) return tSy;
-            }
         }
 
         // Primary constructor branch (Vehicles)
-        bool _isPriVeh = Builder::primaryT1VehConstructor !is null && u.id == Builder::primaryT1VehConstructor.id;
-        if (_isPriVeh) {
+        if (u is Builder::primaryT1VehConstructor) {
             int t2VehLabCount = UnitDefHelpers::SumUnitDefCounts(UnitHelpers::GetAllT2VehicleLabs());
-            // Fast-track first T2 vehicle plant via centralized builder helper
-            if (g_frontPhase >= 2 && t2VehLabCount < 1 && metalIncome >= Global::RoleSettings::Front::MinimumMetalIncomeForFirstT2Lab && Builder::IsT2VehFactoryOffCooldown()) {
+            GenericHelpers::LogUtil("[FRONT][T1CON] primaryVeh: t2VehCount=" + t2VehLabCount + " t1AirCount=" + t1AirPlantCount + " mi=" + metalIncome, 2);
+            if (t2VehLabCount < 1 && !Factory::IsT2VehPlantBuildQueued() && t1AirPlantCount > 0 && metalIncome >= Global::RoleSettings::Front::MinimumMetalIncomeForFirstT2Lab && Builder::IsT2VehFactoryOffCooldown()) {
+                GenericHelpers::LogUtil("[FRONT][BUILDORDER] T2 vehicle plant triggered (mi=" + metalIncome + ")", 1);
                 IUnitTask@ tVeh2 = Builder::EnqueueT2VehiclePlant(Global::AISettings::Side, Factory::GetPreferredFactoryPos(), SQUARE_SIZE * 24, 600 * SECOND);
                 if (tVeh2 !is null) return tVeh2;
             }
-            // No special vehicle-only eco tasks for now; default
             return defaultTask;
         }
 
     return defaultTask;
     }
 
-    IUnitTask@ Front_T1SeaConstructor_AiMakeTask(CCircuitUnit@ u, IUnitTask@ defaultTask, float metalIncome, float energyIncome, bool isEnergyFull) {
-        bool _isPriSea = Builder::primaryT1SeaConstructor !is null && u.id == Builder::primaryT1SeaConstructor.id;
-        bool _isSecSea = Builder::secondaryT1SeaConstructor !is null && u.id == Builder::secondaryT1SeaConstructor.id;
-        GenericHelpers::LogUtil("[FRONT] T1SeaCtorHandler: entered id=" + u.id + " mi=" + aiEconomyMgr.metal.income + " ei=" + aiEconomyMgr.energy.income + " isPrimary=" + _isPriSea + " isSecondary=" + _isSecSea, 1);
-        // Use current income (matching SEA role pattern) — min-over-10s can dip below
-        // actual income during spending spikes and block T2 shipyard permanently.
-        float mi = aiEconomyMgr.metal.income;
-        float ei = aiEconomyMgr.energy.income;
-        AIFloat3 conLocation = u.GetPos(ai.frame);
-        string unitSide = UnitHelpers::GetSideForUnitName(u.circuitDef.GetName());
-
-        if (_isPriSea || _isSecSea) {
-            // T2 shipyard upgrade
-            int t2ShipyardCount = UnitDefHelpers::SumUnitDefCounts(UnitHelpers::GetAllT2Shipyards());
-            bool hasPrimaryT1Shipyard = (Factory::primaryT1Shipyard !is null);
-
-            // Fast-track T2 shipyard with fallback triggers (OR), matching T2 lab pattern:
-            //  1) metal income >= threshold
-            //  2) game time >= 22 minutes (unconditional fallback)
-            //  3) stored metal >= T2 shipyard cost
-            bool incomeTriggerMet = (mi >= Global::RoleSettings::Front::MinimumMetalIncomeForT2Shipyard);
-            bool timeTriggerMet = (ai.frame >= (22 * 60 * SECOND));
-            bool storedMetalTriggerMet = false;
-            string t2SyName = (unitSide == "armada") ? "armasy" : "corasy";
-            CCircuitDef@ t2SyDef = ai.GetCircuitDef(t2SyName);
-            if (t2SyDef !is null) {
-                storedMetalTriggerMet = (aiEconomyMgr.metal.current >= t2SyDef.costM);
-            }
-            bool t2SyFastTrack = (incomeTriggerMet || timeTriggerMet || storedMetalTriggerMet);
-            GenericHelpers::LogUtil("[FRONT] T1SeaCtorHandler: t2SyFastTrack=" + t2SyFastTrack + " incomeTrigger=" + incomeTriggerMet + " timeTrigger=" + timeTriggerMet + " storedMetalTrigger=" + storedMetalTriggerMet + " t2Count=" + t2ShipyardCount + " hasT1Sy=" + hasPrimaryT1Shipyard + " mi=" + mi + " ei=" + ei + " mc=" + aiEconomyMgr.metal.current, 1);
-
-            if (EconomyHelpers::ShouldBuildT2Shipyard(
-                mi, ei, aiEconomyMgr.metal.current,
-                (t2SyFastTrack ? 0.0f : Global::RoleSettings::Front::MinimumMetalIncomeForT2Shipyard),
-                Global::RoleSettings::Front::RequiredMetalCurrentForT2Shipyard,
-                (t2SyFastTrack ? 0.0f : Global::RoleSettings::Front::MinimumEnergyIncomeForT2Shipyard),
-                t2ShipyardCount,
-                Global::RoleSettings::Front::MaxT2Shipyards,
-                hasPrimaryT1Shipyard
-            )) {
-                GenericHelpers::LogUtil("[FRONT] T1SeaCtorHandler: ShouldBuildT2Shipyard=TRUE, enqueuing", 1);
-                AIFloat3 anchor = Factory::GetT1ShipyardPos();
-                IUnitTask@ tT2Sy = Builder::EnqueueT2Shipyard(unitSide, anchor, SQUARE_SIZE * 60, 600 * SECOND);
-                if (tT2Sy !is null) {
-                    GenericHelpers::LogUtil("[FRONT] T1SeaCtorHandler: EnqueueT2Shipyard returned task, routing", 1);
-                    return tT2Sy;
-                }
-                GenericHelpers::LogUtil("[FRONT] T1SeaCtorHandler: ShouldBuildT2Shipyard=TRUE but Enqueue returned null", 1);
-            } else {
-                GenericHelpers::LogUtil("[FRONT] T1SeaCtorHandler: ShouldBuildT2Shipyard=FALSE, falling through", 1);
-            }
-
-            // Naval Energy Converter
-            if (EconomyHelpers::ShouldBuildT1EnergyConverter(
-                mi, ei,
-                aiEconomyMgr.energy.current, aiEconomyMgr.energy.storage,
-                Global::RoleSettings::Sea::BuildT1ConvertersUntilMetalIncome,
-                Global::RoleSettings::Sea::BuildT1ConvertersMinimumEnergyIncome,
-                Global::RoleSettings::Sea::BuildT1ConvertersMinimumEnergyCurrentPercent
-            )) {
-                IUnitTask@ tConv = Builder::EnqueueT1NavalEnergyConverter(unitSide, conLocation, SQUARE_SIZE * 32, SECOND * 30);
-                if (tConv !is null) return tConv;
-            }
-
-            // T1 naval nanos
-            float energyPercent = (aiEconomyMgr.energy.storage > 0.0f)
-                ? (aiEconomyMgr.energy.current / aiEconomyMgr.energy.storage) : 0.0f;
-            if (Factory::GetPreferredFactory() !is null && EconomyHelpers::ShouldBuildT1Nano(
-                ei, mi,
-                Global::RoleSettings::Sea::NanoEnergyPerUnit,
-                Global::RoleSettings::Sea::NanoMetalPerUnit,
-                Global::RoleSettings::Sea::NanoMaxCount,
-                aiEconomyMgr.metal.current,
-                Global::RoleSettings::Sea::NanoBuildWhenOverMetal,
-                energyPercent
-            )) {
-                CCircuitUnit@ targetFactory = Factory::SelectFactoryNeedingNano();
-                if (targetFactory !is null) {
-                    IUnitTask@ tNano = Factory::EnqueueNanoForFactory(targetFactory, Task::Priority::NORMAL);
-                    if (tNano !is null) return tNano;
-                }
-            }
-
-            // Tidals
-            if (EconomyHelpers::ShouldBuildT1Solar(ei, Global::RoleSettings::Sea::TidalEnergyIncomeMinimum)) {
-                IUnitTask@ tTidal = Builder::EnqueueT1Tidal(unitSide, conLocation, SQUARE_SIZE * 32, SECOND * 30);
-                if (tTidal !is null) return tTidal;
-            }
-        }
-
-        return defaultTask;
-    }
-
     IUnitTask@ Front_T2Constructor_AiMakeTask(CCircuitUnit@ u, IUnitTask@ defaultTask, bool isEnergyFull, float metalIncome, float energyIncome, float metalCurrent, bool isEnergyLessThan90Percent) {
-
         string unitSide = UnitHelpers::GetSideForUnitName(u.circuitDef.GetName());
+        GenericHelpers::LogUtil("[FRONT][T2CON] entry mi=" + metalIncome + " ei=" + energyIncome + " builder=" + u.circuitDef.GetName() + " id=" + u.id, 2);
 
         // Freelance T2 constructors just do default tasks
-        bool _isFreelance = Builder::freelanceT2BotConstructor !is null && u.id == Builder::freelanceT2BotConstructor.id;
-        if (_isFreelance) {
+        if (u is Builder::freelanceT2BotConstructor) {
             return defaultTask;
         }
 
-        bool _isPriT2Bot = Builder::primaryT2BotConstructor !is null && u.id == Builder::primaryT2BotConstructor.id;
-        bool _isPriT2Veh = Builder::primaryT2VehConstructor !is null && u.id == Builder::primaryT2VehConstructor.id;
-        bool _isSecT2Bot = Builder::secondaryT2BotConstructor !is null && u.id == Builder::secondaryT2BotConstructor.id;
-        const bool isPrimary = (_isPriT2Bot || _isPriT2Veh);
-        const bool isSecondary = (_isSecT2Bot);
+        const bool isPrimary = (u is Builder::primaryT2BotConstructor || u is Builder::primaryT2VehConstructor);
+        const bool isSecondary = (u is Builder::secondaryT2BotConstructor);
 
         AIFloat3 anchor = Factory::GetT2BotLabPos();
 
+        // Eco gating: force economy builds for the first 20 minutes
+        const bool forceEco = (ai.frame < (20 * 60 * SECOND));
+
         if (isPrimary) {
-            // Gantry (phase >= 4: T2 air must exist first; landlocked also needs T1 sea + T2 sea)
-            if (g_frontPhase >= 4 && (!Global::Map::LandLocked || (g_hasBuiltT1Sea && g_hasBuiltT2Sea))) {
-                int gantryCount = UnitDefHelpers::SumUnitDefCounts(UnitHelpers::GetAllLandGantries());
-                if (EconomyHelpers::ShouldBuildGantry(
-                    /*mi*/ metalIncome,
-                    /*ei*/ energyIncome,
-                    /*metalStored*/ metalCurrent,
-                    /*currentGantryCount*/ gantryCount,
-                    /*metalIncomePerGantry*/ Global::RoleSettings::Tech::MetalIncomePerGantry,
-                    /*energyIncomePerGantry*/ Global::RoleSettings::Tech::EnergyIncomePerGantry
-                )) {
-                    IUnitTask@ tGantry = Builder::EnqueueLandGantry(unitSide);
-                    if (tGantry !is null) return tGantry;
-                }
-            }
-
-            // Fusion Reactor (lower thresholds on landlocked maps)
-            float fusReqMi = Global::Map::LandLocked ? 0.0f : Global::RoleSettings::Tech::MinimumMetalIncomeForFUS;
-            float fusReqEi = Global::Map::LandLocked ? 200.0f : Global::RoleSettings::Tech::MinimumEnergyIncomeForFUS;
+            // Fusion Reactor
             if (EconomyHelpers::ShouldBuildFusionReactor(
-                /*mi*/ metalIncome,
-                /*ei*/ energyIncome,
-                /*energy<90%*/ isEnergyLessThan90Percent,
-                /*reqMi*/ fusReqMi,
-                /*reqEi*/ fusReqEi,
-                /*maxEi*/ Global::RoleSettings::Tech::MaxEnergyIncomeForFUS
+                metalIncome, energyIncome,
+                isEnergyLessThan90Percent,
+                Global::RoleSettings::Tech::MinimumMetalIncomeForFUS,
+                Global::RoleSettings::Tech::MinimumEnergyIncomeForFUS,
+                Global::RoleSettings::Tech::MaxEnergyIncomeForFUS
             )) {
-                IUnitTask@ tFus = Builder::EnqueueFUS(unitSide, anchor, SQUARE_SIZE * 32, SECOND * 300);
-                if (tFus !is null) return tFus;
+                GenericHelpers::LogUtil("[FRONT][T2CON] Enqueuing fusion reactor (mi=" + metalIncome + ")", 1);
+                IUnitTask@ tFus2 = Builder::EnqueueFUS(unitSide, anchor, SQUARE_SIZE * 32, SECOND * 300);
+                if (tFus2 !is null) return tFus2;
             }
 
-            // T2 Energy Converter
-            if (EconomyHelpers::ShouldBuildT2EnergyConverter(
-                /*metalIncome*/ metalIncome,
-                /*energyIncome*/ energyIncome,
-                /*energy<90%*/ isEnergyLessThan90Percent,
-                /*energyFull*/ isEnergyFull,
-                /*reqMi*/ Global::RoleSettings::Tech::MinimumMetalIncomeForAdvConverter,
-                /*reqEi*/ Global::RoleSettings::Tech::MinimumEnergyIncomeForAdvConverter
-            )) {
-                IUnitTask@ tConv = Builder::EnqueueAdvEnergyConverter(unitSide, anchor, SQUARE_SIZE * 32, SECOND * 60);
-                if (tConv !is null) return tConv;
-            }
-
-            // Nuke silo
-            int nukeTotal = EconomyHelpers::GetNukeSiloCount();
-            int nukeQueued = Builder::NukeSiloQueuedCount;
-            if (EconomyHelpers::ShouldBuildNuclearSilo(
-                /*mi*/ metalIncome,
-                /*ei*/ energyIncome,
-                /*queued*/ nukeQueued,
-                /*total*/ nukeTotal,
-                /*rushCount*/ Global::RoleSettings::Tech::NukeRush,
-                /*reqMiRush*/ Global::RoleSettings::Tech::MinimumMetalIncomeForNukeRush,
-                /*reqEiRush*/ Global::RoleSettings::Tech::MinimumEnergyIncomeForNukeRush,
-                /*reqMiReg*/ Global::RoleSettings::Tech::MinimumMetalIncomeForNuke,
-                /*reqEiReg*/ Global::RoleSettings::Tech::MinimumEnergyIncomeForNuke
-            )) {
-                IUnitTask@ tNuke = Builder::EnqueueNukeSilo(unitSide, anchor, SQUARE_SIZE * 32, SECOND * 300);
-                if (tNuke !is null) return tNuke;
-            }
-
-            // Anti-nuke
-            int antiNukeTotal = EconomyHelpers::GetAntiNukeCount();
-            int allowedAnti = EconomyHelpers::AllowedAntiNukesFromIncome(
-                /*metalIncome*/ metalIncome,
-                /*per*/ Global::RoleSettings::Tech::MetalIncomePerAntiNuke
-            );
-            if (EconomyHelpers::ShouldBuildAntiNuke(
-                /*mi*/ metalIncome,
-                /*ei*/ energyIncome,
-                /*current*/ antiNukeTotal,
-                /*reqMi*/ Global::RoleSettings::Tech::MinimumMetalIncomeForAntiNuke,
-                /*reqEi*/ Global::RoleSettings::Tech::MinimumEnergyIncomeForAntiNuke,
-                /*minCount*/ Global::RoleSettings::Tech::MinimumAntiNukeCount,
-                /*allowed*/ allowedAnti
-            )) {
-                IUnitTask@ tAmd = Builder::EnqueueAntiNuke(unitSide, anchor, SQUARE_SIZE * 32, SECOND * 300);
-                if (tAmd !is null) return tAmd;
-            }
-
-            // Advanced Fusion Reactor (lower thresholds on landlocked maps — no water afus)
-            float afusReqMi = Global::Map::LandLocked ? 40.0f : Global::RoleSettings::Tech::MinimumMetalIncomeForAFUS;
-            float afusReqEi = Global::Map::LandLocked ? 1000.0f : Global::RoleSettings::Tech::MinimumEnergyIncomeForAFUS;
-            if (EconomyHelpers::ShouldBuildAdvancedFusionReactor(
-                /*mi*/ metalIncome,
-                /*ei*/ energyIncome,
-                /*energy<90%*/ isEnergyLessThan90Percent,
-                /*nukeRush*/ Global::RoleSettings::Tech::NukeRush,
-                /*nukeSilos*/ nukeTotal,
-                /*reqMi*/ afusReqMi,
-                /*reqEi*/ afusReqEi
-            )) {
-                IUnitTask@ tAfus = Builder::EnqueueAFUS(unitSide, anchor, SQUARE_SIZE * 32, SECOND * 300);
-                if (tAfus !is null) return tAfus;
-            }
-
-            // T2 Aircraft Plant (phase >= 3: T2 land must exist first)
-            if (g_frontPhase >= 3) {
-                int t2AirPlants = UnitDefHelpers::SumUnitDefCounts(UnitHelpers::GetAllT2AircraftPlants());
-                int allowedT2Air = EconomyHelpers::AllowedT2AircraftPlantCountFromIncome(
-                    metalIncome, energyIncome,
-                    Global::RoleSettings::Tech::RequiredMetalIncomeForT2AircraftPlant,
-                    Global::RoleSettings::Tech::RequiredEnergyIncomeForT2AircraftPlant
-                );
-                if (allowedT2Air > 1) {
-                    allowedT2Air = 1;
-                }
-                if (t2AirPlants < allowedT2Air) {
-                    int t1AirPlants = UnitDefHelpers::SumUnitDefCounts(UnitHelpers::GetAllT1AircraftPlants());
-                    if (t1AirPlants < 1) {
-                        IUnitTask@ tAir1 = Builder::EnqueueT1AirFactory(unitSide, Factory::GetPreferredFactoryPos(), SQUARE_SIZE * 24, 30 * SECOND, Task::Priority::HIGH);
-                        if (tAir1 !is null) return tAir1;
+            // Nuke silo (late game, no rush)
+            if (!forceEco) {
+                int nukeTotal = EconomyHelpers::GetNukeSiloCount();
+                int nukeQueued = Builder::NukeSiloQueuedCount;
+                int nukeCap = Global::RoleSettings::Front::NukeLimit;
+                GenericHelpers::LogUtil("[FRONT][NUKE] forceEco=" + forceEco + " nukeTotal=" + nukeTotal + " nukeQueued=" + nukeQueued + " cap=" + nukeCap + " mi=" + metalIncome + " ei=" + energyIncome, 2);
+                if (nukeCap > 0 && (nukeTotal + nukeQueued) < nukeCap &&
+                    metalIncome >= Global::RoleSettings::Front::MinimumMetalIncomeForNuke &&
+                    energyIncome >= Global::RoleSettings::Front::MinimumEnergyIncomeForNuke) {
+                    IUnitTask@ tNuke = Builder::EnqueueNukeSilo(unitSide, anchor, SQUARE_SIZE * 32, SECOND * 300);
+                    if (tNuke !is null) {
+                        GenericHelpers::LogUtil("[FRONT][NUKE] Enqueuing nuke silo (" + (nukeTotal + nukeQueued + 1) + "/" + nukeCap + ")", 1);
+                        return tNuke;
                     }
-                    IUnitTask@ tAir2 = Builder::EnqueueT2AirPlant(unitSide, Factory::GetPreferredFactoryPos(), SQUARE_SIZE * 24, 600 * SECOND);
-                    if (tAir2 !is null) return tAir2;
                 }
             }
+
+            // Anti-nuke (not gated by forceEco — defensive structure for self-protection)
+            {
+                int antiNukeTotal = EconomyHelpers::GetAntiNukeCount();
+                GenericHelpers::LogUtil("[FRONT][ANTINUKE] antiNukeTotal=" + antiNukeTotal + " min=" + Global::RoleSettings::Front::MinimumAntiNukeCount + " mi=" + metalIncome + " ei=" + energyIncome, 2);
+                if (antiNukeTotal < Global::RoleSettings::Front::MinimumAntiNukeCount &&
+                    metalIncome >= Global::RoleSettings::Front::MinimumMetalIncomeForAntiNuke &&
+                    energyIncome >= Global::RoleSettings::Front::MinimumEnergyIncomeForAntiNuke) {
+                    IUnitTask@ tAmd = Builder::EnqueueAntiNuke(unitSide, anchor, SQUARE_SIZE * 32, SECOND * 300);
+                    if (tAmd !is null) {
+                        GenericHelpers::LogUtil("[FRONT][ANTINUKE] Enqueuing anti-nuke", 1);
+                        return tAmd;
+                    }
+                }
             }
-
-        return defaultTask;
-    }
-
-    IUnitTask@ Front_T2SeaConstructor_AiMakeTask(CCircuitUnit@ u, IUnitTask@ defaultTask, bool isEnergyFull, float metalIncome, float energyIncome, float metalCurrent, bool isEnergyLessThan90Percent) {
-        string unitSide = UnitHelpers::GetSideForUnitName(u.circuitDef.GetName());
-        AIFloat3 conLocation = u.GetPos(ai.frame);
-
-        bool _isPriT2Sea = Builder::primaryT2SeaConstructor !is null && u.id == Builder::primaryT2SeaConstructor.id;
-        bool _isSecT2Sea = Builder::secondaryT2SeaConstructor !is null && u.id == Builder::secondaryT2SeaConstructor.id;
-        if (_isPriT2Sea || _isSecT2Sea) {
-            // Fusion
-            if (EconomyHelpers::ShouldBuildFusionReactor(
-                metalIncome, energyIncome, isEnergyLessThan90Percent,
-                Global::RoleSettings::Sea::MinimumMetalIncomeForFUS,
-                Global::RoleSettings::Sea::MinimumEnergyIncomeForFUS,
-                Global::RoleSettings::Sea::MaxEnergyIncomeForFUS
-            )) {
-                IUnitTask@ tFus = Builder::EnqueueFUS(unitSide, conLocation, SQUARE_SIZE * 32, SECOND * 300);
-                if (tFus !is null) return tFus;
-            }
-
-            // T2 Energy Converter
-            if (EconomyHelpers::ShouldBuildT2EnergyConverter(
-                metalIncome, energyIncome, isEnergyLessThan90Percent, isEnergyFull,
-                Global::RoleSettings::Sea::MinimumMetalIncomeForAdvConverter,
-                Global::RoleSettings::Sea::MinimumEnergyIncomeForAdvConverter
-            )) {
-                IUnitTask@ tConv = Builder::EnqueueAdvEnergyConverter(unitSide, conLocation, SQUARE_SIZE * 32, SECOND * 60);
-                if (tConv !is null) return tConv;
-            }
-        }
+        } 
 
         return defaultTask;
     }
@@ -1305,22 +786,12 @@ namespace RoleFront {
     ******************************************************************************/
 
     bool Front_RoleMatch(AiRole preferredMapRole, const string &in side, const AIFloat3& in pos, const string &in defaultStartFactory) {
-        bool match = false;
-
-        if (preferredMapRole == AiRole::FRONT) match = true;
-        if (preferredMapRole == AiRole::AIR) match = true;
-        if (preferredMapRole == AiRole::TECH) match = true;
-        if (preferredMapRole == AiRole::FRONT_TECH) match = true;
-       
-        if (match) { 
-            GenericHelpers::LogUtil("[RoleMatch] FRONT (unified: also handles AIR/TECH/FRONT_TECH)", 2); 
-        }
-
-        return match;
+        GenericHelpers::LogUtil("[RoleMatch] FRONT (forced)", 2);
+        return true;
     }
 
     void Register() {
-        if (RoleConfigs::Get(AiRole::FRONT) !is null) return; // already
+        if (RoleConfigs::Get(AiRole::FRONT) !is null) return;
         RoleConfig@ cfg = RoleConfig(AiRole::FRONT, cast<MainUpdateDelegate@>(@Front_MainUpdate));
 
         @cfg.InitHandler = cast<InitDelegate@>(@Front_Init);
@@ -1343,9 +814,6 @@ namespace RoleFront {
         @cfg.SelectFactoryHandler = cast<SelectFactoryDelegate@>(@Front_SelectFactoryHandler);
         @cfg.FactoryAiUnitAdded = cast<AiUnitAddedDelegate@>(@Front_FactoryAiUnitAdded);
         @cfg.FactoryAiUnitRemoved = cast<AiUnitRemovedDelegate@>(@Front_FactoryAiUnitRemoved);
-
-        @cfg.MilitaryAiUnitAdded = cast<AiUnitAddedDelegate@>(@Front_MilitaryAiUnitAdded);
-        @cfg.MilitaryAiUnitRemoved = cast<AiUnitRemovedDelegate@>(@Front_MilitaryAiUnitRemoved);
 
         @cfg.RoleMatchHandler = cast<RoleMatchDelegate@>(@Front_RoleMatch);
 

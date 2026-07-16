@@ -12,8 +12,8 @@
 	
 		"quota": {
 			"scout": 2,  // max scout units out of raiders
-			"raid": [8.0, 80.0],  // [<min>, <avg>] power of raider squad
-			"attack": 20.0,  // min power of attack group
+			"raid": [8.0, 180.0],  // [<min>, <avg>] power of raider squad
+			"attack": 60.0,  // min power of attack group
 			"thr_mod": {				//AI attacks everything with final threat (after all calculations) <= 1
 				"attack": [0.8, 1.5],//"attack": [0.6, 0.8],  // [<min>, <max>] enemy threat multiplier for target selection of attack task |  values <1 makes enemy group seem less of an thread for ai => ai attacks stronger groups than it own | org=0.25, 0.3
 				"defence": [0.8, 1.0],//"defence": [0.3, 0.5],  // [<min>, <max>] enemy threat modifier for group size calculation of defence task; org=0.95, 0.95 | high values = low risk; low values = high risk 
@@ -22,7 +22,7 @@
 				"comm": 0.05   // because of power of dgun
 			},
 			// anti-air threat threshold, air factories will stop production when AA threat exceeds
-			"aa_threat": [[8, 99999.0], [96, 1000000.0]],  // [[<map_start>, <threat_start>], [<map_end>, <threat_end>]]
+			"aa_threat": [[8, 99999.0], [96, 500000.0]],  // [[<map_start>, <threat_start>], [<map_end>, <threat_end>]]
 			"slack_mod": {
 				"all": 0.05,  // threat map 64-elmos slack multiplier for all units
 				"static": 0.05,  // additional 64-elmo-cells for static units
@@ -246,13 +246,6 @@
 				"build_mod": 1000.0,
 				"limit": 1
 			},
-            "legapt3": {
-				"role": ["builder"],
-				"attribute": ["support"],
-				"build_speed": 10.0, //bp 200
-				"build_mod": 1000.0,
-				"limit": 1
-			},
 			"leggant": {
 				"role": ["static"],
 				"attribute": ["support"],
@@ -454,7 +447,6 @@
 			"legsilo":{
 				"role":	["super", "static"],
 				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
-				"cooldown": 120,
 				"power": 20.0
 			},
 
@@ -929,7 +921,7 @@
 				"power": 20.0
 			},
 			"legelrpcmech": {
-				"role": ["artillery", "super"],
+				"role": ["artillery"],
 				"attribute": ["siege"],
 				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
 				"power": 20.0
@@ -947,7 +939,7 @@
 				"power": 20.0
 			},
 			"legeheatraymech": {
-				"role": ["heavy", "super"],
+				"role": ["heavy"],
 				"attribute": ["melee", "solo"],
 				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
 				"power": 20.0
@@ -1072,9 +1064,7 @@
 			},
 			"legkam": {
 				"role": ["bomber", "air"],
-				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0,
-					"vs": {"super": 3.0, "static": 0.0}
-				},
+				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
 				"power": 20.0
 			},
 			"legmos": {
@@ -1114,23 +1104,17 @@
 			},
 			"legphoenix": {
 				"role": ["bomber", "air"],
-				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0,
-					"vs": {"super": 3.0, "static": 0.0}
-				},
+				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
 				"power": 20.0
 			},
 			"legnap": {
 				"role": ["bomber", "air"],
-				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0,
-					"vs": {"super": 3.0, "static": 0.0}
-				},
+				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
 				"power": 20.0
 			},
 			"legmineb": {
 				"role": ["bomber", "air"],
-				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0,
-					"vs": {"super": 3.0, "static": 0.0}
-				},
+				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
 				"power": 20.0
 			},
 			"legstronghold": {

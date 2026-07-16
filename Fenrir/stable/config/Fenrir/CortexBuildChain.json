@@ -6,13 +6,13 @@
 
 	"porcupine": {
 		"unit": {
-		//             	   0			1			2			3			4			5			6			7				8			9
-			"cortex": ["corllt",  	"cortl",    "corrl",   "corhllt", 	"corhlt", 	"corjuno", 	"cormaw",  	"cormadsam", 	"corerad", 	"corvipe",
-					   "coratl",    "corflak", 	"cortoast", "cordoom", "corpun",  	"corfmd", 	"cortarg", 	"corgate", 	"corscreamer", 	"cornanotc",
-					   "corint", 	"corbuzz",  "cortron", "corsilo"]
+		//             0			1			2			3			4			5			6			7				8			9			10
+			"cortex": ["corllt",  	"cortl",    "corrl",   "corhllt", 	"corhlt", 	"corjuno", 	"cormaw",  	"cormadsam", 	"corerad", 	"corvipe", 	"coratl",
+					   "corflak", 	"cortoast", "cordoom", "corpun",  	"corfmd", 	"cortarg", 	"corgate", 	"corscreamer", 	"cornanotc","corint", 	"corbuzz", 
+					   "cortron"]
 		},
 		// Actual number of defences per cluster bounded by income - the order of defenses that should be build with numbers as above.
-		"land":  [3, 19, 11, 18, 20, 17, 15, 23, 21], //[0, 2, 3, 3, 4, 3, 7, 12, 12, 15, 23, 23, 23, 13, 18, 17, 18, 19, 19, 18, 17, 17, 12, 12, 21, 12, 12, 12]
+		"land":  [0, 2, 3, 3, 4, 3, 7, 5, 12, 12, 15, 13, 18, 17, 18, 20, 22, 20, 19, 19, 20, 20, 18, 17, 17, 22, 12, 12, 21, 12, 12, 12],
 		"water": [1, 1, 19, 1, 4, 9, 10, 9, 10],
 		"prevent": 1,  // number of preventive defences
 		"amount": {  // income bound factor
@@ -32,9 +32,9 @@
 			"unit": {
 				"cortex": ["corfmd", "corsilo"]
 			},
-			"weight":     	  [ 0.10,     0.90],
+			"weight":     	  [ 0.10,     0.60],
 	
-			"condition": [80, 500]  // [<Minimum income>, <maximum seconds to build>]
+			"condition": [200, 500]  // [<Minimum income>, <maximum seconds to build>]
 		},
 	
 		"wall": {
@@ -116,7 +116,9 @@
 					[  
 						{"unit": "cornanotc", "category": "nano", "offset": {"front": 5}, "priority": "normal"},
 						{"unit": "cornanotc", "category": "nano", "offset": {"front": 10}, "priority": "normal"},
-						{"unit": "corsilo", "category": "defence", "offset": [200,0], "priority": "now"},
+						{"unit": "cornanotc", "category": "nano", "offset": {"front": 15}, "priority": "normal"},
+						{"unit": "cornanotc", "category": "nano", "offset": {"front": 20}, "priority": "normal"},
+						{"unit": "cornanotc", "category": "nano", "offset": {"front": 25}, "priority": "normal"},
 						{"unit": "corflak", "category": "defence", "offset": {"front": 120}, "condition": {"air": true}}
 					]
 				]

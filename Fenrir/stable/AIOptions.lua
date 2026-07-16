@@ -78,10 +78,9 @@ local options = {
 		items   = {
 			{
 				key  = 'Fenrir',
-				name = 'Fenrir',
-				desc = 'Unified Land+Air+Sea Front role | Sea for water starts | Made by Felnious, modified by Kazuhira95',
-                     --AltergressiveV2A's successor, based on Barb3
-            },
+				name = 'Fenrir | Suicidal',
+				desc = 'Difficulty: Suicidal | Playstyle: Front Role | Made by Felnious',
+			},
 		},
 	},
 }

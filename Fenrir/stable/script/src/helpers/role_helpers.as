@@ -12,7 +12,17 @@ namespace RoleHelpers {
 	AiRole DefaultRoleForFactory(const string &in defaultStartFactory)
 	{
 		if (UnitHelpers::FactoryIsLand(defaultStartFactory)) {
-			return AiRole::FRONT;
+			// Draw from 0..99 inclusive
+			const int roll = AiRandom(0, 99);
+			if (roll < 10) {            // 0-9 : 10%
+				return AiRole::FRONT_TECH;
+			} else if (roll < 20) {     // 10-19 : 10%
+				return AiRole::AIR;
+			} else if (roll < 35) {     // 20-34 : 15%
+				return AiRole::TECH;
+			} else {                    // 35-99 : 65%
+				return AiRole::FRONT;
+			}
 		}
 		if (UnitHelpers::FactoryIsWater(defaultStartFactory)) {
 			return AiRole::SEA;

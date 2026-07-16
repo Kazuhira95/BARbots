@@ -31,13 +31,13 @@
 		//   if factory's builder unavailable in current frame: priority ~= map_percent * importance0 / 10 + random(-20..+20)
 		// During game: priority ~= map_percent * importance1 + random(-20..+20)
 		// importanceN = 1.0 by default if not set
-		"importance": [1.0, 0.2],
+		"importance": [1.0, 1.0],
 
 		// 'require_energy' adds energy requirement for tierN (N>0): fallback to lowest tier on low energy
 		"require_energy": false,
 
 		// If income*ecoFactor < income_tier[N] then 'tierN' probability will be used
-		"income_tier": [2, 30, 40],
+		"income_tier": [0, 25,  35],
 
 		"unit":      ["armck", "armpw", "armrectr", "armrock", "armham", "armjeth", "armwar", "armflea"],
 
@@ -71,7 +71,7 @@
 			"tier1": [ 0.50,     0.00,		 0.10,      0.15,     0.05,		0.30,	   0.45,      0.00,    	0.00,		0.03,     	0.00,		0.05,      0.05,      0.00,		0.20,       0.00],
 			"tier2": [ 0.40,     0.00,		 0.30,      0.20,     0.15,		0.15,	   0.40,      0.03,     0.01,		0.03,     	0.01,		0.05,      0.05,      0.20,		0.10,       0.00],			
 			"tier3": [ 0.40,     0.00,		 0.20,      0.20,     0.30,		0.00,	   0.15,      0.03,     0.01,		0.05,     	0.05,		0.05,      0.05,      0.20,		0.00,       0.00],
-            "tier4": [ 0.40,     0.10,		 0.20,      0.20,     0.30,		0.00,	   0.15,      0.03,     0.01,		0.05,     	0.05,       0.05,      0.05,      0.20,		0.00,       0.00]			
+            "tier4": [ 0.40,     0.10,		 0.20,      0.20,     0.30,		0.00,	   0.15,      0.03,     0.01,		0.05,     	0.05,       0.05,       0.05,      0.20,	0.00,       0.00]			
 		},
 		"caretaker": 6  // maxiumum amount of nanos: #caretake x #factories | actual max total amount gets limited by income/nanobuilspeed (behaviour.json)| e.g. 3rd factory 4 caretaker => 3x4=12
 	},
@@ -134,9 +134,9 @@
 	},
 
 	"armap": {
-		"importance": [1.0, 0.0],
+		"importance": [0.1, 1.0],
 		"require_energy": false,
-		"income_tier": [0, 25, 35],
+		"income_tier": [0, 10, 25, 35],
 		"unit":      ["armca", "armfig", "armpeep", "armthund", "armkam"],
 		"land": {
 			"tier0": [ 0.05,    0.90,     0.15,      0.00,       0.00],
@@ -154,19 +154,19 @@
 	},
 
 	"armaap": {
-		"importance": [1.0, 1.0],
+		"importance": [0.0, 1.0],
 		"require_energy": true,
-		"income_tier": [0, 110],
+		"income_tier": [0, 50, 110],
 		"unit":      ["armaca", "armhawk", "armawac", "armpnix", "armbrawl", "armblade", "armstil", "armliche", "armlance"],
 		"land": {
 			"tier0": [ 0.05,     0.90,      0.05,      0.00,      0.00,       0.00,       0.00,      0.00,	  0.00],
 			"tier1": [ 0.03,     0.37,      0.00,      0.15,      0.15,       0.10,       0.10,      0.10,	  0.00],
-			"tier2": [ 0.03,     0.37,      0.00,      0.80,      0.15,       0.10,       0.10,      0.30,	  0.30]
+			"tier2": [ 0.03,     0.37,      0.00,      0.80,      0.15,       0.25,       0.10,      0.30,	  0.30]
 		},
 		"air": {
 			"tier0": [ 0.05,     0.90,      0.05,      0.00,      0.00,       0.00,       0.00,      0.00,	  0.00],
 			"tier1": [ 0.03,     0.37,      0.00,      0.15,      0.15,       0.10,       0.10,      0.10,	  0.00],
-			"tier2": [ 0.03,     0.37,      0.00,      0.80,      0.15,       0.10,       0.10,      0.30,	  0.30]
+			"tier2": [ 0.03,     0.37,      0.00,      0.80,      0.15,       0.25,       0.10,      0.30,	  0.30]
 		},
 		"water": {
 			"tier0": [ 0.90,     0.00,       0.00,      0.00,       0.00,      0.00,      0.00,      0.00,      0.00],
@@ -175,23 +175,27 @@
 		},
 		"caretaker": 16
 	},
-    "armapt3": {
-		"importance": [0.0, 1.0],
+	"armapt3": {
+		"importance": [0.0, 0.5],
 		"require_energy": true,
 		"income_tier": [100, 200, 300],
 		"unit":      [ "armaca", "armtundt4", "armlichet4", "armfepocht4"],
 		"land": {
-			"tier0": [ 0.05,      0.15,        0.15,         0.00],
-			"tier1": [ 0.03,      0.15,        0.15,         0.15],
-			"tier2": [ 0.03,      0.35,        0.35,         0.35]
+			"tier0": [ 0.45,      0.15,        0.15,         0.00],
+			"tier1": [ 0.45,      0.15,        0.15,         0.15],
+			"tier2": [ 0.45,      0.35,        0.35,         0.35]
 		},
-		"caretaker": 12
+		"water":{
+			"tier0": [ 0.45,      0.15,        0.15,         0.00],
+			"tier1": [ 0.45,      0.15,        0.15,         0.15],
+			"tier2": [ 0.45,      0.35,        0.35,         0.35]
+		},
+		"caretaker": 30
 	},
-	
 	"armsy": {
-		"importance": [0.8, 0.0],
+		"importance": [1.0, 1.0],
 		"require_energy": false,
-		"income_tier": [0, 20],
+		"income_tier": [20],
 		"unit":      ["armcs", "armrecl", "armpt", "armdecade", "armpship", "armsub", "armroy"],
 		"land": {
 			"tier0": [ 0.09,    0.01,      0.26,    0.23,        0.14,       0.18,     0.09],
@@ -225,9 +229,9 @@
 	},
 
 	"armhp": {
-		"importance": [0.0, 0.0],
+		"importance": [1.0, 0.0],
 		"require_energy": false,
-		"income_tier": [20, 60, 80],
+		"income_tier": [20, 30, 40],
 		"unit":      ["armch", "armsh", "armanac", "armmh", "armah"],
 		"land": {
 			"tier0": [ 0.26,    0.36,    0.26,      0.08,    0.04],
@@ -259,7 +263,7 @@
 	"armfhp": {
 		"importance": [1.0, 0.0],
 		"require_energy": false,
-		"income_tier": [20, 60, 80],
+		"income_tier": [20, 30, 40],
 		"unit":      ["armch", "armsh", "armanac", "armmh", "armah"],
 		"land": {
 			"tier0": [ 0.26,    0.36,    0.26,      0.08,    0.04],
@@ -277,7 +281,7 @@
 	},
 
 	"armplat": {
-		"importance": [0.1, 1.0],
+		"importance": [0.1, 0.0],
 		"require_energy": false,
 		"income_tier": [40],
 		"unit":      ["armcsa", "armsaber", "armsb", "armseap", "armsfig", "armsehak"],

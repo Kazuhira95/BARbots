@@ -10,9 +10,9 @@ namespace Main {
 	// Values are likelihoods in [0.0, 1.0] for enabling a given strategy.
 	// Adjust these to tune how often a strategy is chosen at game start.
 	namespace StrategyWeights {
-		float Tech_T2_RUSH = 0.25f;   // 85% chance
+		float Tech_T2_RUSH = 0.85f;   // 85% chance
 		float Tech_T3_RUSH = 0.35f;   // 35% chance
-		float Tech_NUKE_RUSH = 0.85f; // 25% chance
+		float Tech_NUKE_RUSH = 0.25f; // 25% chance
 	}
 
 	// Decide a boolean from a probability using AiDice with two weights: off vs on.

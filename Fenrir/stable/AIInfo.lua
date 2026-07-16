@@ -30,7 +30,7 @@ local infos = {
 	},
 	{
 		key    = 'description',
-		value  = 'This AI is using the new C++ wrapper.',
+		value  = 'Fenrir AI - Suicidal difficulty, Front role.',
 		desc   = 'tooltip.',
 	},
 	{

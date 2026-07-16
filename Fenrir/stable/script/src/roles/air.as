@@ -318,7 +318,7 @@ namespace RoleAir {
                     CCircuitDef@ fighterDef = ai.GetCircuitDef(fighterName);
                     if (fighterDef !is null && fighterDef.IsAvailable(ai.frame)) {
                         return aiFactoryMgr.Enqueue(
-                            TaskS::Recruit(Task::RecruitType::FIREPOWER, Task::Priority::HIGH, fighterDef, pos, 64.f)
+                            TaskS::Recruit(Task::RecruitType::FIREPOWER, Task::Priority::NORMAL, fighterDef, pos, 64.f)
                         );
                     }
                 }
@@ -367,14 +367,14 @@ namespace RoleAir {
                 }
             }
 
-            // 3) Heavy air strike (Legion/Cortex only): enqueue Tyrannus/Dragon when income is high
+            // 3) Heavy air strike (Legion/Cortex/Armada only): enqueue Tyrannus/Dragon/Liche when income is high
             {
                 float mi = metalIncome;
                 float incomeThresh = Global::RoleSettings::Air::T2HeavyAirIncomeThreshold;
                 int batch = Global::RoleSettings::Air::T2HeavyAirBatchPerFactory;
-                if (batch > 0 && mi > incomeThresh && (side == "legion" || side == "cortex")) {
-                    // Legion -> Tyrannus (legfort), Cortex -> Dragon (corcrw)
-                    string heavyName = (side == "legion" ? "legfort" : "corcrwh");
+                if (batch > 0 && mi > incomeThresh && (side == "legion" || side == "cortex" || side == "armada")) {
+                    // Legion -> Tyrannus (legfort), Cortex -> Dragon (corcrw), Armada -> Nuclear Bomber (armliche)
+                    string heavyName = (side == "legion" ? "legfort" : side == "cortex" ? "corcrwh" : "armliche");
                     CCircuitDef@ heavyDef = ai.GetCircuitDef(heavyName);
                     if (heavyDef !is null && heavyDef.IsAvailable(ai.frame)) {
                         IUnitTask@ firstTask = null;

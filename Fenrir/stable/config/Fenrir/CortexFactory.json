@@ -23,7 +23,7 @@
 //================================================================================================================================o
 
 	"corlab": {
-		"importance": [0.8, 0.0],
+		"importance": [1.0, 0.8],
 		"require_energy": false,
 		"income_tier": [1, 25, 35],
 		"unit":      ["corck", "corak", "cornecro", "corstorm", "corthud", "corcrash"],
@@ -95,7 +95,7 @@
 		"caretaker": 16
 	},
 	"corgant": {
-		"importance": [1.0, 1.0],
+		"importance": [0.0, 1.0],
 		"require_energy": false,
 		"income_tier": [100, 200],
 		"unit":      ["corsok", "corshiva", "corkarg", "corcat", "corkorg", "corjugg"],
@@ -112,7 +112,7 @@
 		"caretaker": 12
 	},
 	"corap": {
-		"importance": [0.1, 0.0],
+		"importance": [0.1, 1.0],
 		"require_energy": false,
 		"income_tier": [0, 25, 35],
 		"unit":      ["corca", "corveng", "corfink", "corshad", "corbw"],
@@ -138,29 +138,34 @@
 		"land": {
 			"tier0": [ 0.05,     0.90,      0.00,      0.05,      0.00,     0.00, 	0.00],
 			"tier1": [ 0.03,     0.32,      0.05,      0.20,      0.20,     0.20, 	0.00],
-			"tier2": [ 0.03,     0.00,      0.05,      0.80,      0.20,     0.20, 	0.50]
+			"tier2": [ 0.03,     0.00,      0.05,      0.80,      0.20,     0.25, 	0.50]
 		},
 		"air": {
 			"tier0": [ 0.05,     0.95,      0.00,      0.00,      0.00,     0.00, 	0.00],
-			"tier1": [ 0.05,     0.95,      0.00,      0.00,      0.00,     0.00, 	0.00],
-			"tier2": [ 0.03,     0.00,      0.05,      0.80,      0.20,     0.20, 	0.50]
+			"tier1": [ 0.05,     0.95,      0.00,      0.00,      0.00,     0.20, 	0.00],
+			"tier2": [ 0.03,     0.00,      0.05,      0.80,      0.20,     0.25, 	0.50]
 		},
 		"caretaker": 16
 	},
-    "corapt3": {
-		"importance": [0.0, 1.0],
+	"corapt3": {
+		"importance": [0.0, 0.5],
 		"require_energy": true,
 		"income_tier": [100, 200, 300],
 		"unit":      ["coraca", "corcrwt4", "corfblackhyt4"],
 		"land": {
-			"tier0": [ 0.05,     0.15,       0.00],
-			"tier1": [ 0.03,     0.15,       0.15],
-			"tier2": [ 0.03,     0.35,       0.35]
+			"tier0": [ 0.45,     0.15,       0.00],
+			"tier1": [ 0.45,     0.15,       0.15],
+			"tier2": [ 0.45,     0.35,       0.35]
 		},
-		"caretaker": 12
+		"water":{
+			"tier0": [ 0.45,     0.15,       0.00],
+			"tier1": [ 0.45,     0.15,       0.15],
+			"tier2": [ 0.45,     0.35,       0.35]
+		},
+		"caretaker": 30
 	},
 	"corplat": {
-		"importance": [0.1, 1.0],
+		"importance": [0.1, 0.0],
 		"require_energy": false,
 		"income_tier": [40],
 		"unit":      ["corcsa", "corcut", "corsb", "corseap", "corsfig", "corhunt"],
@@ -171,7 +176,7 @@
 		"caretaker": 13
 	},
 	"corsy": {
-		"importance": [0.8, 0.0],
+		"importance": [1.0, 1.0],
 		"require_energy": false,
 		"income_tier": [0, 20],
 		"unit":      ["corcs", "correcl", "corpt", "coresupp", "corpship", "corsub", "corroy"],
@@ -214,7 +219,7 @@
 	"corhp": { //Unused
 		"importance": [0.0, 0.0],
 		"require_energy": false,
-		"income_tier": [20, 60, 80],
+		"income_tier": [20, 30, 40],
 		"unit":      ["corch", "corsh", "corsnap", "cormh", "corah", "corhal"],
 		"land": {
 			"tier0": [ 0.26,    0.36,    0.26,      0.08,    0.04,    0.00],
@@ -233,7 +238,7 @@
 	"corfhp": { //Unused
 		"importance": [0.0, 0.0],
 		"require_energy": false,
-		"income_tier": [20, 60, 80],
+		"income_tier": [20, 30, 40],
 		"unit":      ["corch", "corsh", "corsnap", "cormh", "corah", "corhal"],
 		"land": {
 			"tier0": [ 0.26,    0.36,    0.26,      0.08,    0.04,    0.00],

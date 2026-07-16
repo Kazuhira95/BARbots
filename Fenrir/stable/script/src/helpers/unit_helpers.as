@@ -245,7 +245,7 @@ namespace UnitHelpers {
 
     array<string> GetLegionT2WaterLabs() {
         array<string> ids = { 
-            "legadvshipyard", //Advanced Shipyard
+            "corasy", //Advanced Shipyard
             "corplat", // Seaplane Platform (Legion uses Cortex platform)
             "coramsub"  // Amphibious Complex (Amphib Units)
         };
@@ -498,8 +498,8 @@ namespace UnitHelpers {
             // T2 bot/vehicle constructors
             else if (uname == "armack" || uname == "corack" || uname == "legack" ||
                      uname == "armacv" || uname == "coracv" || uname == "legacv" ||
-                     // T2 sea (advanced construction submarine) including Legion
-                     uname == "armacsub" || uname == "coracsub" || uname == "leganavyconsub" ||
+                     // T2 sea (advanced construction submarine)
+                     uname == "armacsub" || uname == "coracsub" ||
                      // T2 air (advanced construction aircraft)
                      uname == "armaca" || uname == "coraca" || uname == "legaca") {
                 tier = 2;
@@ -795,28 +795,14 @@ namespace UnitHelpers {
 
     array<string> GetAllT1Shipyards() {
         array<string> ids;
-        ids = { "armsy", "corsy", "legsy" };
+        ids = { "armsy", "corsy", "legsy" }; // Include Legion T1 shipyard
         return ids;
-    }
-
-    string GetT1ShipyardForSide(const string &in side) {
-        if (side == "armada") return "armsy";
-        if (side == "cortex") return "corsy";
-        if (side == "legion") return "legsy";
-        return "armsy";
     }
 
     array<string> GetAllT2Shipyards() {
         array<string> ids;
-        ids = { "armasy", "corasy", "legadvshipyard" };
+        ids = { "armasy", "corasy" };
         return ids;
-    }
-
-    string GetT2ShipyardForSide(const string &in side) {
-        if (side == "armada") return "armasy";
-        if (side == "cortex") return "corasy";
-        if (side == "legion") return "legadvshipyard";
-        return "armasy";
     }
 
     // T1 naval combat units across all sides (deduplicated)

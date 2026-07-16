@@ -362,9 +362,12 @@ namespace RoleHoverSea {
             Global::RoleSettings::Sea::NanoBuildWhenOverMetal,
             energyPercent
         )) {
-            AIFloat3 nanoPos = Factory::GetPreferredFactoryPos();
-            IUnitTask@ tNano = Builder::EnqueueT1Nano(side, nanoPos, /*shake*/ SQUARE_SIZE * 16, /*timeout*/ 30);
-            if (tNano !is null) return tNano;
+            // Centralized selection with per-factory nano caps and prioritization
+            CCircuitUnit@ targetFactory = Factory::SelectFactoryNeedingNano();
+            if (targetFactory !is null) {
+                IUnitTask@ tNano = Factory::EnqueueNanoForFactory(targetFactory, Task::Priority::NORMAL);
+                if (tNano !is null) return tNano;
+            }
         }
 
         // Prefer advanced solar when within HoverSea thresholds; otherwise fallback to basic solar if energy remains low

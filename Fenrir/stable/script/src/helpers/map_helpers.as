@@ -27,19 +27,6 @@ namespace MapHelpers {
 
     bool IsLandLocked(StartSpot@ spot) { return (spot is null) ? false : spot.landLocked; }
 
-    bool IsLandlockedMap(const string &in mapName) {
-        // Sea maps
-        if (mapName.findFirst("Tundra Continents") == 0) return true;
-        if (mapName.findFirst("Shore_to_Shore") == 0) return true;
-        if (mapName.findFirst("Serene Caldera") == 0) return true;
-        // Hybrid land/sea maps
-        if (mapName.findFirst("Glacial Gap") == 0) return true;
-        if (mapName.findFirst("Mediterraneum") == 0) return true;
-        if (mapName.findFirst("Red River Estuary") == 0) return true;
-        if (mapName.findFirst("Supreme Isthmus") == 0) return true;
-        return false;
-    }
-
     // Return true if p1 is within 'range' of p2 (2D distance using x/z). Range <= 0 returns false.
     bool IsInRange(const AIFloat3& in p1, const AIFloat3& in p2, float range)
     {
