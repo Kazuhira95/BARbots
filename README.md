@@ -1,7 +1,7 @@
 # BARbots
 Beyond All Reason Custom Bots
 
-All other AI deprecated, AltergressiveV2A is now main.
+All other AI deprecated or otherwise stated, AltergressiveV2A is now main.
 
 ###HOW TO INSTALL!###
 
