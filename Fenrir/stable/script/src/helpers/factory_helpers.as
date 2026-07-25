@@ -91,7 +91,7 @@ namespace FactoryHelpers {
             for (uint i = 0; i < factories.length(); ++i) {
                 accum += weights[i];
                  if (roll < accum) {
-                    GenericHelpers::LogUtil("FactoryWeightedSelect chose=" + factories[i] + " roll=" + roll + "/" + total, 1);
+                    GenericHelpers::LogUtil("FactoryWeightedSelect chose=" + factories[i] + " roll=" + roll + "/" + total, 3);
                     return factories[i];
                 }
             }

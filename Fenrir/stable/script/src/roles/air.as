@@ -372,9 +372,9 @@ namespace RoleAir {
                 float mi = metalIncome;
                 float incomeThresh = Global::RoleSettings::Air::T2HeavyAirIncomeThreshold;
                 int batch = Global::RoleSettings::Air::T2HeavyAirBatchPerFactory;
-                if (batch > 0 && mi > incomeThresh && (side == "legion" || side == "cortex")) {
-                    // Legion -> Tyrannus (legfort), Cortex -> Dragon (corcrw)
-                    string heavyName = (side == "legion" ? "legfort" : "corcrwh");
+                if (batch > 0 && mi > incomeThresh && (side == "legion" || side == "cortex" || side == "armada")) {
+                    // Legion -> Tyrannus (legfort), Cortex -> Dragon (corcrw), Armada -> Atomic Bomber (armliche)
+                    string heavyName = (side == "legion" ? "legfort" : (side == "cortex" ? "corcrwh" : (side == "armada" ? "armliche" : "")));
                     CCircuitDef@ heavyDef = ai.GetCircuitDef(heavyName);
                     if (heavyDef !is null && heavyDef.IsAvailable(ai.frame)) {
                         IUnitTask@ firstTask = null;

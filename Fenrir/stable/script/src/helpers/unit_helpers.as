@@ -1045,7 +1045,7 @@ namespace UnitHelpers {
         if (side == "cortex") return "corlab";
         if (side == "legion") return "leglab";
 
-        GenericHelpers::LogUtil("[UnitHelpers] GetT1BotLabForSide: no matching side '" + side + "', defaulting to armada", 2);
+        GenericHelpers::LogUtil("[UnitHelpers] GetT1BotLabForSide: no matching side '" + side + "', defaulting to armada", 1);
         return "armlab";
     }
 
@@ -1057,7 +1057,7 @@ namespace UnitHelpers {
         if (side == "cortex") return "coralab";
         if (side == "legion") return "legalab";
 
-        GenericHelpers::LogUtil("[UnitHelpers] GetT2BotLabForSide: no matching side '" + side + "', defaulting to armada", 2);
+        GenericHelpers::LogUtil("[UnitHelpers] GetT2BotLabForSide: no matching side '" + side + "', defaulting to armada", 1);
         return "armalab";
     }
 
@@ -1068,7 +1068,7 @@ namespace UnitHelpers {
         if (side == "cortex") return "corsolar";
         if (side == "legion") return "legsolar"; // TODO: replace with Legion solar if different
 
-        GenericHelpers::LogUtil("[UnitHelpers] GetSolarNameForSide: no matching side '" + side + "', defaulting to armada", 2);
+        GenericHelpers::LogUtil("[UnitHelpers] GetSolarNameForSide: no matching side '" + side + "', defaulting to armada", 1);
         return "armsolar";
     }
 
@@ -1078,7 +1078,7 @@ namespace UnitHelpers {
         if (side == "cortex") return "coradvsol";
         if (side == "legion") return "legadvsol"; // TODO: replace with Legion adv solar if different
         
-        GenericHelpers::LogUtil("[UnitHelpers] GetAdvSolarNameForSide: no matching side '" + side + "', defaulting to armada", 2);
+        GenericHelpers::LogUtil("[UnitHelpers] GetAdvSolarNameForSide: no matching side '" + side + "', defaulting to armada", 1);
         return "armadvsol";
     }
 
@@ -1089,7 +1089,7 @@ namespace UnitHelpers {
         if (side == "cortex") return "cormakr";
         if (side == "legion") return "legeconv"; // TODO: replace with Legion T1 converter if different
 
-        GenericHelpers::LogUtil("[UnitHelpers] GetEnergyConverterNameForSide: no matching side '" + side + "', defaulting to armada", 2);
+        GenericHelpers::LogUtil("[UnitHelpers] GetEnergyConverterNameForSide: no matching side '" + side + "', defaulting to armada", 1);
         return "armmakr";
     }
 
@@ -1101,7 +1101,7 @@ namespace UnitHelpers {
         if (side == "cortex") return "corfmkr";
         if (side == "legion") return "legfeconv"; // Legion: use naval energy converter id per behaviour_leg.json
 
-        GenericHelpers::LogUtil("[UnitHelpers] GetNavalEnergyConverterNameForSide: no matching side '" + side + "', defaulting to armada", 2);
+        GenericHelpers::LogUtil("[UnitHelpers] GetNavalEnergyConverterNameForSide: no matching side '" + side + "', defaulting to armada", 1);
         return "armfmkr";
     }
 
@@ -1111,7 +1111,7 @@ namespace UnitHelpers {
         if (side == "armada") return "armtide";
         if (side == "cortex") return "cortide";
         if (side == "legion") return "legtide"; // Legion: dedicated tidal (was cortex fallback)
-        GenericHelpers::LogUtil("[UnitHelpers] GetTidalNameForSide: no matching side '" + side + "', defaulting to armada", 2);
+        GenericHelpers::LogUtil("[UnitHelpers] GetTidalNameForSide: no matching side '" + side + "', defaulting to armada", 1);
         return "armtide";
     }
 
@@ -1122,7 +1122,7 @@ namespace UnitHelpers {
         if (side == "cortex") return "cormmkr";
         if (side == "legion") return "legadveconv"; // TODO: replace with Legion T2 converter if different
 
-        GenericHelpers::LogUtil("[UnitHelpers] GetAdvEnergyConverterNameForSide: no matching side '" + side + "', defaulting to armada", 2);
+        GenericHelpers::LogUtil("[UnitHelpers] GetAdvEnergyConverterNameForSide: no matching side '" + side + "', defaulting to armada", 1);
         return "armmmkr";
     }
 
@@ -1134,7 +1134,7 @@ namespace UnitHelpers {
         if (side == "cortex") return "coruwmmm";
         if (side == "legion") return "coruwmmm";
 
-        GenericHelpers::LogUtil("[UnitHelpers] GetAdvNavalEnergyConverterNameForSide: no matching side '" + side + "', defaulting to armada", 2);
+        GenericHelpers::LogUtil("[UnitHelpers] GetAdvNavalEnergyConverterNameForSide: no matching side '" + side + "', defaulting to armada", 1);
         return "armuwmmm";
     }
 
@@ -1144,7 +1144,7 @@ namespace UnitHelpers {
         if (side == "cortex") return "corfus";
         if (side == "legion") return "legfus"; 
 
-        GenericHelpers::LogUtil("[UnitHelpers] GetFusionNameForSide: no matching side '" + side + "', defaulting to armada", 2);
+        GenericHelpers::LogUtil("[UnitHelpers] GetFusionNameForSide: no matching side '" + side + "', defaulting to armada", 1);
         return "armfus";
     }
 
@@ -1154,7 +1154,7 @@ namespace UnitHelpers {
         if (side == "cortex") return "corafus";
         if (side == "legion") return "legafus"; // TODO: replace with Legion advanced fusion if different
 
-        GenericHelpers::LogUtil("[UnitHelpers] GetAdvFusionNameForSide: no matching side '" + side + "', defaulting to armada", 2);
+        GenericHelpers::LogUtil("[UnitHelpers] GetAdvFusionNameForSide: no matching side '" + side + "', defaulting to armada", 1);
         return "armafus";
     }
 
@@ -1177,7 +1177,7 @@ namespace UnitHelpers {
         if (side == "cortex") return "coruwfus";
         if (side == "legion") return "coruwfus"; // Legion fallback to Cortex underwater fusion
 
-        GenericHelpers::LogUtil("[UnitHelpers] GetNavalFusionNameForSide: no matching side '" + side + "', defaulting to armada", 2);
+        GenericHelpers::LogUtil("[UnitHelpers] GetNavalFusionNameForSide: no matching side '" + side + "', defaulting to armada", 1);
         return "armuwfus";
     }
 
@@ -1260,7 +1260,7 @@ namespace UnitHelpers {
         if (side == "armada") return "armrl";
         if (side == "cortex") return "corrl";
         if (side == "legion") return "legrl";
-        GenericHelpers::LogUtil("[UnitHelpers] GetStaticAALightNameForSide: no matching side '" + side + "', defaulting to armada", 2);
+        GenericHelpers::LogUtil("[UnitHelpers] GetStaticAALightNameForSide: no matching side '" + side + "', defaulting to armada", 1);
         return "armrl";
     }
 
@@ -1269,7 +1269,7 @@ namespace UnitHelpers {
         if (side == "armada") return "armferret";
         if (side == "cortex") return "corerad";
         if (side == "legion") return "legflak";
-        GenericHelpers::LogUtil("[UnitHelpers] GetStaticAAHeavyNameForSide: no matching side '" + side + "', defaulting to armada", 2);
+        GenericHelpers::LogUtil("[UnitHelpers] GetStaticAAHeavyNameForSide: no matching side '" + side + "', defaulting to armada", 1);
         return "armferret";
     }
 
@@ -1278,7 +1278,7 @@ namespace UnitHelpers {
         if (side == "armada") return "armllt";
         if (side == "cortex") return "corllt";
         if (side == "legion") return "leglht";
-        GenericHelpers::LogUtil("[UnitHelpers] GetStaticLLTNameForSide: no matching side '" + side + "', defaulting to armada", 2);
+        GenericHelpers::LogUtil("[UnitHelpers] GetStaticLLTNameForSide: no matching side '" + side + "', defaulting to armada", 1);
         return "armllt";
     }
 
@@ -1287,7 +1287,7 @@ namespace UnitHelpers {
         if (side == "armada") return "armpb";
         if (side == "cortex") return "corvipe";
         if (side == "legion") return "legacluster";
-        GenericHelpers::LogUtil("[UnitHelpers] GetStaticT2ArtilleryNameForSide: no matching side '" + side + "', defaulting to armada", 2);
+        GenericHelpers::LogUtil("[UnitHelpers] GetStaticT2ArtilleryNameForSide: no matching side '" + side + "', defaulting to armada", 1);
         return "armpb";
     }
 
@@ -1305,7 +1305,7 @@ namespace UnitHelpers {
         if (side == "armada") return "armjamt";   // Sneaky Pete (static jammer)
         if (side == "cortex") return "corjamt";   // Castro (static jammer)
         if (side == "legion") return "legjam";    // Nyx (static jammer); alt long-range 'legajam'
-        GenericHelpers::LogUtil("[UnitHelpers] GetStaticJammerNameForSide: no matching side '" + side + "', defaulting to armada", 2);
+        GenericHelpers::LogUtil("[UnitHelpers] GetStaticJammerNameForSide: no matching side '" + side + "', defaulting to armada", 1);
         return "armjamt";
     }
 
@@ -1314,7 +1314,7 @@ namespace UnitHelpers {
         if (side == "armada") return "armplat";
         if (side == "cortex") return "corplat";
         if (side == "legion") return "corplat"; // Legion shares Cortex seaplane platform
-        GenericHelpers::LogUtil("[UnitHelpers] GetSeaplanePlatformNameForSide: no matching side '" + side + "', defaulting to armada", 2);
+        GenericHelpers::LogUtil("[UnitHelpers] GetSeaplanePlatformNameForSide: no matching side '" + side + "', defaulting to armada", 1);
         return "armplat";
     }
 

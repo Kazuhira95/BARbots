@@ -9,4 +9,4 @@ const AIFloat3 RgtVector(1.0f, 0.0f, 0.0f);
 
 const float NEAR_ZERO = 1e-3f;
 
-const uint LOG_LEVEL = 0;
+const uint LOG_LEVEL = 1;
