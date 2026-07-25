@@ -48,16 +48,16 @@ namespace Factory {
 			Setup::setupMap(pos);
 		}
 
-		// Select opening factory once
-		if (isStart) {
-			if (Global::profileController.RoleCfg !is null && Global::profileController.RoleCfg.SelectFactoryHandler !is null) {
-				string fac = Global::profileController.RoleCfg.SelectFactoryHandler(pos, isStart, isReset);
-				GenericHelpers::LogUtil("[Factory] Role handler returned '" + fac + "'", 2);
-				CCircuitDef@ def = (fac != "") ? ai.GetCircuitDef(fac) : null;
-				if (def !is null && def.IsAvailable(ai.frame)) {
+		// Select opening factory (isStart) or switch factory (non-start) via role handler
+		if (Global::profileController.RoleCfg !is null && Global::profileController.RoleCfg.SelectFactoryHandler !is null) {
+			string fac = Global::profileController.RoleCfg.SelectFactoryHandler(pos, isStart, isReset);
+			GenericHelpers::LogUtil("[Factory] Role handler returned '" + fac + "'", 2);
+			CCircuitDef@ def = (fac != "") ? ai.GetCircuitDef(fac) : null;
+			if (def !is null && def.IsAvailable(ai.frame)) {
+				if (isStart) {
 					Global::AISettings::StartFactory = fac;
-					@result = def;
 				}
+				@result = def;
 			}
 		}
 

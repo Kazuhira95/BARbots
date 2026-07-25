@@ -25,12 +25,12 @@ local infos = {
 	},
 	{
 		key    = 'name',
-		value  = 'Fenrir',
+		value  = 'Barb3',
 		desc   = 'human readable name.',
 	},
 	{
 		key    = 'description',
-		value  = 'Fenrir AI - Suicidal difficulty, Front role.',
+		value  = 'This AI is using the new C++ wrapper.',
 		desc   = 'tooltip.',
 	},
 	{

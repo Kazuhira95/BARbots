@@ -202,14 +202,14 @@ namespace UnitHelpers {
 
     array<string> GetCortexT3LandLabs() {
         array<string> ids = {
-            "corshltx" // Experimental Gantry
+            "corgant" // Experimental Gantry
         };
         return ids;
     }
 
     array<string> GetCortexT3WaterLabs() {
         array<string> ids = { 
-            "corshltxuw" // Underwater Experimental Gantry
+            "corgantuw" // Underwater Experimental Gantry
         };
         return ids;
     }
@@ -261,7 +261,7 @@ namespace UnitHelpers {
 
     array<string> GetLegionT3WaterLabs() {
         array<string> ids = { 
-            "corshltxuw" // Underwater Experimental Gantry
+            "leggantuw" // Underwater Experimental Gantry
         };
         return ids;
     }
@@ -801,7 +801,7 @@ namespace UnitHelpers {
 
     array<string> GetAllT2Shipyards() {
         array<string> ids;
-        ids = { "armasy", "corasy" };
+        ids = { "armasy", "corasy", "legadvshipyard" };
         return ids;
     }
 

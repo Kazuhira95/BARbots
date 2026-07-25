@@ -285,13 +285,12 @@ namespace RoleTech {
                 3
             );
 
-            //Start building gantries on front line, get rid of support role
-            if (allowedGantry > 1) {
-                // Apply caps for gantries so we can build more than one when economy permits
+            // Start building gantries; limit to 1 per type
+            if (allowedGantry >= 1) {
                 array<string> landGantries = UnitHelpers::GetAllLandGantries();
                 array<string> waterGantries = UnitHelpers::GetAllWaterGantries();
-                UnitHelpers::BatchApplyUnitCaps(landGantries, allowedGantry);
-                UnitHelpers::BatchApplyUnitCaps(waterGantries, allowedGantry);
+                UnitHelpers::BatchApplyUnitCaps(landGantries, 1);
+                UnitHelpers::BatchApplyUnitCaps(waterGantries, 1);
             }
         }
 
@@ -299,8 +298,8 @@ namespace RoleTech {
 
         // --- Dynamic T1 Bot Lab caps and land factory placement after eco threshold ---
     if (!hasAppliedT1EcoThreshold && metalIncome >= Global::RoleSettings::Tech::MetalIncomeThresholdForBotLabExpansion) {
-            // Allow up to 5 T1 bot labs across all sides when economy is strong
-            UnitHelpers::BatchApplyUnitCaps(UnitHelpers::GetAllT1BotLabs(), 3);
+            // Allow up to 1 T1 bot lab across all sides when economy is strong
+            UnitHelpers::BatchApplyUnitCaps(UnitHelpers::GetAllT1BotLabs(), 1);
 
             // After threshold, remove 'support' behavior from land factories so they can be built outside base
             array<string> landLabs; landLabs.reserve(64);
@@ -334,7 +333,7 @@ namespace RoleTech {
 
             Global::RoleSettings::Tech::MaxT1Builders = 25;
 
-            Global::RoleSettings::Tech::MaxT2BotLabs = 3;
+            Global::RoleSettings::Tech::MaxT2BotLabs = 1;
             // Mark threshold actions applied so this block does not run again
             hasAppliedT1EcoThreshold = true;
         }
@@ -371,7 +370,7 @@ namespace RoleTech {
             array<string> t1AirPlants = UnitHelpers::GetAllT1AircraftPlants();
             array<string> t2AirPlants = UnitHelpers::GetAllT2AircraftPlants();
             UnitHelpers::BatchApplyUnitCaps(t1AirPlants, allowedT1Air);
-            UnitHelpers::BatchApplyUnitCaps(t2AirPlants, allowedT2Air);
+            UnitHelpers::BatchApplyUnitCaps(t2AirPlants, 1);
         }
     }
 
@@ -682,6 +681,18 @@ namespace RoleTech {
             }
         }
 
+        // T3 gantry unblocking: when a T3 factory is added, ignore T1 spam units
+        // so the gantry's default production doesn't try to build them.
+        if (usage == Unit::UseAs::FACTORY) {
+            const CCircuitDef@ cdef = unit.circuitDef;
+            if (cdef !is null && (Factory::userData[cdef.id].attr & Factory::Attr::T3) != 0) {
+                array<string> spam = { "armpw", "corak", "armflea", "armfav", "corfav" };
+                for (uint i = 0; i < spam.length(); ++i)
+                    ai.GetCircuitDef(spam[i]).SetIgnore(true);
+                GenericHelpers::LogUtil("[TECH] T3 gantry detected; ignoring T1 spam units", 2);
+            }
+        }
+
         // TECH-only: Ensure only the first gantry (land OR water) is tagged as BASE.
         // Subsequent gantries should not be BASE-anchored so they can be placed freely.
         // if (usage == Unit::UseAs::FACTORY) {
@@ -843,11 +854,10 @@ namespace RoleTech {
                         /*buildWhenOverMetal*/ Global::RoleSettings::Tech::NanoBuildWhenOverMetal,
                         /*energyPercent*/ energyPercent
                     )) {
-                        CCircuitUnit@ targetFactory = Factory::SelectFactoryNeedingNano();
-                        if (targetFactory !is null) {
-                            IUnitTask@ tNanoAir = Factory::EnqueueNanoForFactory(targetFactory, Task::Priority::NORMAL);
-                            if (tNanoAir !is null) return tNanoAir;
-                        }
+                        AIFloat3 nanoPos = Factory::GetPreferredFactoryPos();
+                        string unitSide = Global::AISettings::Side;
+                        IUnitTask@ tNanoAir = Builder::EnqueueT1Nano(unitSide, nanoPos, /*shake*/ SQUARE_SIZE * 24, /*timeout*/ 30);
+                        if (tNanoAir !is null) return tNanoAir;
                     }
                 }
 
@@ -1080,7 +1090,7 @@ namespace RoleTech {
 
             GenericHelpers::LogUtil("[TECH] ShouldBuildT1AircraftPlant => " + (shouldT1Air ? "true" : "false"), 3);
             if (shouldT1Air) {
-                AIFloat3 preferredPosition = Factory::GetAirPlantBuildPos();
+                AIFloat3 preferredPosition = Factory::GetPreferredFactoryPos();
                 IUnitTask@ tAir = Builder::EnqueueT1AirFactory(unitSide, preferredPosition, SQUARE_SIZE * 24, 30 * SECOND, Task::Priority::HIGH);
                 if (tAir !is null) return tAir;
             }
@@ -1123,12 +1133,10 @@ namespace RoleTech {
                 Global::RoleSettings::Tech::NanoBuildWhenOverMetal,
                 energyPercent
             )) {
-                // Centralized selection with per-factory nano caps and prioritization
-                CCircuitUnit@ targetFactory = Factory::SelectFactoryNeedingNano();
-                if (targetFactory !is null) {
-                    IUnitTask@ tNano = Factory::EnqueueNanoForFactory(targetFactory, Task::Priority::NORMAL);
-                    if (tNano !is null) return tNano;
-                }
+                // Always place nano near our preferred factory location, not the constructor's current position
+                AIFloat3 nanoPos = Factory::GetPreferredFactoryPos();
+                IUnitTask@ tNano = Builder::EnqueueT1Nano(unitSide, nanoPos, /*shake*/ SQUARE_SIZE * 24, /*timeout*/ 30);
+                if (tNano !is null) return tNano;
             }
 
             // Advanced T1 solar decision via unified helper with TECH thresholds and T2 gating
@@ -1150,7 +1158,7 @@ namespace RoleTech {
             // After eco threshold, expand T1 bot labs up to 5 via builder logic (uses cooldown in Builder)
             if (metalIncome >= Global::RoleSettings::Tech::MetalIncomeThresholdForBotLabExpansion) {
                 int t1LabCount = UnitDefHelpers::SumUnitDefCounts(UnitHelpers::GetAllT1BotLabs());
-                if (t1LabCount < 5) {
+                if (t1LabCount < 1) {
                     AIFloat3 preferredPosition = Factory::GetPreferredFactoryPos();
                     IUnitTask@ tLab1 = Builder::EnqueueT1BotLab(unitSide, preferredPosition, SQUARE_SIZE * 24, 300 * SECOND, Task::Priority::NORMAL);
                     if (tLab1 !is null) return tLab1;

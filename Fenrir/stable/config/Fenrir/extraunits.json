@@ -49,8 +49,10 @@
 				"role": ["static"]
 			},
 			"armnanotct2": {
-				"role": ["support"],
-				"since": 900
+				"role": ["support"]
+			},
+			"armnanotct2plat": {
+				"role": ["support"]
 			},
 
 				//CORTEX
@@ -77,8 +79,10 @@
 				"role": ["static"]
 			},
 			"cornanotct2": {
-				"role": ["support"],
-				"since": 900
+				"role": ["support"]
+			},
+			"cornanotct2plat": {
+				"role": ["support"]
 			},
 
 				//LEGION
@@ -105,8 +109,10 @@
 				"role": ["static"]
 			},
 			"legnanotct2": {
-				"role": ["support"],
-				"since": 900
+				"role": ["support"]
+			},
+			"legnanotct2plat": {
+				"role": ["support"]
 			}
 		}
 }

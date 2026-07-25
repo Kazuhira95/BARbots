@@ -49,7 +49,7 @@
 			"legfus": {
 				"hub": [
 					[
-						{"unit": "legrhapsis", "category": "defence", "offset": {"front": 80}, "condition": {"air": true}}
+						{"unit": "legrhapsis", "category": "defence", "offset": {"front": 80}, "priority": "normal"}
 					]
 				]
 			},

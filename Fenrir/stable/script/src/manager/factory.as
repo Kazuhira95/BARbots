@@ -54,7 +54,7 @@ namespace Factory {
 	const int MaxNanosPerT2Factory = 20;
 	// Separate cap for T2 shipyards (naval T2 yards generally need more caretakers)
 	const int MaxNanosPerT2Shipyard = 40;
-	const int MaxNanosPerGantry    = 30;
+	const int MaxNanosPerGantry    = 40;
 
 	// Large sentinel used when selecting the next factory needing nanos
 	const int NanoSelectionInitHigh = 1000000;
@@ -64,7 +64,6 @@ namespace Factory {
 	dictionary factoryNanoCounts; // key: string unitId -> int count
 
 	// Queued build counters for key factories/energy
-	int T1AirPlantQueuedCount = 0;
 	int T2BotLabQueuedCount = 0;
 	int T2VehPlantQueuedCount = 0;
 	int T2AirPlantQueuedCount = 0;
@@ -110,26 +109,13 @@ namespace Factory {
 	{
 		IUnitTask@ t = null;
 
-		string uname = (u is null || u.circuitDef is null) ? "null" : u.circuitDef.GetName();
-		GenericHelpers::LogUtil("[FACTORY] AiMakeTask called for '" + uname + "'", 1);
 
 		RoleConfig@ cfg = (Global::profileController is null) ? null : Global::profileController.RoleCfg;
 		if (cfg !is null && cfg.FactoryAiMakeTaskHandler !is null) {
-			GenericHelpers::LogUtil("[FACTORY] AiMakeTask delegating to role handler for '" + uname + "'", 1);
 			@t = cfg.FactoryAiMakeTaskHandler(u);
 		}
 		else {
-			GenericHelpers::LogUtil("[FACTORY] AiMakeTask using DefaultMakeTask for '" + uname + "' (cfg=" + (cfg is null ? "null" : "ok") + " handler=" + (cfg is null ? "n/a" : (cfg.FactoryAiMakeTaskHandler is null ? "null" : "ok")) + ")", 1);
 			@t = aiFactoryMgr.DefaultMakeTask(u);
-		}
-
-		// Landlocked restriction: only whitelisted combat units and builders/assist allowed
-		if (t !is null && Global::Map::LandLocked) {
-			CCircuitDef@ buildDef = t.GetBuildDef();
-			if (buildDef !is null && !IsUnitAllowedOnLandlocked(buildDef)) {
-				GenericHelpers::LogUtil("[FACTORY] Landlocked: rejected '" + buildDef.GetName() + "' from '" + uname + "'", 1);
-				return null;
-			}
 		}
 
 		return t;
@@ -222,7 +208,6 @@ namespace Factory {
 		// Aircraft plants
 		if (cdef !is null && UnitHelpers::IsT1AircraftPlant(cdef.GetName()) && Factory::primaryT1AirPlant is null) {
 			@Factory::primaryT1AirPlant = unit;
-			if (T1AirPlantQueuedCount > 0) { T1AirPlantQueuedCount--; }
 			GenericHelpers::LogUtil("[FACTORY] primaryT1AirPlant set to id=" + unit.id, 2);
 		}
 
@@ -447,7 +432,6 @@ namespace Factory {
 	}
 
 	// Queued-state predicates (counts > 0)
-	bool IsT1AirPlantBuildQueued() { return T1AirPlantQueuedCount > 0; }
 	bool IsT2LabBuildQueued()      { return T2BotLabQueuedCount > 0; }
 	bool IsT2VehPlantBuildQueued() { return T2VehPlantQueuedCount > 0; }
 	bool IsT2AirPlantBuildQueued() { return T2AirPlantQueuedCount > 0; }
@@ -581,40 +565,6 @@ namespace Factory {
 		return GetPreferredFactoryPos(_CommanderPosOrSentinel());
 	}
 
-	// Returns a build position suitable for air plants, perpendicular to the base-to-factory direction
-	// so the air plant cluster is separated from land factories to avoid path blocking.
-	AIFloat3 GetAirPlantBuildPos()
-	{
-		AIFloat3 basePos = GetPreferredFactoryPos();
-		AIFloat3 comPos = _CommanderPosOrSentinel();
-		float dx = basePos.x - comPos.x;
-		float dz = basePos.z - comPos.z;
-		float perpX = -dz;
-		float perpZ = dx;
-		float len = sqrt(perpX * perpX + perpZ * perpZ);
-		if (len < 1.0f) {
-			return AIFloat3(basePos.x + SQUARE_SIZE * 30, 0, basePos.z);
-		}
-		return AIFloat3(basePos.x + perpX / len * SQUARE_SIZE * 35, 0, basePos.z + perpZ / len * SQUARE_SIZE * 35);
-	}
-
-	// Returns a build position for the gantry, offset far from the base center so the
-	// largest T3 units (7x7 footprint) can exit without being blocked by the gantry's
-	// clustered nanos or other base structures.
-	// Clearance needed: unit half-extent (7/2=3.5) + gantry half-extent (~2.5) + pathing buffer (~2) ≈ 8 squares.
-	AIFloat3 GetGantryBuildPos()
-	{
-		AIFloat3 basePos = GetPreferredFactoryPos();
-		AIFloat3 comPos = _CommanderPosOrSentinel();
-		float dx = basePos.x - comPos.x;
-		float dz = basePos.z - comPos.z;
-		float len = sqrt(dx * dx + dz * dz);
-		if (len < 1.0f) {
-			return AIFloat3(basePos.x + SQUARE_SIZE * 60, 0, basePos.z);
-		}
-		return AIFloat3(basePos.x + dx / len * SQUARE_SIZE * 90, 0, basePos.z + dz / len * SQUARE_SIZE * 90);
-	}
-
 	// --- Nano helpers ---
 	// Determine the nano capacity for a given factory def
 	int _GetNanoCapacityForFactoryDef(const CCircuitDef@ d)
@@ -713,11 +663,13 @@ namespace Factory {
 		AIFloat3 pos = factoryUnit.GetPos(ai.frame);
 		// Choose naval vs land caretaker based on factory terrain (covers shipyards, seaplane, floating hover, amphib complexes, water gantry)
 		bool isWaterFactory = UnitHelpers::FactoryIsWater(name);
+		bool isGantry = UnitHelpers::IsLandGantry(name) || UnitHelpers::IsWaterGantry(name);
+		int shake = isGantry ? SQUARE_SIZE * 40 : SQUARE_SIZE * 24;
 		IUnitTask@ t = null;
 		if (isWaterFactory) {
-			@t = Builder::EnqueueT1NavalNano(side, pos, /*shake*/ SQUARE_SIZE * 24, /*timeout*/ 300 * SECOND);
+			@t = Builder::EnqueueT1NavalNano(side, pos, /*shake*/ shake, /*timeout*/ 300 * SECOND, prio);
 		} else {
-			@t = Builder::EnqueueT1Nano(side, pos, /*shake*/ SQUARE_SIZE * 24, /*timeout*/ 300 * SECOND, prio);
+			@t = Builder::EnqueueT1Nano(side, pos, /*shake*/ shake, /*timeout*/ 300 * SECOND, prio);
 		}
 		if (t !is null) {
 			_SetNanoCount(factoryUnit, cur + 1);
@@ -792,7 +744,7 @@ namespace Factory {
 		int n = (count < 1 ? 1 : count);
 		for (int i = 0; i < n; ++i) {
 			@last = aiFactoryMgr.Enqueue(
-				TaskS::Recruit(Task::RecruitType::FIREPOWER, prio, heavyDef, pos, 64.f)
+				TaskS::Recruit(Task::RecruitType::FIREPOWER, prio, heavyDef, pos, SQUARE_SIZE * 14)
 			);
 		}
 		GenericHelpers::LogUtil("[FACTORY] Gantry enqueued x" + n + " '" + chosen + "' from " + facDef.GetName(), 2);
@@ -800,53 +752,5 @@ namespace Factory {
 	}
 
 
-
-	// --- Landlocked unit whitelist ---
-	// On landlocked maps, only builders/assist and the listed combat units may be produced.
-
-	bool _IsUnitNameAllowedOnLandlocked(const string &in name)
-	{
-		// Legion
-		if (name == "legamphtank") return true;
-		if (name == "legamph")     return true;
-		if (name == "legehovertank") return true;
-		if (name == "legjav")      return true;
-		if (name == "legeheatraymech") return true;
-		// Armada
-		if (name == "armvader")       return true;
-		if (name == "armamph")        return true;
-		if (name == "armpincer")      return true;
-		if (name == "armcroc")        return true;
-		if (name == "armlun")         return true;
-		if (name == "armmar")         return true;
-		if (name == "armassimilator") return true;
-		if (name == "armmeatball")    return true;
-		if (name == "armbanth")       return true;
-		// Cortex
-		if (name == "corroach")  return true;
-		if (name == "corsktl")   return true;
-		if (name == "corgarp")   return true;
-		if (name == "coramph")   return true;
-		if (name == "corparrow") return true;
-		if (name == "corsala")   return true;
-		if (name == "corsok")    return true;
-		if (name == "corves")    return true;
-		if (name == "corshiva")  return true;
-		if (name == "corkorg")   return true;
-
-		return false;
-	}
-
-	bool IsUnitAllowedOnLandlocked(const CCircuitDef@ d)
-	{
-		if (d is null) return false;
-		// Builders, T2 builders, support (nanos/assist), and commanders always allowed
-		if (d.IsRoleAny(Unit::Role::BUILDER.mask))  return true;
-		if (d.IsRoleAny(Unit::Role::BUILDER2.mask)) return true;
-		if (d.IsRoleAny(Unit::Role::SUPPORT.mask))  return true;
-		if (d.IsRoleAny(Unit::Role::COMM.mask))     return true;
-		// Combat units: only whitelisted ones
-		return _IsUnitNameAllowedOnLandlocked(d.GetName());
-	}
 
 }  // namespace Factory

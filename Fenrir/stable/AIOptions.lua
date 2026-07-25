@@ -79,7 +79,7 @@ local options = {
 			{
 				key  = 'Fenrir',
 				name = 'Fenrir | Suicidal',
-				desc = 'Difficulty: Suicidal | Playstyle: Front Role | Made by Felnious',
+				desc = 'Difficulty: Experimental |Playstyle: Role Based| Made by Felnious, modified by Kazuhira95',
 			},
 		},
 	},

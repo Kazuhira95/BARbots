@@ -226,12 +226,14 @@
 			},
 			"armshltx": {
 				"role": ["builder"],
+				"attribute": ["support"],
 				"limit": 1,
 				"midposoffset": [0, 0, -16],
 				"build_speed": 10.0
 			},
 			"armshltxuw": {
 				"role": ["builder"],
+				"attribute": ["support"],
 				"limit": 1,
 				"midposoffset": [0, 0, -16],
 				"build_speed": 10.0
@@ -433,7 +435,9 @@
 			},
 			"armsilo":{
 				"role":	["super", "static"],
-				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0},
+				"threat": {"air": 0.0, "surf": 0.0, "water": 0.0, "default": 0.0,
+					"vs": {"artillery": 1, "anti_air": 0, "static": 2, "super": 2, "spam": 0}
+				},
 				"power": 20
 			},
 

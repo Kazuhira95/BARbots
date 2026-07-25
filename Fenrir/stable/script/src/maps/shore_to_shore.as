@@ -14,21 +14,21 @@ namespace ShoreToShore {
 	// Start spots for Shore_to_Shore_V3 (converted from YAML, roles matched to AiRole enum)
 	// landLocked heuristic: currently false for all
 	StartSpot@[] spots = {
-		StartSpot(AIFloat3(  560, 0,  730), AiRole::TECH,      false),
-		StartSpot(AIFloat3(  550, 0, 1740), AiRole::AIR,       false),
-		StartSpot(AIFloat3(  340, 0, 2700), AiRole::HOVER_SEA, false),
+		StartSpot(AIFloat3(  560, 0,  730), AiRole::HOVER_SEA, false), //TECH
+		StartSpot(AIFloat3(  550, 0, 1740), AiRole::AIR,       false), //AIR
+		StartSpot(AIFloat3(  340, 0, 2700), AiRole::TECH,      false), //HOVER_SEA
 
-		StartSpot(AIFloat3( 2000, 0,  730), AiRole::SEA,       false),
-		StartSpot(AIFloat3( 2000, 0, 1740), AiRole::SEA,       false),
-		StartSpot(AIFloat3( 2000, 0, 2700), AiRole::SEA,       false),
+		StartSpot(AIFloat3( 2000, 0,  730), AiRole::SEA,       false), //SEA
+		StartSpot(AIFloat3( 2000, 0, 1740), AiRole::SEA,       false), //SEA
+		StartSpot(AIFloat3( 2000, 0, 2700), AiRole::SEA,       false), //SEA
 
-		StartSpot(AIFloat3(14800, 0,  550), AiRole::TECH,      false),
-		StartSpot(AIFloat3(14800, 0, 1450), AiRole::AIR,       false),
-		StartSpot(AIFloat3(14800, 0, 2300), AiRole::HOVER_SEA, false),
+		StartSpot(AIFloat3(14800, 0,  550), AiRole::TECH,      false), //TECH
+		StartSpot(AIFloat3(14800, 0, 1450), AiRole::AIR,       false), //AIR
+		StartSpot(AIFloat3(14800, 0, 2300), AiRole::HOVER_SEA, false), //HOVER_SEA
 
-		StartSpot(AIFloat3(13250, 0,  730), AiRole::SEA,       false),
-		StartSpot(AIFloat3(13250, 0, 1740), AiRole::SEA,       false),
-		StartSpot(AIFloat3(13250, 0, 2700), AiRole::SEA,       false)
+		StartSpot(AIFloat3(13250, 0,  730), AiRole::SEA,       false), //SEA
+		StartSpot(AIFloat3(13250, 0, 1740), AiRole::SEA,       false), //SEA
+		StartSpot(AIFloat3(13250, 0, 2700), AiRole::SEA,       false)  //SEA
 	};
 
 	// Role-specific unit limit overlays (roleKey -> (unitName -> cap))
@@ -36,6 +36,14 @@ namespace ShoreToShore {
 	dictionary getRoleUnitLimits()
 	{
 		dictionary roleUnitLimits;
+		dictionary hoverSeaLimits;
+		hoverSeaLimits.set("armhp", 1);
+		hoverSeaLimits.set("corhp", 1);
+		hoverSeaLimits.set("leghp", 1);
+		hoverSeaLimits.set("armfhp", 1);
+		hoverSeaLimits.set("corfhp", 1);
+		hoverSeaLimits.set("legfhp", 1);
+		roleUnitLimits.set("HOVER_SEA", @hoverSeaLimits);
 		return roleUnitLimits;
 	}
 
@@ -56,7 +64,22 @@ namespace ShoreToShore {
 		// ARMADA - T1 land combat bots
 		limits.set("armpw", 0);    // Pawn (raider bot)
 		limits.set("armwar", 0);   // Centurion (riot bot)
-		limits.set("armrock", 0);  // Rocket Bot
+		limits.set("armrock", 0);
+		limits.set("armham", 0);
+		limits.set("armflea", 0);  // Rocket Bot
+		// ARMADA - T2 land combat bots
+		limits.set("armzeus", 0);
+		limits.set("armmav", 0);
+		limits.set("armfast", 0);
+		limits.set("armaser", 0);
+		limits.set("armspid", 0);
+		limits.set("armscab", 0);
+		limits.set("armsptk", 0);
+		limits.set("armsnipe", 0);
+		limits.set("armspy", 0);
+		limits.set("armfboy", 0);
+		limits.set("armfido", 0);
+		limits.set("armmark", 0);
 		// ARMADA - T1 land combat vehicles
 		limits.set("armflash", 0); // Fast Assault Tank
 		limits.set("armstump", 0); // Medium Assault Tank
@@ -65,17 +88,54 @@ namespace ShoreToShore {
 		limits.set("armjanus", 0); // Twin Medium Rocket Launcher
 		limits.set("armyork", 0);  // AA Flak Vehicle
 		limits.set("armgremlin", 0); // Stealth Tank
+		limits.set("armfav", 0);
+		limits.set("armzapper", 0);
+		// ARMADA - T2 land combat vehicles
+		limits.set("armmanni", 0);
+		limits.set("armjam", 0);
+		limits.set("armmerl", 0);
+		limits.set("armseer", 0);
+		limits.set("armgremlin", 0);
+		limits.set("armmart", 0);
+		limits.set("armlatnk", 0);
+		limits.set("armbull", 0);
+		limits.set("armyork", 0);
 
 		// CORTEX - T1 land combat bots
 		limits.set("corak", 0);    // Fast Infantry Bot (raider)
 		limits.set("corthud", 0);  // Light Plasma Bot (riot)
 		limits.set("corstorm", 0); // Rocket Bot (skirm)
+		// CORTEX - T2 land combat bots
+		limits.set("cordeadeye", 0);
+		limits.set("cortermite", 0);
+		limits.set("corpyro", 0);
+		limits.set("corsumo", 0);
+		limits.set("corhrk", 0);
+		limits.set("corvoyr", 0);
+		limits.set("corcan", 0);
+		limits.set("corspec", 0);
+		limits.set("cormort", 0);
+		limits.set("corspy", 0);
 		// CORTEX - T1 land combat vehicles
 		limits.set("corgator", 0); // Light Tank (raider)
 		limits.set("corraid", 0);  // Medium Assault Tank
 		limits.set("corlevlr", 0); // Anti-Swarm Tank (riot)
 		limits.set("corwolv", 0);  // Light Mobile Artillery
 		limits.set("cormist", 0);  // Missile Truck
+		limits.set("corfav", 0);
+		// CORTEX - T2 land combat vehicles
+		limits.set("corban", 0);
+		limits.set("correap", 0);
+		limits.set("corgol", 0);
+		limits.set("cortorch", 0);
+		limits.set("corsiegebreaker", 0);
+		limits.set("corsala", 0);
+		limits.set("coreter", 0);
+		limits.set("cormart", 0);
+		limits.set("corvrad", 0);
+		limits.set("cortrem", 0);
+		limits.set("corvroc", 0);
+		limits.set("corsent", 0);
 
 		// LEGION - T1 land combat bots
 		limits.set("leggob", 0);   // Light Skirmish Bot
@@ -84,7 +144,58 @@ namespace ShoreToShore {
 		// LEGION - T1 land combat vehicles
 		limits.set("legmrv", 0);   // Fast Raider Vehicle
 		limits.set("leghelios", 0); // Skirmisher Tank
+		// LEGION - T2 land combat vehicles
+		limits.set("legavroc", 0);
+		limits.set("legvflak", 0);
+		limits.set("legaheattank", 0);
+		limits.set("legamcluster", 0);
+		limits.set("legmed", 0);
+		limits.set("legavrad", 0);
+		limits.set("legavjam", 0);
+		limits.set("legaskirmtank", 0);
+		limits.set("legvcarry", 0);
 
+		// Set limits to Contruction units
+		// Armada - T1 land CON BOTs
+		limits.set("armck", 50);
+		// Armada - T1 land CON VEHs
+		limits.set("armcv", 50);
+		// Armada - T1 land CON AIRs //structure on land that creates AIR units, hence land
+
+		// Armada - T2 land CON BOTs
+		limits.set("armack", 50);
+		limits.set("armfark", 50);
+		// Armada - T2 land CON VEHs
+		limits.set("armacv", 50);
+		limits.set("armconsul", 50);
+		// Armada - T2 land CON AIRs
+
+		// Cortex - T1 land CON BOTs
+		limits.set("corck", 50);
+		// Cortex - T1 land CON VEHs
+		limits.set("corcv", 50);
+		// Cortex - T1 land CON AIRs
+
+		// Cortex - T2 land CON BOTs
+		limits.set("corack", 50);
+		limits.set("corfast", 50);
+		// Cortex - T2 land CON VEHs
+		limits.set("coracv", 50);
+		// Cortex - T2 land CON AIRs
+
+		// Legion - T1 land CON BOTs
+		limits.set("legck", 50);
+		// Legion - T1 land CON VEHs
+		limits.set("legcv", 50);
+		// Legion - T1 land CON AIRs
+
+		// Legion - T2 land CON BOTs
+		limits.set("legack", 50);
+		limits.set("legaceb", 50);
+		// Legion - T2 land CON VEHs
+		limits.set("legacv", 50);
+		limits.set("legafcv", 50);
+		// Legion - T2 land CON AIRs
 		return limits;
 	}
 

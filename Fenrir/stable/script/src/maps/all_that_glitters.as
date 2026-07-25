@@ -11,22 +11,22 @@ namespace AllThatGlitters {
     // Start positions sourced from resources/data/maps/all_that_glitters.yaml (springName: All That Glitters v2.2)
     // Role mapping: front->FRONT, air->AIR, tech->TECH
     StartSpot@[] spots = {
-        StartSpot(AIFloat3(  668, 0,   755), AiRole::FRONT, false), // P1
-        StartSpot(AIFloat3( 2801, 0,   775), AiRole::AIR,   false), // P2
-        StartSpot(AIFloat3( 4211, 0,   609), AiRole::TECH,  false), // P3
-        StartSpot(AIFloat3( 5762, 0,   600), AiRole::FRONT, false), // P4
-        StartSpot(AIFloat3( 1159, 0,  1943), AiRole::FRONT, false), // P5
-        StartSpot(AIFloat3( 3061, 0,  1967), AiRole::FRONT, false), // P6
-        StartSpot(AIFloat3( 4298, 0,  1996), AiRole::FRONT, false), // P7
-        StartSpot(AIFloat3( 5472, 0,  2030), AiRole::FRONT, false), // P8
-        StartSpot(AIFloat3( 5475, 0,  9444), AiRole::FRONT, false), // P9
-        StartSpot(AIFloat3( 3452, 0,  9689), AiRole::AIR,   false), // P10
-        StartSpot(AIFloat3( 1943, 0,  9622), AiRole::TECH,  false), // P11
-        StartSpot(AIFloat3(   408, 0,  9640), AiRole::FRONT, false), // P12
-        StartSpot(AIFloat3( 5166, 0,  8246), AiRole::FRONT, false), // P13
-        StartSpot(AIFloat3( 3212, 0,  8249), AiRole::FRONT, false), // P14
-        StartSpot(AIFloat3( 1859, 0,  8256), AiRole::FRONT, false), // P15
-        StartSpot(AIFloat3(   697, 0,  8224), AiRole::FRONT, false)  // P16
+        StartSpot(AIFloat3(  668, 0,   755), AiRole::FRONT, false), // P1 Front
+        StartSpot(AIFloat3( 2801, 0,   775), AiRole::AIR,   false), // P2 Air
+        StartSpot(AIFloat3( 4211, 0,   609), AiRole::TECH,  false), // P3 Tech
+        StartSpot(AIFloat3( 5762, 0,   600), AiRole::FRONT, false), // P4 Front
+        StartSpot(AIFloat3( 1159, 0,  1943), AiRole::FRONT, false), // P5 Front
+        StartSpot(AIFloat3( 3061, 0,  1967), AiRole::FRONT, false), // P6 Front
+        StartSpot(AIFloat3( 4298, 0,  1996), AiRole::FRONT, false), // P7 Front
+        StartSpot(AIFloat3( 5472, 0,  2030), AiRole::FRONT, false), // P8 Front
+        StartSpot(AIFloat3( 5475, 0,  9444), AiRole::FRONT, false), // P9 Front
+        StartSpot(AIFloat3( 3452, 0,  9689), AiRole::AIR,   false), // P10 Air
+        StartSpot(AIFloat3( 1943, 0,  9622), AiRole::TECH,  false), // P11 Tech
+        StartSpot(AIFloat3(  408, 0,  9640), AiRole::FRONT, false), // P12 Front
+        StartSpot(AIFloat3( 5166, 0,  8246), AiRole::FRONT, false), // P13 Front
+        StartSpot(AIFloat3( 3212, 0,  8249), AiRole::FRONT, false), // P14 Front
+        StartSpot(AIFloat3( 1859, 0,  8256), AiRole::FRONT, false), // P15 Front
+        StartSpot(AIFloat3(  697, 0,  8224), AiRole::FRONT, false)  // P16 Front
     };
 
     // Base per-map unit limits

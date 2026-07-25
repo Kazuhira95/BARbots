@@ -28,22 +28,28 @@ namespace Main {
 	}
 
 	void ApplyTechStrategyWeights() {
-		// Start fresh (no strategies), then enable per dice outcome
+		// Start fresh (no strategies), then enable per rule
 		Global::RoleSettings::Tech::StrategyMask = 0;
 
-		if (DecideEnabled(StrategyWeights::Tech_T2_RUSH)) {
-			Global::RoleSettings::Tech::EnableStrategy(Strategy::T2_RUSH);
-		}
-		if (DecideEnabled(StrategyWeights::Tech_T3_RUSH)) {
-			Global::RoleSettings::Tech::EnableStrategy(Strategy::T3_RUSH);
-		}
-		if (DecideEnabled(StrategyWeights::Tech_NUKE_RUSH)) {
+		// Always T2 rush regardless of map
+		Global::RoleSettings::Tech::EnableStrategy(Strategy::T2_RUSH);
+
+		// If landlocked, always nuke rush instead of T3 rush
+		if (Global::Map::LandLocked) {
 			Global::RoleSettings::Tech::EnableStrategy(Strategy::NUKE_RUSH);
+		} else {
+			if (DecideEnabled(StrategyWeights::Tech_T3_RUSH)) {
+				Global::RoleSettings::Tech::EnableStrategy(Strategy::T3_RUSH);
+			}
+			if (DecideEnabled(StrategyWeights::Tech_NUKE_RUSH)) {
+				Global::RoleSettings::Tech::EnableStrategy(Strategy::NUKE_RUSH);
+			}
 		}
 
 		GenericHelpers::LogUtil(
-			"[Strategy] (EXPERIMENTAL BALANCED) Decided: Tech mask=" + Global::RoleSettings::Tech::StrategyMask +
-			" (" + StrategyUtil::NamesFromMask(Global::RoleSettings::Tech::StrategyMask) + ")",
+			"[Strategy] Decided: Tech mask=" + Global::RoleSettings::Tech::StrategyMask +
+			" (" + StrategyUtil::NamesFromMask(Global::RoleSettings::Tech::StrategyMask) + ")" +
+			" landLocked=" + (Global::Map::LandLocked ? "true" : "false"),
 			2);
 	}
 

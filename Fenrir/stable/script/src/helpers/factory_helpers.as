@@ -31,13 +31,6 @@ namespace FactoryHelpers {
             return "armhp";
         }
 
-        // On landlocked maps, start with a hover plant for ground roles too
-        if (Global::Map::LandLocked) {
-            if (side == "armada") return "armhp";
-            if (side == "cortex") return "corhp";
-            if (side == "legion") return "leghp";
-            return "armhp";
-        }
         // TECH, FRONT, FRONT_TECH and any unknown -> T1 bot lab (widely valid)
         return UnitHelpers::GetT1BotLabForSide(side);
     }

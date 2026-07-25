@@ -214,7 +214,7 @@ namespace Global {
 
             // T2 Aircraft Plant thresholds (TECH role)
             // Mirrors AIR role defaults; scoped to TECH so roles don't cross-reference
-            float RequiredMetalIncomeForT2AircraftPlant = 100.0f;
+            float RequiredMetalIncomeForT2AircraftPlant = 200.0f;
             float RequiredMetalCurrentForT2AircraftPlant = 1000.0f;
             float RequiredEnergyIncomeForT2AircraftPlant = 2000.0f;
 
@@ -336,10 +336,10 @@ namespace Global {
             /******************** T2 AIRCRAFT PLANT THRESHOLDS (AIR role) ********************/
             // Economy thresholds and caps for building a T2 Aircraft Plant when in AIR role
             // Defaults mirror TECH thresholds but are scoped to AIR so air.as does not reference TECH settings.
-            float RequiredMetalIncomeForT2AircraftPlant = 100.0f;
-            float RequiredMetalCurrentForT2AircraftPlant = 1000.0f;
-            float RequiredEnergyIncomeForT2AircraftPlant = 2000.0f;
-            int MaxT2AircraftPlants = 2;
+            float RequiredMetalIncomeForT2AircraftPlant = 30.0f;
+            float RequiredMetalCurrentForT2AircraftPlant = 50.0f;
+            float RequiredEnergyIncomeForT2AircraftPlant = 1200.0f;
+            int MaxT2AircraftPlants = 1;
 
             /******************** AIR NANO POLICY ********************/
             // How much income per additional T1 nano caretaker; and cap
@@ -379,6 +379,14 @@ namespace Global {
             // Per-factory enqueue cap when topping up support fighters
             int SupportFighterBatchPerFactory = 5;
 
+            /******************** ANTI-NUKE THRESHOLDS (AIR role) ********************/
+            // Same economy thresholds as TECH role; hard-capped at 3 max
+            float MinimumMetalIncomeForAntiNuke = 80.0f;
+            float MinimumEnergyIncomeForAntiNuke = 3000.0f;
+            int MinimumAntiNukeCount = 1;
+            int MaxAntiNukeCount = 3;
+            float MetalIncomePerAntiNuke = 80.0f;
+
         }
 
         namespace Front {
@@ -387,14 +395,7 @@ namespace Global {
             int MaxAiSwitchTime = 60;
 
             // NukeLimit: maximum number of nukes allowed for FRONT role
-            int NukeLimit = 10;
-            // Minimum economy thresholds for building nuke silos (regular, no rush)
-            float MinimumMetalIncomeForNuke = 600.0f;
-            float MinimumEnergyIncomeForNuke = 10000.0f;
-            // Anti-nuke thresholds
-            float MinimumMetalIncomeForAntiNuke = 80.0f;
-            float MinimumEnergyIncomeForAntiNuke = 3000.0f;
-            int MinimumAntiNukeCount = 1;
+            int NukeLimit = 0;
             /******************** FRONT BASE SETTINGS ********************/
             // All settings applied to front role at game start, logic can change throughout game
             float AllyRange = 900.0f;
@@ -584,18 +585,30 @@ namespace Global {
         }
 
         namespace HoverSea {
-            /******************** SEA BASE SETTINGS ********************/
-            // All settings applied to sea role at game start, logic can change throughout game
-            float AllyRange = 3000.0f;
+            /******************** HOVER SEA BASE SETTINGS ********************/
+            // All settings applied to hover sea role at game start, logic can change throughout game
+            float AllyRange = 1200.0f;
 
-            /******************** SEA MILITARY QUOTAS ********************/
-            // Scout unit cap for SEA role
+            /******************** HOVER SEA MILITARY QUOTAS ********************/
+            // Scout unit cap for HOVER_SEA role
             int MilitaryScoutCap = 4;
             // Attack gate (required power to trigger attack waves)
             float MilitaryAttackThreshold = 20.0f;
             // Raid thresholds (power)
             float MilitaryRaidMinPower = 30.0f;
             float MilitaryRaidAvgPower = 60.0f;
+
+            // Minimum metal income (10s average) before military units get assigned tasks
+            // Below this threshold, combat units idle to avoid wasting them on guard duty
+            float MilitaryMinMetalIncome = 25.0f;
+
+            // Increased aggression thresholds applied after T2 Vehicle Plant is built
+            float MilitaryAttackThresholdHigh = 10.0f;
+            float MilitaryRaidMinPowerHigh = 15.0f;
+            float MilitaryRaidAvgPowerHigh = 30.0f;
+
+            // Number of combat units to batch-enqueue from each hover plant as initial rush
+            int HoverCombatRushCount = 3;
 
             /******************** HOVER SEA NANO POLICY ********************/
             // How much income per additional T1 nano caretaker; and cap
@@ -623,11 +636,34 @@ namespace Global {
 
             // Income-scaled Hover Plant policy
             // Build allowance: 1 base plant + floor(metalIncome / MetalIncomePerExtraHoverPlant),
-            // clamped to MaxHoverPlants. Defaults: +1 per 50 metal income, max 3 plants total.
+            // clamped to MaxHoverPlants. Defaults: +1 per 50 metal income, max 2 plants total.
             float MetalIncomePerExtraHoverPlant = 50.0f;
-            int MaxHoverPlants = 3;
+            int MaxHoverPlants = 2;
 
-            /******************** HOVER SEA START LIMIT CAPS ********************/
+            /******************** HOVER SEA T2 SHIPYARD THRESHOLDS ********************/
+            float MinimumMetalIncomeForT2Shipyard = 40.0f;
+            float MinimumEnergyIncomeForT2Shipyard = 800.0f;
+            float RequiredMetalCurrentForT2Shipyard = 0.0f;
+
+            /******************** HOVER SEA ANTI-NUKE THRESHOLDS ********************/
+            float MinimumMetalIncomeForAntiNuke = 10.0f;
+            float MinimumEnergyIncomeForAntiNuke = 400.0f;
+
+            /******************** HOVER SEA GANTRY THRESHOLDS ********************/
+            float MetalIncomePerGantry = 250.0f;
+            float EnergyIncomePerGantry = 6000.0f;
+
+            /******************** HOVER SEA FUSION THRESHOLDS ********************/
+            // Economy thresholds for Fusion Reactor (FUS) — sourced from TECH role defaults
+            float MinimumMetalIncomeForFUS = 20.0f;
+            float MinimumEnergyIncomeForFUS = 700.0f;
+            float MaxEnergyIncomeForFUS = 2000.0f;
+
+            // Economy thresholds for Advanced Fusion Reactor (AFUS) — sourced from TECH role defaults
+            float MinimumMetalIncomeForAFUS = 70.0f;
+            float MinimumEnergyIncomeForAFUS = 2000.0f;
+
+        /******************** HOVER SEA START LIMIT CAPS ********************/
             // Initial caps applied at game start for the HOVER_SEA role
             int StartCapT1BotLabs = 0;
             int StartCapT2BotLabs = 0;

@@ -7,8 +7,14 @@
 #include "../helpers/objective_helpers.as"
 #include "../helpers/objective_executor.as"
 #include "../types/strategic_objectives.as"
+#include "../manager/economy.as"
 
 namespace RoleHoverSea {
+
+    // Track whether high-aggression thresholds have been applied (after T2 vehicle plant built)
+    bool g_hoverSeaThresholdsHigh = false;
+    // Track whether hover combat rush has been completed
+    bool g_hoverSeaCombatRushDone = false;
 
     /******************************************************************************
 
@@ -43,7 +49,7 @@ namespace RoleHoverSea {
                 if (d is null) continue;
                 d.SetFireState(3);
             }
-            GenericHelpers::LogUtil("[HOVER_SEA] Applied default fire state=3 to T1 HOVER combat units", 3);
+            GenericHelpers::LogUtil("[HOVER_SEA] Applied default fire state=3 to T1 HOVER combat units", 2);
         }
 
         // Log all strategic objectives with distance from start once at init
@@ -83,7 +89,7 @@ namespace RoleHoverSea {
         UnitHelpers::BatchApplyUnitCaps(UnitHelpers::GetAllT1Shipyards(), Global::RoleSettings::HoverSea::StartCapT1Shipyards);
         UnitHelpers::BatchApplyUnitCaps(UnitHelpers::GetAllT2Shipyards(), Global::RoleSettings::HoverSea::StartCapT2Shipyards);
 
-        GenericHelpers::LogUtil("HoverSea start limits applied", 3);
+        GenericHelpers::LogUtil("HoverSea start limits applied", 2);
     }
 
     /******************************************************************************
@@ -122,17 +128,15 @@ namespace RoleHoverSea {
 
         const string facName = facDef.GetName();
         const string side = UnitHelpers::GetSideForUnitName(facName);
+        const AIFloat3 pos = u.GetPos(ai.frame);
 
-        // First: ensure a baseline of T2 vehicle construction capability.
-        // If this is a T2 Vehicle Plant and we have zero T2 vehicle constructors for our side,
-        // enqueue the side-specific T2 vehicle constructor (armacv/coracv/legacv).
+        // ========== T2 Vehicle Plant ==========
         if (UnitHelpers::IsT2VehicleLab(facName)) {
-            string vehCtor = (side == "armada" ? "armacv" : (side == "cortex" ? "coracv" : "legacv"));
+            string vehCtor = (side == "armada" ? "armacv" : (side == "cortex" ? "coracv" : (side == "legion" ? "legacv" : "")));
             int haveVehCtors = UnitDefHelpers::GetUnitDefCount(vehCtor);
             if (haveVehCtors < 1) {
                 CCircuitDef@ ctorDef = ai.GetCircuitDef(vehCtor);
                 if (ctorDef !is null && ctorDef.IsAvailable(ai.frame)) {
-                    const AIFloat3 pos = u.GetPos(ai.frame);
                     return aiFactoryMgr.Enqueue(
                         TaskS::Recruit(Task::RecruitType::BUILDPOWER, Task::Priority::HIGH, ctorDef, pos, 64.f)
                     );
@@ -140,7 +144,7 @@ namespace RoleHoverSea {
             }
         }
 
-        // Only enforce for hover plants; fall back to role/default otherwise
+        // ========== Hover Plant (T1 land + floating) ==========
         bool isHoverPlant = UnitHelpers::IsT1HoverPlant(facName) || UnitHelpers::IsFloatingHoverPlant(facName);
         if (isHoverPlant) {
             string hoverCtorName = UnitHelpers::GetT1HoverConstructor(side);
@@ -148,12 +152,128 @@ namespace RoleHoverSea {
             if (haveHoverCtors < Global::RoleSettings::HoverSea::MinHoverConstructorCount) {
                 CCircuitDef@ ctorDef2 = ai.GetCircuitDef(hoverCtorName);
                 if (ctorDef2 !is null && ctorDef2.IsAvailable(ai.frame)) {
-                    const AIFloat3 pos2 = u.GetPos(ai.frame);
                     return aiFactoryMgr.Enqueue(
-                        TaskS::Recruit(Task::RecruitType::BUILDPOWER, Task::Priority::HIGH, ctorDef2, pos2, 64.f)
+                        TaskS::Recruit(Task::RecruitType::BUILDPOWER, Task::Priority::NOW, ctorDef2, pos, 64.f)
+                    );
+                }
+            } else {
+                // At or above minimum, keep building more with NORMAL priority
+                CCircuitDef@ ctorDef2 = ai.GetCircuitDef(hoverCtorName);
+                if (ctorDef2 !is null && ctorDef2.IsAvailable(ai.frame)) {
+                    return aiFactoryMgr.Enqueue(
+                        TaskS::Recruit(Task::RecruitType::BUILDPOWER, Task::Priority::NORMAL, ctorDef2, pos, 64.f)
                     );
                 }
             }
+
+            // After constructor target is met, perform a one-time combat rush
+            if (!g_hoverSeaCombatRushDone) {
+                int rushCount = Global::RoleSettings::HoverSea::HoverCombatRushCount;
+                if (rushCount > 0) {
+                    string raiderName = (side == "armada" ? "armmh" : (side == "cortex" ? "cormh" : (side == "legion" ? "legmh" : "")));
+                    if (raiderName != "") {
+                        CCircuitDef@ raiderDef = ai.GetCircuitDef(raiderName);
+                        if (raiderDef !is null && raiderDef.IsAvailable(ai.frame)) {
+                            IUnitTask@ lastRush = null;
+                            for (int i = 0; i < rushCount; ++i) {
+                                @lastRush = aiFactoryMgr.Enqueue(
+                                    TaskS::Recruit(Task::RecruitType::FIREPOWER, Task::Priority::HIGH, raiderDef, pos, 64.f)
+                                );
+                            }
+                            g_hoverSeaCombatRushDone = true;
+                            GenericHelpers::LogUtil("[HOVER_SEA] Hover combat rush enqueued " + rushCount + " x " + raiderName, 2);
+                            return lastRush;
+                        }
+                    }
+                }
+                g_hoverSeaCombatRushDone = true;
+            }
+
+            // If a T2 shipyard exists, spam T1 hover scouts for map reveal
+            int t2ShipyardCount =
+                UnitDefHelpers::GetUnitDefCount("armasy") +
+                UnitDefHelpers::GetUnitDefCount("corasy") +
+                UnitDefHelpers::GetUnitDefCount("legadvshipyard");
+            if (t2ShipyardCount > 0) {
+                string scoutName = (side == "armada" ? "armsh" : (side == "cortex" ? "corsh" : (side == "legion" ? "legsh" : "")));
+                if (scoutName != "") {
+                    int haveScouts = UnitDefHelpers::GetUnitDefCount(scoutName);
+                    int targetCount = 50;
+                    if (haveScouts < targetCount) {
+                        CCircuitDef@ scoutDef = ai.GetCircuitDef(scoutName);
+                        if (scoutDef !is null && scoutDef.IsAvailable(ai.frame)) {
+                            return aiFactoryMgr.Enqueue(
+                                TaskS::Recruit(Task::RecruitType::FIREPOWER, Task::Priority::HIGH, scoutDef, pos, 64.f)
+                            );
+                        }
+                    }
+                }
+            }
+        }
+
+        // ========== T1 Shipyard ==========
+        if (UnitHelpers::IsT1Shipyard(facName)) {
+            string t1Ctor = (side == "armada" ? "armcs" : (side == "cortex" ? "corcs" : (side == "legion" ? "legnavyconship" : "")));
+            int haveCtors = UnitDefHelpers::GetUnitDefCount(t1Ctor);
+            if (haveCtors < 2) {
+                CCircuitDef@ ctorDef = ai.GetCircuitDef(t1Ctor);
+                if (ctorDef !is null && ctorDef.IsAvailable(ai.frame)) {
+                    return aiFactoryMgr.Enqueue(
+                        TaskS::Recruit(Task::RecruitType::BUILDPOWER, Task::Priority::HIGH, ctorDef, pos, 64.f)
+                    );
+                }
+            }
+
+            // T1 combat ship: scout/escort — armada=armscout, cortex=corscout, legion=legscout
+            string scoutShip = (side == "armada" ? "armdecade" : (side == "cortex" ? "coresupp" : (side == "legion" ? "legnavyscout" : "")));
+            if (scoutShip != "") {
+                int haveScout = UnitDefHelpers::GetUnitDefCount(scoutShip);
+                if (haveScout < 2) {
+                    CCircuitDef@ scoutDef = ai.GetCircuitDef(scoutShip);
+                    if (scoutDef !is null && scoutDef.IsAvailable(ai.frame)) {
+                        return aiFactoryMgr.Enqueue(
+                            TaskS::Recruit(Task::RecruitType::FIREPOWER, Task::Priority::HIGH, scoutDef, pos, 64.f)
+                        );
+                    }
+                }
+            }
+        }
+
+        // ========== T2 Shipyard ==========
+        if (UnitHelpers::IsT2Shipyard(facName)) {
+            GenericHelpers::LogUtil("[HoverSea] T2 shipyard factory make task: facName=" + facName + " side=" + side, 2);
+            string t2Ctor = (side == "armada" ? "armacsub" : side == "cortex" ? "coracsub" : side == "legion" ? "leganavyconsub" : "");
+            int haveT2Ctors = UnitDefHelpers::GetUnitDefCount(t2Ctor);
+            GenericHelpers::LogUtil("[HoverSea] T2 constructor check: name=" + t2Ctor + " have=" + haveT2Ctors, 2);
+            if (haveT2Ctors < 2) {
+                CCircuitDef@ ctorDef = ai.GetCircuitDef(t2Ctor);
+                if (ctorDef !is null && ctorDef.IsAvailable(ai.frame)) {
+                    return aiFactoryMgr.Enqueue(
+                        TaskS::Recruit(Task::RecruitType::BUILDPOWER, Task::Priority::HIGH, ctorDef, pos, 64.f)
+                    );
+                }
+            }
+
+            // Naval engineers: maintain up to 10 for nano construction
+            string engineerName = (side == "armada" ? "armmls" : (side == "cortex" ? "cormls" : (side == "legion" ? "leganavyengineer" : "")));
+            if (engineerName != "") {
+                int haveEngineers = UnitDefHelpers::GetUnitDefCount(engineerName);
+                if (haveEngineers < 10) {
+                    CCircuitDef@ engDef = ai.GetCircuitDef(engineerName);
+                    if (engDef !is null && engDef.IsAvailable(ai.frame)) {
+                        GenericHelpers::LogUtil("[HoverSea] T2 shipyard enqueuing engineer: name=" + engineerName + " have=" + haveEngineers, 2);
+                        return aiFactoryMgr.Enqueue(
+                            TaskS::Recruit(Task::RecruitType::BUILDPOWER, Task::Priority::HIGH, engDef, pos, 64.f)
+                        );
+                    }
+                }
+            }
+        }
+
+        // ========== T3 Gantry (land + water) ==========
+        if (UnitHelpers::IsLandGantry(facName) || UnitHelpers::IsWaterGantry(facName)) {
+            IUnitTask@ tSig = Factory::EnqueueGantrySignatureBatch(u, side, /*count*/ 2, Task::Priority::HIGH);
+            if (tSig !is null) return tSig;
         }
 
         // No special case triggered, use default factory make task
@@ -204,7 +324,53 @@ namespace RoleHoverSea {
     MILITARY HOOKS
 
     ******************************************************************************/
-    
+
+    IUnitTask@ HoverSea_MilitaryAiMakeTask(CCircuitUnit@ u) {
+        // Gate military task assignment behind minimum metal income.
+        // Below threshold, combat units idle instead of being assigned guard/patrol tasks,
+        // ensuring they concentrate into an effective force once the eco can support attacks.
+        float metalIncome = Economy::GetMinMetalIncomeLast10s();
+        if (metalIncome < Global::RoleSettings::HoverSea::MilitaryMinMetalIncome) {
+            return null;
+        }
+        return aiMilitaryMgr.DefaultMakeTask(u);
+    }
+
+    /******************************************************************************
+
+    FACTORY UNIT HOOKS
+
+    ******************************************************************************/
+
+    void HoverSea_FactoryAiUnitAdded(CCircuitUnit@ unit, Unit::UseAs usage) {
+        if (unit is null) return;
+        if (usage != Unit::UseAs::FACTORY) return;
+
+        const CCircuitDef@ facDef = unit.circuitDef;
+        if (facDef is null) return;
+
+        const string factoryName = facDef.GetName();
+
+        // When a T2 Vehicle Plant, T2 Shipyard, or T3 Gantry is built, switch to more
+        // aggressive thresholds so advanced combat units push instead of idling.
+        if (!g_hoverSeaThresholdsHigh &&
+            (UnitHelpers::IsT2VehicleLab(factoryName) ||
+             UnitHelpers::IsT2Shipyard(factoryName) ||
+             UnitHelpers::IsLandGantry(factoryName) ||
+             UnitHelpers::IsWaterGantry(factoryName))) {
+            aiMilitaryMgr.quota.attack = Global::RoleSettings::HoverSea::MilitaryAttackThresholdHigh;
+            aiMilitaryMgr.quota.raid.min = Global::RoleSettings::HoverSea::MilitaryRaidMinPowerHigh;
+            aiMilitaryMgr.quota.raid.avg = Global::RoleSettings::HoverSea::MilitaryRaidAvgPowerHigh;
+            g_hoverSeaThresholdsHigh = true;
+            GenericHelpers::LogUtil("[HOVER_SEA] Advanced factory built (" + factoryName + "); applied high-aggression thresholds", 2);
+        }
+
+        GenericHelpers::LogUtil("[HOVER_SEA] FactoryAiUnitAdded id=" + unit.id + " usage=" + usage + " fac=" + factoryName, 2);
+    }
+
+    void HoverSea_FactoryAiUnitRemoved(CCircuitUnit@ unit, Unit::UseAs usage) {
+    }
+
     bool HoverSea_AiIsAirValid() {
         //GenericHelpers::LogUtil("[HoverSea] Enter HoverSea_AiIsAirValid", 4);
         return true;
@@ -228,7 +394,7 @@ namespace RoleHoverSea {
 	}
 
     IUnitTask@ HoverSea_BuilderAiMakeTask(CCircuitUnit@ builder) {
-        GenericHelpers::LogUtil("[HoverSea_BuilderAiMakeTask] called for builder", 3);
+        GenericHelpers::LogUtil("[HoverSea_BuilderAiMakeTask] called for builder", 2);
     // Create default task only at return sites via Builder helper (no pre-creation)
         // Try builder-group objectives first in order: TACTICAL -> PRIMARY -> SECONDARY
         CCircuitUnit@ tactical = Builder::GetTacticalConstructor();
@@ -243,10 +409,7 @@ namespace RoleHoverSea {
         }
 
         if (builder is Builder::primaryT1HoverConstructor) {
-            IUnitTask@ t1 = HoverSea_TryHandleObjective(builder, Objectives::BuilderGroup::PRIMARY);
-            if (t1 !is null) return t1;
-            // After objectives, consider advancing to vehicles when economy supports it.
-            // Build a T2 Vehicle Lab at 25+ metal income using preferred factory placement.
+            // Force-build a T2 Vehicle Lab at 25+ metal income before handling objectives
             {
                 float mi = aiEconomyMgr.metal.income;
                 // Enforce single plant and avoid duplicate queueing
@@ -260,13 +423,89 @@ namespace RoleHoverSea {
                     queued
                 )) {
                     string side = Global::AISettings::Side;
-                    string labName = (side == "armada" ? "armavp" : (side == "cortex" ? "coravp" : (side == "legion" ? "legavp" : "armavp")));
+                    string labName = (side == "armada" ? "armavp" : (side == "cortex" ? "coravp" : (side == "legion" ? "legavp" : "")));
                     CCircuitDef@ labDef = ai.GetCircuitDef(labName);
-                    if (labDef !is null && labDef.IsAvailable(ai.frame)) {
+                    if (labDef !is null) {
                         AIFloat3 pos = Factory::GetPreferredFactoryPos();
                         return aiBuilderMgr.Enqueue(
-                            TaskB::Factory(Task::Priority::NOW, labDef, pos, labDef, /*shake*/ SQUARE_SIZE * 24, /*active*/ false, /*mustBeBuilt*/ true, /*timeout*/ 600 * SECOND)
+                            TaskB::Factory(Task::Priority::NOW, labDef, pos, labDef, /*shake*/ SQUARE_SIZE * 24, /*active*/ false, /*mustBeBuilt*/ true /*timeout/ 600 * SECOND*/)
                         );
+                    }
+                }
+            }
+
+            // After T2 Vehicle Plant, handle objectives
+            {
+                IUnitTask@ t1 = HoverSea_TryHandleObjective(builder, Objectives::BuilderGroup::PRIMARY);
+                if (t1 !is null) return t1;
+            }
+
+            // Build a T2 Shipyard if any hover plant exists and economy supports it
+            {
+                int t1HoverCount = UnitDefHelpers::SumUnitDefCounts(UnitHelpers::GetAllT1HoverPlants());
+                int floatHoverCount = UnitDefHelpers::SumUnitDefCounts(UnitHelpers::GetAllFloatingHoverPlants());
+                int totalHoverPlants = t1HoverCount + floatHoverCount;
+                float mi_ = aiEconomyMgr.metal.income;
+                float ei_ = aiEconomyMgr.energy.income;
+                GenericHelpers::LogUtil("[HoverSea] T2 shipyard build check: hoverPlants=" + totalHoverPlants + " mi=" + mi_ + " ei=" + ei_ + " mc=" + aiEconomyMgr.metal.current, 2);
+                if (totalHoverPlants > 0) {
+                    int t2ShipyardCount = UnitDefHelpers::SumUnitDefCounts(UnitHelpers::GetAllT2Shipyards());
+                    GenericHelpers::LogUtil("[HoverSea] T2 shipyard count check: t2Shipyards=" + t2ShipyardCount + " thresholds: mi>=" + Global::RoleSettings::HoverSea::MinimumMetalIncomeForT2Shipyard + " ei>=" + Global::RoleSettings::HoverSea::MinimumEnergyIncomeForT2Shipyard + " mc>=" + Global::RoleSettings::HoverSea::RequiredMetalCurrentForT2Shipyard, 2);
+                    if (t2ShipyardCount < 1) {
+                        float mi = aiEconomyMgr.metal.income;
+                        float ei = aiEconomyMgr.energy.income;
+                        float mc = aiEconomyMgr.metal.current;
+                        if (mi >= Global::RoleSettings::HoverSea::MinimumMetalIncomeForT2Shipyard &&
+                            ei >= Global::RoleSettings::HoverSea::MinimumEnergyIncomeForT2Shipyard &&
+                            mc >= Global::RoleSettings::HoverSea::RequiredMetalCurrentForT2Shipyard) {
+                            string side = Global::AISettings::Side;
+                            AIFloat3 anchor = Factory::GetPreferredFactoryPos();
+                            GenericHelpers::LogUtil("[HoverSea] T2 shipyard building: side=" + side + " anchor=(" + anchor.x + "," + anchor.z + ")", 0);
+                            IUnitTask@ tT2Sy = Builder::EnqueueT2Shipyard(side, anchor, SQUARE_SIZE * 60, 600 * SECOND);
+                            GenericHelpers::LogUtil("[HoverSea] T2 shipyard enqueue result: " + (tT2Sy is null ? "null" : "ok"), 0);
+                            if (tT2Sy !is null) return tT2Sy;
+                        }
+                    }
+                }
+            }
+
+            // Gantry: force build one land gantry when income thresholds are met, disregarding metal storage
+            {
+                int gantryCount = UnitDefHelpers::SumUnitDefCounts(UnitHelpers::GetAllLandGantries());
+                bool gantryQueued = Builder::IsGantryBuildQueued();
+                if (gantryCount < 1 && !gantryQueued) {
+                    float mi_ = aiEconomyMgr.metal.income;
+                    float ei_ = aiEconomyMgr.energy.income;
+                    if (mi_ >= Global::RoleSettings::HoverSea::MetalIncomePerGantry &&
+                        ei_ >= Global::RoleSettings::HoverSea::EnergyIncomePerGantry) {
+                        string side = Global::AISettings::Side;
+                        string gantryName = UnitHelpers::GetLandGantryForSide(side);
+                        CCircuitDef@ gantryDef = ai.GetCircuitDef(gantryName);
+                        if (gantryDef !is null) {
+                            AIFloat3 pos = Factory::GetPreferredFactoryPos();
+                            return aiBuilderMgr.Enqueue(
+                                TaskB::Factory(Task::Priority::NOW, gantryDef, pos, gantryDef, SQUARE_SIZE * 48, false, true /*600 * SECOND*/)
+                            );
+                        }
+                    }
+                }
+            }
+
+            // Anti-nuke: build 1 behind every T2 factory (veh lab or shipyard)
+            // Anchor to the preferred factory position (on land) so the builder can place it
+            {
+                int antiNukeCount = EconomyHelpers::GetAntiNukeCount();
+                int t2Veh = UnitDefHelpers::SumUnitDefCounts(UnitHelpers::GetAllT2VehicleLabs());
+                int t2Shipyard = UnitDefHelpers::SumUnitDefCounts(UnitHelpers::GetAllT2Shipyards());
+                int t2Target = t2Veh + t2Shipyard;
+                if (antiNukeCount < t2Target) {
+                    float mi_ = aiEconomyMgr.metal.income;
+                    float ei_ = aiEconomyMgr.energy.income;
+                    if (mi_ >= Global::RoleSettings::HoverSea::MinimumMetalIncomeForAntiNuke &&
+                        ei_ >= Global::RoleSettings::HoverSea::MinimumEnergyIncomeForAntiNuke) {
+                        string side = UnitHelpers::GetSideForUnitName(builder.circuitDef.GetName());
+                        IUnitTask@ tAnti = Builder::EnqueueAntiNuke(side, builder.GetPos(ai.frame), SQUARE_SIZE * 48, /*no timeout*/ 0);
+                        if (tAnti !is null) return tAnti;
                     }
                 }
             }
@@ -286,15 +525,15 @@ namespace RoleHoverSea {
                 int totalHoverPlants = t1HoverCount + floatHoverCount;
 
                 if (totalHoverPlants < allowedHoverPlants) {
-                    string side2 = Global::AISettings::Side;
+                    string side = Global::AISettings::Side;
                     AIFloat3 pos2 = Factory::GetPreferredFactoryPos();
 
                     // Try land hover plant first via builder helper (90s cooldown)
-                    IUnitTask@ thp = Builder::EnqueueT1HoverPlant(side2, pos2, /*shake*/ SQUARE_SIZE * 24, /*timeout*/ 600 * SECOND, Task::Priority::NOW);
+                    IUnitTask@ thp = Builder::EnqueueT1HoverPlant(side, pos2, /*shake*/ SQUARE_SIZE * 24, /*timeout*/ 600 * SECOND, Task::Priority::NOW);
                     if (thp !is null) return thp;
 
                     // Fallback to floating hover plant (shares cooldown)
-                    IUnitTask@ tfhp = Builder::EnqueueFloatingHoverPlant(side2, pos2, /*shake*/ SQUARE_SIZE * 24, /*timeout*/ 600 * SECOND, Task::Priority::NOW);
+                    IUnitTask@ tfhp = Builder::EnqueueFloatingHoverPlant(side, pos2, /*shake*/ SQUARE_SIZE * 24, /*timeout*/ 600 * SECOND, Task::Priority::NOW);
                     if (tfhp !is null) return tfhp;
                 }
             }
@@ -313,12 +552,26 @@ namespace RoleHoverSea {
             }
         }
 
+    // Naval engineer (armmls/cormls/leganavyengineer): prioritize nano construction
+    // so hover constructors aren't occupied building nanos
+    if (builder !is null && builder.circuitDef !is null) {
+        string bName = builder.circuitDef.GetName();
+        if (bName == "armmls" || bName == "cormls" || bName == "leganavyengineer") {
+            CCircuitUnit@ targetFactory = Factory::SelectFactoryNeedingNano();
+            if (targetFactory !is null) {
+                IUnitTask@ tNano = Factory::EnqueueNanoForFactory(targetFactory, Task::Priority::HIGH);
+                if (tNano !is null) return tNano;
+            }
+            return Builder::MakeDefaultTaskWithLog(builder.id, "HOVER_SEA");
+        }
+    }
+
     // Fallback to default with logging
     return Builder::MakeDefaultTaskWithLog(builder.id, "HOVER_SEA");
     }
 
     void HoverSea_BuilderAiTaskAdded(IUnitTask@ task) {
-        GenericHelpers::LogUtil("[HoverSea_BuilderAiTaskAdded] called for task", 3);
+        GenericHelpers::LogUtil("[HoverSea_BuilderAiTaskAdded] called for task", 2);
     }
 
     void HoverSea_BuilderAiTaskRemoved(IUnitTask@ task, bool done) {
@@ -351,8 +604,33 @@ namespace RoleHoverSea {
         float energyPercent = (aiEconomyMgr.energy.storage > 0.0f)
             ? (aiEconomyMgr.energy.current / aiEconomyMgr.energy.storage)
             : 0.0f;
-        // Only build nanos if we have a preferred factory to anchor around
-        if (Factory::GetPreferredFactory() !is null && EconomyHelpers::ShouldBuildT1Nano(
+
+        // Check if naval engineers exist — if so, let them handle nanos,
+        // and hover constructors should not build nanos
+        bool hasNavalEngineer =
+            UnitDefHelpers::GetUnitDefCount("armmls") > 0 ||
+            UnitDefHelpers::GetUnitDefCount("cormls") > 0 ||
+            UnitDefHelpers::GetUnitDefCount("leganavyengineer") > 0;
+
+        // If T2 shipyard exists and no engineers to handle nanos,
+        // route through centralized per-factory system
+        if (!hasNavalEngineer) {
+            int t2ShipyardCount =
+                UnitDefHelpers::GetUnitDefCount("armasy") +
+                UnitDefHelpers::GetUnitDefCount("corasy") +
+                UnitDefHelpers::GetUnitDefCount("legadvshipyard");
+            if (t2ShipyardCount > 0) {
+                CCircuitUnit@ targetFactory = Factory::SelectFactoryNeedingNano();
+                if (targetFactory !is null) {
+                    IUnitTask@ tNano = Factory::EnqueueNanoForFactory(targetFactory, Task::Priority::HIGH);
+                    if (tNano !is null) return tNano;
+                }
+            }
+        }
+
+        // Only build nanos if no engineers exist to handle them,
+        // and we have a preferred factory to anchor around
+        if (!hasNavalEngineer && Factory::GetPreferredFactory() !is null && EconomyHelpers::ShouldBuildT1Nano(
             ei,
             mi,
             Global::RoleSettings::Sea::NanoEnergyPerUnit,
@@ -362,11 +640,39 @@ namespace RoleHoverSea {
             Global::RoleSettings::Sea::NanoBuildWhenOverMetal,
             energyPercent
         )) {
-            // Centralized selection with per-factory nano caps and prioritization
-            CCircuitUnit@ targetFactory = Factory::SelectFactoryNeedingNano();
-            if (targetFactory !is null) {
-                IUnitTask@ tNano = Factory::EnqueueNanoForFactory(targetFactory, Task::Priority::NORMAL);
-                if (tNano !is null) return tNano;
+            AIFloat3 nanoPos = Factory::GetPreferredFactoryPos();
+            IUnitTask@ tNano = Builder::EnqueueT1Nano(side, nanoPos, /*shake*/ SQUARE_SIZE * 16, /*timeout*/ 30);
+            if (tNano !is null) return tNano;
+        }
+
+        // Advanced Fusion Reactor (AFUS): large energy investment for late-game
+        // Requires high metal/energy income and energy below 90% to avoid waste.
+        // nukeRush=0 disables the nuke-gate from TECH's AFUS logic.
+        {
+            bool isEnergyLessThan90 = energyPercent < 0.90f;
+            int nukeSilos = 0; // HOVER_SEA doesn't track nukes
+            if (EconomyHelpers::ShouldBuildAdvancedFusionReactor(
+                mi, ei, isEnergyLessThan90,
+                /*nukeRush*/ 0, /*nukeSilos*/ nukeSilos,
+                Global::RoleSettings::HoverSea::MinimumMetalIncomeForAFUS,
+                Global::RoleSettings::HoverSea::MinimumEnergyIncomeForAFUS
+            )) {
+                IUnitTask@ tAfus = Builder::EnqueueAFUS(side, pos, SQUARE_SIZE * 32, SECOND * 300);
+                if (tAfus !is null) return tAfus;
+            }
+        }
+
+        // Fusion Reactor (FUS): mid-game energy solution
+        {
+            bool isEnergyLessThan90 = energyPercent < 0.90f;
+            if (EconomyHelpers::ShouldBuildFusionReactor(
+                mi, ei, isEnergyLessThan90,
+                Global::RoleSettings::HoverSea::MinimumMetalIncomeForFUS,
+                Global::RoleSettings::HoverSea::MinimumEnergyIncomeForFUS,
+                Global::RoleSettings::HoverSea::MaxEnergyIncomeForFUS
+            )) {
+                IUnitTask@ tFus = Builder::EnqueueFUS(side, pos, SQUARE_SIZE * 32, SECOND * 300);
+                if (tFus !is null) return tFus;
             }
         }
 
@@ -571,7 +877,7 @@ namespace RoleHoverSea {
             int progress = (b > q ? b : q);
             if (progress < sc.count || !ObjectiveHelpers::StepEcoSatisfied(sc)) {
                 allSatisfied = false;
-                GenericHelpers::LogUtil("[HOVER_SEA][" + label + "] Chain check step " + iCheck + ": unit='" + unitCheck + "' progress=" + progress + "/" + sc.count + " ecoOK=" + ObjectiveHelpers::StepEcoSatisfied(sc), 3);
+                GenericHelpers::LogUtil("[HOVER_SEA][" + label + "] Chain check step " + iCheck + ": unit='" + unitCheck + "' progress=" + progress + "/" + sc.count + " ecoOK=" + ObjectiveHelpers::StepEcoSatisfied(sc), 2);
                 break;
             }
         }
@@ -602,7 +908,7 @@ namespace RoleHoverSea {
 
             // Standard unit-based step
             string unitName = UnitHelpers::GetObjectiveUnitNameForSide(side, s.type);
-            if (unitName.length() == 0) { GenericHelpers::LogUtil("[HOVER_SEA][" + label + "] Chain step " + i + ": unresolved unit for type=" + int(s.type), 3); continue; }
+            if (unitName.length() == 0) { GenericHelpers::LogUtil("[HOVER_SEA][" + label + "] Chain step " + i + ": unresolved unit for type=" + int(s.type), 2); continue; }
             int queued = ObjectiveHelpers::GetObjectiveBuildingsQueuedCount(currentObjective.id, unitName);
             int built = ObjectiveHelpers::GetObjectiveBuildingsBuiltCount(currentObjective.id, unitName);
             int progress = (built > queued ? built : queued);
@@ -669,8 +975,13 @@ namespace RoleHoverSea {
         @cfg.BuilderAiUnitAdded = cast<AiUnitAddedDelegate@>(@HoverSea_BuilderAiUnitAdded);
         @cfg.BuilderAiUnitRemoved = cast<AiUnitRemovedDelegate@>(@HoverSea_BuilderAiUnitRemoved);
 
+        @cfg.MilitaryAiMakeTaskHandler = cast<AiMakeTaskDelegate@>(@HoverSea_MilitaryAiMakeTask);
+
         @cfg.BuilderAiMakeTaskHandler = cast<AiMakeTaskDelegate@>(@HoverSea_BuilderAiMakeTask);
         @cfg.FactoryAiMakeTaskHandler = cast<AiMakeTaskDelegate@>(@HoverSea_FactoryAiMakeTask);
+
+        @cfg.FactoryAiUnitAdded = cast<AiUnitAddedDelegate@>(@HoverSea_FactoryAiUnitAdded);
+        @cfg.FactoryAiUnitRemoved = cast<AiUnitRemovedDelegate@>(@HoverSea_FactoryAiUnitRemoved);
 
         @cfg.BuilderAiTaskAddedHandler = cast<AiTaskAddedDelegate@>(@HoverSea_BuilderAiTaskAdded);
         @cfg.BuilderAiTaskRemovedHandler = cast<AiTaskRemovedDelegate@>(@HoverSea_BuilderAiTaskRemoved);

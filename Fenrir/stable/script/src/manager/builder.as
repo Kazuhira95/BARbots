@@ -544,8 +544,6 @@ namespace Builder {
 	const int ADV_CONVERTER_COOLDOWN_FRAMES = 60 * SECOND; // 60s between advanced converter enqueues
 	// Anti-nuke cooldown: prevent rapid consecutive anti-nuke structure builds
 	const int ANTI_NUKE_COOLDOWN_FRAMES  = 60 * SECOND;   // 60s between anti-nuke enqueues
-	// Nuke silo cooldown: 30s between nuke silo enqueues to avoid burst-queuing all 10 at once
-	const int NUKE_COOLDOWN_FRAMES       = 30 * SECOND;   // 30s between nuke silo enqueues
 	
 	int lastT2FactoryEnqueueFrame = -1000000000; // generic: air/shipyard or legacy
 	// Separate cooldown stamps for Bot vs Vehicle T2 labs
@@ -559,7 +557,6 @@ namespace Builder {
 	int lastAdvSolarEnqueueFrame  = -1000000000;
 	int lastAdvConverterEnqueueFrame = -1000000000;
 	int lastAntiNukeEnqueueFrame  = -1000000000;
-	int lastNukeEnqueueFrame      = -1000000000;
 
 	// Cooldown helpers
 	// Generic (used for T2 air/shipyard unless specialized)
@@ -587,8 +584,6 @@ namespace Builder {
 	void MarkAdvConverterEnqueued()   { lastAdvConverterEnqueueFrame = ai.frame; }
 	bool IsAntiNukeOffCooldown()  { return (ai.frame - lastAntiNukeEnqueueFrame) >= ANTI_NUKE_COOLDOWN_FRAMES; }
 	void MarkAntiNukeEnqueued()   { lastAntiNukeEnqueueFrame = ai.frame; }
-	bool IsNukeOffCooldown()      { return (ai.frame - lastNukeEnqueueFrame) >= NUKE_COOLDOWN_FRAMES; }
-	void MarkNukeEnqueued()       { lastNukeEnqueueFrame = ai.frame; }
 
 	// Experimental gantry (T3) queued flags
 	// Legacy gantry flags removed; rely on counters below
@@ -1287,7 +1282,7 @@ namespace Builder {
 		return t;
 	}
 
-	IUnitTask@ EnqueueT1NavalNano(const string &in unitSide, const AIFloat3 &in anchor, float shake, int timeoutFrames)
+	IUnitTask@ EnqueueT1NavalNano(const string &in unitSide, const AIFloat3 &in anchor, float shake, int timeoutFrames, Task::Priority prio = Task::Priority::NORMAL)
 	{
 		// Enforce nano cooldown (shared with land nano)
 		if (!IsNanoOffCooldown()) {
@@ -1297,7 +1292,7 @@ namespace Builder {
 		CCircuitDef@ nanoDef = ai.GetCircuitDef(UnitHelpers::GetT1NavalNanoNameForSide(unitSide));
 		if (nanoDef is null || !nanoDef.IsAvailable(ai.frame)) return null;
 		IUnitTask@ t = aiBuilderMgr.Enqueue(
-			TaskB::Common(Task::BuildType::NANO, Task::Priority::NORMAL, nanoDef, anchor, /*shake*/ shake, /*active*/ true, /*timeout*/ timeoutFrames)
+			TaskB::Common(Task::BuildType::NANO, prio, nanoDef, anchor, /*shake*/ shake, /*active*/ true, /*timeout*/ timeoutFrames)
 		);
 		GenericHelpers::LogUtil("[BUILDER] Enqueue Naval Nano", 2);
 		if (t !is null) { MarkNanoEnqueued(); }
@@ -1337,7 +1332,8 @@ namespace Builder {
 		// Pick side-aware T2 shipyard name
 		string defName = "";
 		if (unitSide == "armada") defName = "armasy";
-		else if (unitSide == "cortex" || unitSide == "legion") defName = "corasy"; // Legion shares Cortex shipyard
+		else if (unitSide == "cortex") defName = "corasy";
+		else if (unitSide == "legion") defName = "legadvshipyard";
 		// Fallback if side not resolved
 		if (defName.length() == 0) {
 			array<string> all = UnitHelpers::GetAllT2Shipyards();
@@ -1349,12 +1345,7 @@ namespace Builder {
 			GenericHelpers::LogUtil("[BUILDER] EnqueueT2Shipyard: def not found for side='" + unitSide + "'", 2);
 			return null;
 		}
-		if (!def.IsAvailable(ai.frame)) {
-			GenericHelpers::LogUtil("[BUILDER] EnqueueT2Shipyard: def '" + def.GetName() + "' not available", 3);
-			return null;
-		}
-
-		GenericHelpers::LogUtil("[BUILDER] Enqueue T2 Shipyard at (" + anchor.x + "," + anchor.z + ") repr=" + def.GetName(), 2);
+		GenericHelpers::LogUtil("[BUILDER] Enqueue T2 Shipyard at (" + anchor.x + "," + anchor.z + ") repr=" + def.GetName(), 0);
 		IUnitTask@ t = aiBuilderMgr.Enqueue(
 			TaskB::Factory(Task::Priority::NOW, def, anchor, def, squareSize, false, true, timeoutFrames)
 		);
@@ -1496,13 +1487,6 @@ namespace Builder {
 
 	IUnitTask@ EnqueueNukeSilo(const string &in unitSide, const AIFloat3 &in anchor, float squareSize, int timeoutFrames)
 	{
-		// Cooldown gate: 30s between nuke silo enqueues to avoid burst-queuing
-		if (!IsNukeOffCooldown()) {
-			int remaining = NUKE_COOLDOWN_FRAMES - (ai.frame - lastNukeEnqueueFrame);
-			GenericHelpers::LogUtil("[BUILDER] EnqueueNukeSilo: blocked by cooldown (remainingFrames=" + remaining + ")", 2);
-			return null;
-		}
-
 		// Side-aware nuclear silo unit name
 		array<string> allSilos = UnitHelpers::GetAllNukeSilos();
 		// Prefer a side-specific name by prefix
@@ -1528,7 +1512,6 @@ namespace Builder {
 			TaskB::Factory(Task::Priority::NOW, silo, anchor, silo, squareSize, false, true, timeoutFrames)
 		);
 		GenericHelpers::LogUtil("[BUILDER] Enqueue Nuke Silo result=" + (t is null ? "null" : "ok"), 2);
-		if (t !is null) { MarkNukeEnqueued(); }
 		return t;
 	}
 
@@ -1547,12 +1530,8 @@ namespace Builder {
 			GenericHelpers::LogUtil("[BUILDER] EnqueueAntiNuke: def not found for side='" + unitSide + "'", 2);
 			return null;
 		}
-		if (!amd.IsAvailable(ai.frame)) {
-			GenericHelpers::LogUtil("[BUILDER] EnqueueAntiNuke: def '" + amd.GetName() + "' not available", 3);
-			return null;
-		}
 
-		GenericHelpers::LogUtil("[BUILDER] Enqueue Anti-Nuke at (" + anchor.x + "," + anchor.z + ") repr=" + amd.GetName(), 2);
+		GenericHelpers::LogUtil("[BUILDER] Enqueue Anti-Nuke at (" + anchor.x + "," + anchor.z + ") repr=" + amd.GetName(), 0);
 		IUnitTask@ t = aiBuilderMgr.Enqueue(
 			TaskB::Factory(Task::Priority::NOW, amd, anchor, amd, squareSize, false, true, timeoutFrames)
 		);
@@ -1730,9 +1709,9 @@ namespace Builder {
 			);
 			return null;
 		}
-		AIFloat3 pos = Factory::GetGantryBuildPos();
+		AIFloat3 pos = Factory::GetPreferredFactoryPos();
 		IUnitTask@ t = aiBuilderMgr.Enqueue(
-			TaskB::Factory(Task::Priority::NOW, def, pos, def, SQUARE_SIZE * 24, false, true, 600 * SECOND)
+			TaskB::Factory(Task::Priority::NOW, def, pos, def, SQUARE_SIZE * 48, false, true, 600 * SECOND)
 		);
 		GenericHelpers::LogUtil("[BUILDER] Enqueued Land Gantry '" + name + "'", 2);
 		if (t !is null) { MarkGantryEnqueued(); }
@@ -1872,13 +1851,6 @@ namespace Builder {
 						Factory::T2AirPlantQueuedCount++;
 						MarkT2FactoryEnqueued();
 					}
-					if (UnitHelpers::IsT1AircraftPlant(buildDefName)) {
-						if (!Factory::IsT1AirPlantBuildQueued()) {
-							GenericHelpers::LogUtil("[BUILDER] AiTaskAdded: queued T1 Aircraft Plant '" + buildDefName + "'", 2);
-						}
-						Factory::T1AirPlantQueuedCount++;
-						MarkT1AirFactoryEnqueued();
-					}
 					if (UnitHelpers::IsT2Shipyard(buildDefName)) {
 						if (!Factory::IsT2ShipyardBuildQueued()) {
 							GenericHelpers::LogUtil("[BUILDER] AiTaskAdded: queued T2 Shipyard '" + buildDefName + "'", 2);
@@ -2014,7 +1986,6 @@ namespace Builder {
 				bool anyCleared = false;
 				if (bname.length() == 0) {
 					// Defensive: unknown build def, clear all factory queued counters
-					if (Factory::T1AirPlantQueuedCount > 0) { Factory::T1AirPlantQueuedCount = 0; anyCleared = true; }
 					if (Factory::T2BotLabQueuedCount > 0) { Factory::T2BotLabQueuedCount = 0; anyCleared = true; }
 					if (Factory::T2VehPlantQueuedCount > 0) { Factory::T2VehPlantQueuedCount = 0; anyCleared = true; }
 					if (Factory::T2AirPlantQueuedCount > 0) { Factory::T2AirPlantQueuedCount = 0; anyCleared = true; }
@@ -2029,7 +2000,6 @@ namespace Builder {
 					}
 					if (UnitHelpers::IsT2VehicleLab(bname) && Factory::T2VehPlantQueuedCount > 0) { Factory::T2VehPlantQueuedCount--; anyCleared = true; }
 					if (UnitHelpers::IsT2AircraftPlant(bname) && Factory::T2AirPlantQueuedCount > 0) { Factory::T2AirPlantQueuedCount--; anyCleared = true; }
-					if (UnitHelpers::IsT1AircraftPlant(bname) && Factory::T1AirPlantQueuedCount > 0) { Factory::T1AirPlantQueuedCount--; anyCleared = true; }
 					if (UnitHelpers::IsT2Shipyard(bname) && Factory::T2ShipyardQueuedCount > 0) { Factory::T2ShipyardQueuedCount--; anyCleared = true; }
 
 					// Gantry counters: decrement if this factory task was a gantry

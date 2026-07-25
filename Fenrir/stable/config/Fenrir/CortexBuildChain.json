@@ -56,7 +56,7 @@
 		// <category>: factory, nano, store, pylon, energy, geo, defence, bunker, big_gun, radar, sonar, convert, mex, mexup
 		"energy": {
 			// <UnitDef>: {<elements>}
-	// 		"armadvsol": {
+	// 		"coradvsol": {
 	// 			// Available elements:
 	// 			// "energy": [max energy income, <"mex"|true>]
 	// 			// "pylon": <boolean>
@@ -119,7 +119,7 @@
 						{"unit": "cornanotc", "category": "nano", "offset": {"front": 15}, "priority": "normal"},
 						{"unit": "cornanotc", "category": "nano", "offset": {"front": 20}, "priority": "normal"},
 						{"unit": "cornanotc", "category": "nano", "offset": {"front": 25}, "priority": "normal"},
-						{"unit": "corflak", "category": "defence", "offset": {"front": 120}, "condition": {"air": true}}
+						{"unit": "corflak", "category": "defence", "offset": {"front": 120}, "priority": "normal"}
 					]
 				]
 			},
