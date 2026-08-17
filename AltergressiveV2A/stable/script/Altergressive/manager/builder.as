@@ -1,4 +1,6 @@
 #include "../../unit.as"
+#include "../../define.as"
+#include "../../task.as"
 
 
 namespace Builder {
@@ -137,6 +139,57 @@ void AiSave(OStream& ostream)
 	ostream << Id(energizer1 !is null ? energizer1.id : -1)
 			<< Id(energizer2 !is null ? energizer2.id : -1)
 			<< tech1AirCount << tech2AirCount << tech1WaterCount << tech2WaterCount;
+}
+
+/* --- Nano shake helpers --- */
+
+string GetSideForUnitName(const string& in unitName)
+{
+	if (unitName.length() >= 3) {
+		string p = unitName.substr(0, 3);
+		if (p == "arm") return "armada";
+		if (p == "cor") return "cortex";
+		if (p == "leg") return "legion";
+	}
+	return "armada";
+}
+
+string GetT1NanoNameForSide(const string& in side)
+{
+	if (side == "armada") return "armnanotc";
+	if (side == "cortex") return "cornanotc";
+	if (side == "legion") return "legnanotc";
+	return "armnanotc";
+}
+
+string GetT1NavalNanoNameForSide(const string& in side)
+{
+	if (side == "armada") return "armnanotcplat";
+	if (side == "cortex") return "cornanotcplat";
+	if (side == "legion") return "legnanotcplat";
+	return "armnanotcplat";
+}
+
+IUnitTask@ EnqueueT1Nano(const string& in unitSide, const AIFloat3& in anchor,
+		float shake, int timeoutFrames, Task::Priority prio = Task::Priority::HIGH)
+{
+	CCircuitDef@ nanoDef = ai.GetCircuitDef(GetT1NanoNameForSide(unitSide));
+	if (nanoDef is null || !nanoDef.IsAvailable(ai.frame))
+		return null;
+	return aiBuilderMgr.Enqueue(
+		TaskB::Common(Task::BuildType::NANO, prio, nanoDef, anchor, shake, true, timeoutFrames)
+	);
+}
+
+IUnitTask@ EnqueueT1NavalNano(const string& in unitSide, const AIFloat3& in anchor,
+		float shake, int timeoutFrames, Task::Priority prio = Task::Priority::HIGH)
+{
+	CCircuitDef@ nanoDef = ai.GetCircuitDef(GetT1NavalNanoNameForSide(unitSide));
+	if (nanoDef is null || !nanoDef.IsAvailable(ai.frame))
+		return null;
+	return aiBuilderMgr.Enqueue(
+		TaskB::Common(Task::BuildType::NANO, prio, nanoDef, anchor, shake, true, timeoutFrames)
+	);
 }
 
 }  // namespace Builder

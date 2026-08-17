@@ -25,7 +25,7 @@
 		"fac_land_t2":{
 			"type": ["rectangle", "factory"],
 			//"size": [8 ,8],
-			"yard": [16, 20],
+			"yard": [12, 20],
 			"offset": [4, 6],
 			"ignore": ["none"]
 		},		
@@ -41,8 +41,8 @@
 		},
 		"fac_strider": {                        //t3 factory 9x9
 			"type": ["rectangle", "factory"],
-			"offset": [5, 6],
-			"yard": [9, 24],
+			"offset": [0, 4],
+			"yard": [6, 8],
 			"ignore":["none"]
 		},
 		"solar": {

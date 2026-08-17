@@ -48,8 +48,7 @@
 				"role": ["static"]
 			},
 			"armnanotct2": {
-				"role": ["support"],
-				"since": 900
+				"role": ["support"]
 			},
 			"armfepocht4": {
 				"role": ["super"],
@@ -97,8 +96,7 @@
 				"role": ["static"]
 			},
 			"cornanotct2": {
-				"role": ["support"],
-				"since": 900
+				"role": ["support"]
 			},
 			"corfblackhyt4": {
 				"role": ["super"],
@@ -140,8 +138,7 @@
 				"role": ["static"]
 			},
 			"legnanotct2": {
-				"role": ["support"],
-				"since": 900
+				"role": ["support"]
 			},
 			"legfortt4": {
 				"role": ["super"],

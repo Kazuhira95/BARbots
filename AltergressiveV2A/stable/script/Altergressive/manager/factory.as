@@ -215,7 +215,127 @@ CCircuitDef@ AiGetFactoryToBuild(const AIFloat3& in pos, bool isStart, bool isRe
 		startedOnWater = pos.y <= waterLevel;
 	if (isReset)
 		airFactoryCount = waterFactoryCount = 0;
-	return aiFactoryMgr.DefaultGetFactoryToBuild(pos, isStart, isReset);
+	CCircuitDef@ facDef = aiFactoryMgr.DefaultGetFactoryToBuild(pos, isStart, isReset);
+
+	if (facDef !is null && IsLandGantryFactory(facDef.GetName()) && Military::mexPositions.length() > 0) {
+		float closestDist;
+		AIFloat3 closestMex = Military::GetClosestMexPos(pos, closestDist);
+		if (closestDist < GANTRY_MEX_MARGIN) {
+			// Push gantry away from nearest mex
+			float dx = pos.x - closestMex.x;
+			float dz = pos.z - closestMex.z;
+			float d = sqrt(dx * dx + dz * dz);
+			if (d < 1.f) { dx = 1.f; dz = 0.f; d = 1.f; }
+			float push = GANTRY_MEX_MARGIN - d + SQUARE_SIZE * 8;
+			gantryBuildPos.x = pos.x + dx / d * push;
+			gantryBuildPos.z = pos.z + dz / d * push;
+			gantryBuildPos.y = pos.y;
+			hasGantryBuildPos = true;
+		}
+	}
+	return facDef;
+}
+
+/* --- Nano enqueue with shake --- */
+
+/* --- Gantry placement helpers --- */
+
+// Stored adjusted position for land gantry to avoid mexes
+AIFloat3 gantryBuildPos(0.f, 0.f, 0.f);
+bool hasGantryBuildPos = false;
+
+bool IsLandGantryFactory(const string& in name)
+{
+	return name == "armshltx" || name == "corgant" || name == "leggant";
+}
+
+bool IsGantryFactory(const string& in name)
+{
+	return name == "armshltx"   || name == "corgant"   || name == "leggant"
+		|| name == "armshltxuw" || name == "corgantuw" || name == "leggantuw"
+		|| name == "armapt3"    || name == "corapt3"   || name == "legapt3";
+}
+
+AIFloat3 GetGantryBuildPos()
+{
+	return gantryBuildPos;
+}
+
+bool HasGantryBuildPos()
+{
+	return hasGantryBuildPos;
+}
+
+void ClearGantryBuildPos()
+{
+	hasGantryBuildPos = false;
+}
+
+const float GANTRY_MEX_MARGIN = SQUARE_SIZE * 100;  // gantry footprint + nano shake (40) + mex footprint + buffer
+
+bool IsT2Factory(const string& in name)
+{
+	return name == "armap" || name == "armaap" || name == "armavp" || name == "armalab"
+		|| name == "corap" || name == "coraap" || name == "coravp" || name == "coralab"
+		|| name == "legap" || name == "legaap" || name == "legavp" || name == "legalab";
+}
+
+bool IsWaterFactory(const string& in name)
+{
+	return name == "armsy" || name == "armasy"
+		|| name == "corsy" || name == "corasy"
+		|| name == "legsy" || name == "legadvshipyard"
+		|| name == "armfhp" || name == "corfhp" || name == "legfhp";
+}
+
+IUnitTask@ EnqueueNanoForFactory(CCircuitUnit@ factoryUnit, Task::Priority prio = Task::Priority::HIGH)
+{
+	if (factoryUnit is null || factoryUnit.circuitDef is null)
+		return null;
+	const string name = factoryUnit.circuitDef.GetName();
+	const AIFloat3 pos = factoryUnit.GetPos(ai.frame);
+	const int shake = IsGantryFactory(name) ? SQUARE_SIZE * 70 : SQUARE_SIZE * 24; //40 ,24
+
+	string nanoName;
+if (IsT2Factory(name)) {
+    if (IsWaterFactory(name)) {
+        if (name.substr(0, 3) == "cor")
+            nanoName = "cornanotc2plat";
+        else if (name.substr(0, 3) == "leg")
+            nanoName = "legnanotct2plat";
+        else
+            nanoName = "armnanotct2plat";
+    } else {
+        if (name.substr(0, 3) == "cor")
+            nanoName = "cornanotct2";
+        else if (name.substr(0, 3) == "leg")
+            nanoName = "legnanotct2";
+        else
+            nanoName = "armnanotct2";
+    }
+} else {
+    if (IsWaterFactory(name)) {
+        if (name.substr(0, 3) == "cor")
+            nanoName = "cornanotcplat";
+        else if (name.substr(0, 3) == "leg")
+            nanoName = "legnanotcplat";
+        else
+            nanoName = "armnanotcplat";
+    } else {
+        if (name.substr(0, 3) == "cor")
+            nanoName = "cornanotc";
+        else if (name.substr(0, 3) == "leg")
+            nanoName = "legnanotc";
+        else
+            nanoName = "armnanotc";
+    }
+}
+	CCircuitDef@ nanoDef = ai.GetCircuitDef(nanoName);
+	if (nanoDef is null || !nanoDef.IsAvailable(ai.frame))
+		return null;
+	return aiBuilderMgr.Enqueue(
+		TaskB::Common(Task::BuildType::NANO, prio, nanoDef, pos, float(shake), true, 300 * SECOND)
+	);
 }
 
 /* --- Utils --- */

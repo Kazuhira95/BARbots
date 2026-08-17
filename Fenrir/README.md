@@ -147,10 +147,13 @@ Acidic Quarry, All That Glitters, Ancient Bastion Remake, Eight Horses, Flats an
 
 ## Debugging
 
-- Verbosity level 2: side detection, selected role, chosen factory, strategy decisions.
-- Verbosity level 3+: detailed economy snapshots, limit applications, objective traces.
-- Look for `[Factory]`, `[MapRegistry]`, `[RoleMatch]`, `[Strategy]` log prefixes.
-- Console command: `smrt status` (via Lua message, currently commented out) reports economy snapshots.
+ |Level|	Usage	                      | Example
+    1	  `Always-on, critical events`	`"Running AiMain()", "Captured start position..."`
+    2	  `Significant actions`	        `Factory switches, promotions, static AA builds`
+    3	  `Notable events`	            `Guard assignments, task tracking, factory init failure`
+    4	  `Informational flow`        	`Enter PromoteIfNeeded, AssignGuardByRatio`
+    5	  `Verbose debugging`	          `TaskTrackSet/Get/Delete, RecomputeTrackEligibleBuilders`
+    6	  `Trace-level (entry/exit)`	  `"TaskTrackKeys: enter", "GetTrackByTask: enter"`
 
 ## Known Limitations
 

@@ -818,6 +818,51 @@ namespace RoleFront {
         return AIFloat3(-1.0f, 0.0f, 0.0f);
     }
 
+    // Anti-nuke anchor: offset BEHIND the reference factory (toward our own start spot).
+    // The engine picks the final build spot within the shake radius of this anchor, so anchoring
+    // on a factory itself lets it land in the factory's exit corridor and block unit spawns.
+    // Reference priority: T3 land gantry (widest exit, 7x7 units) > first T2 factory.
+    AIFloat3 Front_GetAntiNukeAnchor() {
+        AIFloat3 basePos = (Global::Map::NearestMapStartPosition !is null)
+            ? Global::Map::NearestMapStartPosition.pos
+            : Factory::GetPreferredFactoryPos();
+
+        AIFloat3 refPos;
+        float offset;
+        bool found = false;
+        if (Factory::primaryLandGantry !is null) {
+            refPos = Factory::primaryLandGantry.GetPos(ai.frame);
+            offset = SQUARE_SIZE * 56;
+            found = true;
+        } else if (Builder::IsGantryBuildQueued()) {
+            // Gantry queued but not yet built: use its build anchor as a proxy
+            refPos = Factory::GetPreferredFactoryPos();
+            offset = SQUARE_SIZE * 56;
+            found = true;
+        } else {
+            AIFloat3 t2Pos = Front_GetFirstT2FactoryPos();
+            if (t2Pos.x >= 0.0f) {
+                refPos = t2Pos;
+                offset = SQUARE_SIZE * 40;
+                found = true;
+            }
+        }
+        if (!found) return AIFloat3(-1.0f, 0.0f, 0.0f);
+
+        // XZ direction from reference factory toward our base (behind the factory)
+        float dx = basePos.x - refPos.x;
+        float dz = basePos.z - refPos.z;
+        float len = sqrt(dx * dx + dz * dz);
+        if (len > 1.0f) {
+            dx = dx / len;
+            dz = dz / len;
+        } else {
+            dx = 0.0f;
+            dz = 1.0f;
+        }
+        return AIFloat3(refPos.x + dx * offset, refPos.y, refPos.z + dz * offset);
+    }
+
     IUnitTask@ Front_T2Constructor_AiMakeTask(CCircuitUnit@ u, IUnitTask@ defaultTask, bool isEnergyFull, float metalIncome, float energyIncome, float metalCurrent, bool isEnergyLessThan90Percent) {
         // Copy of TECH T2 constructor logic with Front-specific gating:
         // - Before 20 minutes of game time, force eco: only build energy converter/AFUS/FUS (skip gantry/nuke/anti-nuke)
@@ -837,7 +882,7 @@ namespace RoleFront {
 
         // Anti-nuke: build one early if none exists (before 20 min, whenever a T2 constructor is free)
         if (EconomyHelpers::GetAntiNukeCount() < 1) {
-            AIFloat3 antiAnchor = Front_GetFirstT2FactoryPos();
+            AIFloat3 antiAnchor = Front_GetAntiNukeAnchor();
             if (antiAnchor.x >= 0.0f) {
                 IUnitTask@ tAmd = Builder::EnqueueAntiNuke(unitSide, antiAnchor, SQUARE_SIZE * 32, SECOND * 300);
                 if (tAmd !is null) return tAmd;
@@ -868,7 +913,7 @@ namespace RoleFront {
 
         // Anti-nuke: build one early if none exists
         if (EconomyHelpers::GetAntiNukeCount() < 1) {
-            AIFloat3 antiAnchor = Front_GetFirstT2FactoryPos();
+            AIFloat3 antiAnchor = Front_GetAntiNukeAnchor();
             if (antiAnchor.x >= 0.0f) {
                 IUnitTask@ tAmd = Builder::EnqueueAntiNuke(unitSide, antiAnchor, SQUARE_SIZE * 32, SECOND * 300);
                 if (tAmd !is null) return tAmd;
